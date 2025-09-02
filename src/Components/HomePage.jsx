@@ -5,11 +5,16 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import Header from './Header';
 import Footer from './Footer';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../api/api';
+import "./HomePage.css"
 
 
 const HomePage = () => {
     const [offset, setOffset] = useState(307.919); // full length (hidden)
+    const [properties, setProperties] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate()
     useEffect(() => {
         // Trigger animation after component mounts
         const timer = setTimeout(() => {
@@ -27,12 +32,66 @@ const HomePage = () => {
     });
 
     useEffect(() => {
-        fetch("/Home.json")
-            .then((res) => res.json())
-            .then((data) => {
-                setHome(data);
-            });
+        fetchList()
     }, []);
+
+    const fetchList = async () => {
+        setLoading(true);
+        const fd = new FormData();
+        fd.append("programType", "getProperties");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("/properties/property", fd);
+            console.log(response)
+            const mapped = response.data.data.properties.map((item) => {
+                let priceValue = "N/A";
+                let priceUnit = "";
+
+                if (item.listing_type === "rent") {
+                    priceValue = item.expected_rent && item.expected_rent !== "0.00" ? item.expected_rent : "N/A";
+                    priceUnit = item.rent_period ? `/${item.rent_period}` : "/month";
+                } else {
+                    priceValue = item.expected_price && item.expected_price !== "0.00" ? item.expected_price : "N/A";
+                }
+
+                // Dynamic meta fields
+                let meta = [];
+                if (item.sub_property_type_id?.toLowerCase().includes("plot")) {
+                    meta.push({ icon: "icon-ruler", label: `${item.carpet_area} ${item.carpet_area_unit || ""}` });
+                } else if (item.title?.toLowerCase().includes("warehouse")) {
+                    meta.push({ icon: "icon-ruler", label: `${item.carpet_area} ${item.carpet_area_unit || ""}` });
+                    meta.push({ icon: "icon-bathtub", label: `${item.washrooms || 0} Washrooms` });
+                } else {
+                    meta.push({ icon: "icon-bed", label: `${item.bedrooms || 0}` });
+                    meta.push({ icon: "icon-bathtub", label: `${item.bathrooms || 0}` });
+                    meta.push({ icon: "icon-ruler", label: `${item.carpet_area} ${item.carpet_area_unit || ""}` });
+                }
+
+                return {
+                    id: item.id,
+                    image: item.image_path,
+                    name: item.title,
+                    location: item.location,
+                    featured: item.featured === 1,
+                    for: item.listing_type,
+                    type: item.property_type_id,
+                    detailsUrl: `/property/${item.slug}`,
+                    avatar: "/assets/images/default-agent.jpg",
+                    agentName: item.customerName || "Agent",
+                    priceValue,
+                    priceUnit,
+                    meta, // 👈 dynamic meta array
+                };
+            });
+
+            setProperties(mapped);
+        } catch (error) {
+            console.error("Error fetching properties:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className='body bg-surface '>
@@ -349,6 +408,9 @@ const HomePage = () => {
                         </div>
                         <div className="overlay"></div>
                     </section>
+
+
+
                     <section className="flat-section flat-recommended">
                         <div className="container">
                             <div className="text-center wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
@@ -358,10 +420,10 @@ const HomePage = () => {
                             <div className="flat-tab-recommended wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
                                 <ul className="nav-tab-recommended justify-content-center" role="tablist">
                                     <li className="nav-tab-item" role="presentation">
-                                        <a href="#viewAll" className="nav-link-item" data-bs-toggle="tab">View All</a>
+                                        <a href="#viewAll" className="nav-link-item active" data-bs-toggle="tab">View All</a>
                                     </li>
                                     <li className="nav-tab-item" role="presentation">
-                                        <a href="#apartment" className="nav-link-item  active" data-bs-toggle="tab">Apartment</a>
+                                        <a href="#apartment" className="nav-link-item  " data-bs-toggle="tab">Apartment</a>
                                     </li>
                                     <li className="nav-tab-item" role="presentation">
                                         <a href="#villa" className="nav-link-item" data-bs-toggle="tab">Villa</a>
@@ -377,448 +439,88 @@ const HomePage = () => {
                                     </li>
                                 </ul>
                                 <div className="tab-content">
-                                    <div className="tab-pane fade" id="viewAll" role="tabpanel">
+                                   <div className="tab-pane fade active show" id="viewAll" role="tabpanel">
                                         <div className="row">
-                                            {home.properties.map((item) => (
-                                                <div key={item.id} className="col-xl-4 col-lg-6 col-md-6">
-                                                    <div className="homeya-box">
-                                                        <div className="archive-top">
-                                                            <a href={item.detailsUrl} className="images-group">
-                                                                <div className="images-style">
-                                                                    <img src={item.image} alt="img" />
-                                                                </div>
-                                                                <div className="top">
-                                                                    <ul className="d-flex gap-8">
-                                                                        {item.featured && (
-                                                                            <li className="flag-tag success">Featured</li>
-                                                                        )}
-                                                                        <li className="flag-tag style-1">{item.for}</li>
-                                                                    </ul>
-                                                                    <ul className="d-flex gap-4">
-                                                                        <li className="box-icon w-32">
-                                                                            <span className="icon icon-eye"></span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div className="bottom">
-                                                                    <span className="flag-tag style-2">{item.type}</span>
-                                                                </div>
-                                                            </a>
-                                                            <div className="content">
-                                                                <div className="h7 text-capitalize fw-7">
-                                                                    <a href={item.detailsUrl} className="link">
-                                                                        {item.name}
-                                                                    </a>
-                                                                </div>
-                                                                <div className="desc">
-                                                                    <i className="fs-16 icon icon-mapPin"></i>
-                                                                    <p>{item.location}</p>
-                                                                </div>
-                                                                <ul className="meta-list">
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bed"></i>
-                                                                        <span>{item.beds}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bathtub"></i>
-                                                                        <span>{item.baths}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-ruler"></i>
-                                                                        <span>{item.size}</span>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                        <div className="archive-bottom d-flex justify-content-between align-items-center">
-                                                            <div className="d-flex gap-8 align-items-center">
-                                                                <div className="avatar avt-40 round">
-                                                                    <img src={item.avatar} alt="avt" />
-                                                                </div>
-                                                                <span>{item.agentName}</span>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <h6>${item.priceValue}</h6>
-                                                                <span className="text-variant-1">{item.priceUnit}</span>
+                                            {loading ? (
+                                                // Skeleton Loader
+                                                [...Array(6)].map((_, i) => (
+                                                    <div key={i} className="col-xl-4 col-lg-6 col-md-6 mb-4">
+                                                        <div className="homeya-box p-3">
+                                                            <div className="skeleton skeleton-img mb-3"></div>
+                                                            <div className="skeleton skeleton-text w-75 mb-2"></div>
+                                                            <div className="skeleton skeleton-text w-50 mb-2"></div>
+                                                            <div className="skeleton skeleton-text w-100 mb-2"></div>
+                                                            <div className="d-flex justify-content-between mt-3">
+                                                                <div className="skeleton skeleton-avatar"></div>
+                                                                <div className="skeleton skeleton-text w-25"></div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="text-center">
-                                            <a href="#" className="tf-btn primary size-1">View All Properties</a>
-                                        </div>
-                                    </div>
-                                    <div className="tab-pane fade active show" id="apartment" role="tabpanel">
-                                        <div className="row">
-                                            {home.properties.map((item) => (
-                                                <div key={item.id} className="col-xl-4 col-lg-6 col-md-6">
-                                                    <div className="homeya-box">
-                                                        <div className="archive-top">
-                                                            <a href={item.detailsUrl} className="images-group">
-                                                                <div className="images-style">
-                                                                    <img src={item.image} alt="img" />
-                                                                </div>
-                                                                <div className="top">
-                                                                    <ul className="d-flex gap-8">
-                                                                        {item.featured && (
-                                                                            <li className="flag-tag success">Featured</li>
-                                                                        )}
-                                                                        <li className="flag-tag style-1">{item.for}</li>
+                                                ))
+                                            ) : (
+                                                properties.map((item) => (
+                                                    <div key={item.id} className="col-xl-4 col-lg-6 col-md-6">
+                                                        <div className="homeya-box">
+                                                            <div className="archive-top">
+                                                                <a onClick={() => navigate(`/property/${item.id}`)} className="images-group">
+                                                                    <div className="images-style">
+                                                                        <img src="https://themesflat.co/html/homzen/images/home/house-2.jpg" alt={item.name} />
+                                                                    </div>
+                                                                    <div className="top">
+                                                                        <ul className="d-flex gap-8">
+                                                                            {item.featured && (
+                                                                                <li className="flag-tag success">Featured</li>
+                                                                            )}
+                                                                            <li className="flag-tag style-1">{item.for}</li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div className="bottom">
+                                                                        <span className="flag-tag style-2">{item.type}</span>
+                                                                    </div>
+                                                                </a>
+                                                                <div className="content">
+                                                                    <div className="h7 text-capitalize fw-7">
+                                                                        <a onClick={() => navigate(`/property/${item.id}`)} className="link">
+                                                                            {item.name}
+                                                                        </a>
+                                                                    </div>
+                                                                    <div className="desc">
+                                                                        <i className="fs-16 icon icon-mapPin"></i>
+                                                                        <p>{item.location}</p>
+                                                                    </div>
+                                                                    <ul className="meta-list">
+                                                                        {item.meta.map((m, idx) => (
+                                                                            <li className="item" key={idx}>
+                                                                                <i className={`icon ${m.icon}`}></i>
+                                                                                <span>{m.label}</span>
+                                                                            </li>
+                                                                        ))}
                                                                     </ul>
-                                                                    <ul className="d-flex gap-4">
-                                                                        <li className="box-icon w-32">
-                                                                            <span className="icon icon-eye"></span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div className="bottom">
-                                                                    <span className="flag-tag style-2">{item.type}</span>
-                                                                </div>
-                                                            </a>
-                                                            <div className="content">
-                                                                <div className="h7 text-capitalize fw-7">
-                                                                    <a href={item.detailsUrl} className="link">
-                                                                        {item.name}
-                                                                    </a>
-                                                                </div>
-                                                                <div className="desc">
-                                                                    <i className="fs-16 icon icon-mapPin"></i>
-                                                                    <p>{item.location}</p>
-                                                                </div>
-                                                                <ul className="meta-list">
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bed"></i>
-                                                                        <span>{item.beds}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bathtub"></i>
-                                                                        <span>{item.baths}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-ruler"></i>
-                                                                        <span>{item.size}</span>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                        <div className="archive-bottom d-flex justify-content-between align-items-center">
-                                                            <div className="d-flex gap-8 align-items-center">
-                                                                <div className="avatar avt-40 round">
-                                                                    <img src={item.avatar} alt="avt" />
-                                                                </div>
-                                                                <span>{item.agentName}</span>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <h6>${item.priceValue}</h6>
-                                                                <span className="text-variant-1">{item.priceUnit}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
 
-                                        </div>
-                                        <div className="text-center">
-                                            <a href="#" className="tf-btn primary size-1">View All Properties</a>
-                                        </div>
-                                    </div>
-                                    <div className="tab-pane fade" id="villa" role="tabpanel">
-                                        <div className="row">
-                                            {home.properties.map((item) => (
-                                                <div key={item.id} className="col-xl-4 col-lg-6 col-md-6">
-                                                    <div className="homeya-box">
-                                                        <div className="archive-top">
-                                                            <a href={item.detailsUrl} className="images-group">
-                                                                <div className="images-style">
-                                                                    <img src={item.image} alt="img" />
                                                                 </div>
-                                                                <div className="top">
-                                                                    <ul className="d-flex gap-8">
-                                                                        {item.featured && (
-                                                                            <li className="flag-tag success">Featured</li>
-                                                                        )}
-                                                                        <li className="flag-tag style-1">{item.for}</li>
-                                                                    </ul>
-                                                                    <ul className="d-flex gap-4">
-                                                                        <li className="box-icon w-32">
-                                                                            <span className="icon icon-eye"></span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div className="bottom">
-                                                                    <span className="flag-tag style-2">{item.type}</span>
-                                                                </div>
-                                                            </a>
-                                                            <div className="content">
-                                                                <div className="h7 text-capitalize fw-7">
-                                                                    <a href={item.detailsUrl} className="link">
-                                                                        {item.name}
-                                                                    </a>
-                                                                </div>
-                                                                <div className="desc">
-                                                                    <i className="fs-16 icon icon-mapPin"></i>
-                                                                    <p>{item.location}</p>
-                                                                </div>
-                                                                <ul className="meta-list">
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bed"></i>
-                                                                        <span>{item.beds}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bathtub"></i>
-                                                                        <span>{item.baths}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-ruler"></i>
-                                                                        <span>{item.size}</span>
-                                                                    </li>
-                                                                </ul>
                                                             </div>
-                                                        </div>
-                                                        <div className="archive-bottom d-flex justify-content-between align-items-center">
-                                                            <div className="d-flex gap-8 align-items-center">
-                                                                <div className="avatar avt-40 round">
-                                                                    <img src={item.avatar} alt="avt" />
+                                                            <div className="archive-bottom d-flex justify-content-between align-items-center">
+                                                                <div className="d-flex gap-8 align-items-center">
+                                                                    <div className="avatar avt-40 round">
+                                                                        <img src="https://themesflat.co/html/homzen/images/avatar/avt-7.jpg" alt="avt" />
+                                                                    </div>
+                                                                    <span>{item.agentName}</span>
                                                                 </div>
-                                                                <span>{item.agentName}</span>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <h6>${item.priceValue}</h6>
-                                                                <span className="text-variant-1">{item.priceUnit}</span>
+                                                                <div className="d-flex align-items-center">
+                                                                    <h6>₹{item.priceValue}</h6>
+                                                                    <span className="text-variant-1">{item.priceUnit}</span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
-
+                                                ))
+                                            )}
                                         </div>
-                                        <div className="text-center">
-                                            <a href="#" className="tf-btn primary size-1">View All Properties</a>
-                                        </div>
-                                    </div>
-                                    <div className="tab-pane fade" id="studio" role="tabpanel">
-                                        <div className="row">
-                                            {home.properties.map((item) => (
-                                                <div key={item.id} className="col-xl-4 col-lg-6 col-md-6">
-                                                    <div className="homeya-box">
-                                                        <div className="archive-top">
-                                                            <a href={item.detailsUrl} className="images-group">
-                                                                <div className="images-style">
-                                                                    <img src={item.image} alt="img" />
-                                                                </div>
-                                                                <div className="top">
-                                                                    <ul className="d-flex gap-8">
-                                                                        {item.featured && (
-                                                                            <li className="flag-tag success">Featured</li>
-                                                                        )}
-                                                                        <li className="flag-tag style-1">{item.for}</li>
-                                                                    </ul>
-                                                                    <ul className="d-flex gap-4">
-                                                                        <li className="box-icon w-32">
-                                                                            <span className="icon icon-eye"></span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div className="bottom">
-                                                                    <span className="flag-tag style-2">{item.type}</span>
-                                                                </div>
-                                                            </a>
-                                                            <div className="content">
-                                                                <div className="h7 text-capitalize fw-7">
-                                                                    <a href={item.detailsUrl} className="link">
-                                                                        {item.name}
-                                                                    </a>
-                                                                </div>
-                                                                <div className="desc">
-                                                                    <i className="fs-16 icon icon-mapPin"></i>
-                                                                    <p>{item.location}</p>
-                                                                </div>
-                                                                <ul className="meta-list">
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bed"></i>
-                                                                        <span>{item.beds}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bathtub"></i>
-                                                                        <span>{item.baths}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-ruler"></i>
-                                                                        <span>{item.size}</span>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                        <div className="archive-bottom d-flex justify-content-between align-items-center">
-                                                            <div className="d-flex gap-8 align-items-center">
-                                                                <div className="avatar avt-40 round">
-                                                                    <img src={item.avatar} alt="avt" />
-                                                                </div>
-                                                                <span>{item.agentName}</span>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <h6>${item.priceValue}</h6>
-                                                                <span className="text-variant-1">{item.priceUnit}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-
-                                        </div>
-                                        <div className="text-center">
-                                            <a href="#" className="tf-btn primary size-1">View All Properties</a>
-                                        </div>
-                                    </div>
-                                    <div className="tab-pane fade" id="house" role="tabpanel">
-                                        <div className="row">
-                                            {home.properties.map((item) => (
-                                                <div key={item.id} className="col-xl-4 col-lg-6 col-md-6">
-                                                    <div className="homeya-box">
-                                                        <div className="archive-top">
-                                                            <a href={item.detailsUrl} className="images-group">
-                                                                <div className="images-style">
-                                                                    <img src={item.image} alt="img" />
-                                                                </div>
-                                                                <div className="top">
-                                                                    <ul className="d-flex gap-8">
-                                                                        {item.featured && (
-                                                                            <li className="flag-tag success">Featured</li>
-                                                                        )}
-                                                                        <li className="flag-tag style-1">{item.for}</li>
-                                                                    </ul>
-                                                                    <ul className="d-flex gap-4">
-                                                                        <li className="box-icon w-32">
-                                                                            <span className="icon icon-eye"></span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div className="bottom">
-                                                                    <span className="flag-tag style-2">{item.type}</span>
-                                                                </div>
-                                                            </a>
-                                                            <div className="content">
-                                                                <div className="h7 text-capitalize fw-7">
-                                                                    <a href={item.detailsUrl} className="link">
-                                                                        {item.name}
-                                                                    </a>
-                                                                </div>
-                                                                <div className="desc">
-                                                                    <i className="fs-16 icon icon-mapPin"></i>
-                                                                    <p>{item.location}</p>
-                                                                </div>
-                                                                <ul className="meta-list">
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bed"></i>
-                                                                        <span>{item.beds}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bathtub"></i>
-                                                                        <span>{item.baths}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-ruler"></i>
-                                                                        <span>{item.size}</span>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                        <div className="archive-bottom d-flex justify-content-between align-items-center">
-                                                            <div className="d-flex gap-8 align-items-center">
-                                                                <div className="avatar avt-40 round">
-                                                                    <img src={item.avatar} alt="avt" />
-                                                                </div>
-                                                                <span>{item.agentName}</span>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <h6>${item.priceValue}</h6>
-                                                                <span className="text-variant-1">{item.priceUnit}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-
-                                        </div>
-                                        <div className="text-center">
-                                            <a href="#" className="tf-btn primary size-1">View All Properties</a>
-                                        </div>
-                                    </div>
-                                    <div className="tab-pane fade" id="office" role="tabpanel">
-                                        <div className="row">
-                                            {home.properties.map((item) => (
-                                                <div key={item.id} className="col-xl-4 col-lg-6 col-md-6">
-                                                    <div className="homeya-box">
-                                                        <div className="archive-top">
-                                                            <a href={item.detailsUrl} className="images-group">
-                                                                <div className="images-style">
-                                                                    <img src={item.image} alt="img" />
-                                                                </div>
-                                                                <div className="top">
-                                                                    <ul className="d-flex gap-8">
-                                                                        {item.featured && (
-                                                                            <li className="flag-tag success">Featured</li>
-                                                                        )}
-                                                                        <li className="flag-tag style-1">{item.for}</li>
-                                                                    </ul>
-                                                                    <ul className="d-flex gap-4">
-                                                                        <li className="box-icon w-32">
-                                                                            <span className="icon icon-eye"></span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div className="bottom">
-                                                                    <span className="flag-tag style-2">{item.type}</span>
-                                                                </div>
-                                                            </a>
-                                                            <div className="content">
-                                                                <div className="h7 text-capitalize fw-7">
-                                                                    <a href={item.detailsUrl} className="link">
-                                                                        {item.name}
-                                                                    </a>
-                                                                </div>
-                                                                <div className="desc">
-                                                                    <i className="fs-16 icon icon-mapPin"></i>
-                                                                    <p>{item.location}</p>
-                                                                </div>
-                                                                <ul className="meta-list">
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bed"></i>
-                                                                        <span>{item.beds}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-bathtub"></i>
-                                                                        <span>{item.baths}</span>
-                                                                    </li>
-                                                                    <li className="item">
-                                                                        <i className="icon icon-ruler"></i>
-                                                                        <span>{item.size}</span>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                        <div className="archive-bottom d-flex justify-content-between align-items-center">
-                                                            <div className="d-flex gap-8 align-items-center">
-                                                                <div className="avatar avt-40 round">
-                                                                    <img src={item.avatar} alt="avt" />
-                                                                </div>
-                                                                <span>{item.agentName}</span>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <h6>${item.priceValue}</h6>
-                                                                <span className="text-variant-1">{item.priceUnit}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-
-                                        </div>
-                                        <div className="text-center">
-                                            <a href="#" className="tf-btn primary size-1">View All Properties</a>
-                                        </div>
+                                        {!loading && (
+                                            <div className="text-center">
+                                                <a href="/listing" className="tf-btn primary size-1">View All Properties</a>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -2336,7 +2038,7 @@ const HomePage = () => {
                             <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" style={{ transition: 'stroke-dashoffset 10ms linear 0s', strokeDasharray: '307.919, 307.919', strokeDashoffset: '286.138' }}></path>
                         </svg>
                     </div>
-                    
+
                 </div>
             </div>
         </div>

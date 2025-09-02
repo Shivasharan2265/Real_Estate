@@ -610,30 +610,103 @@ const AddProperty = () => {
   async function handleSubmitPropperty() {
     const fd = new FormData();
 
+
+
+
     // Simple field values
 
     fd.append('title', title);
     fd.append('keyword', keyword);
-    fd.append('brokerageAmount', brokerageAmount);
+    fd.append('description', description);
     fd.append('listingType', listingType);
     fd.append('propertyType', propertyType);
     fd.append('subPropertyType', subPropertyType);
-    fd.append('subPropertyQuestionOption', subPropertyQuestionOption);
-    fd.append('subPropertyQuestionOptionLvl2', subPropertyQuestionOptionLvl2);
+    fd.append('selectedOwnership', selectedOwnership);
+
+    fd.append('bedrooms', bedrooms);
+    fd.append('bathrooms', bathrooms);
+    fd.append('balconies', balconies);
+    fd.append('totalRooms', totalRooms);
+    fd.append('ageOfProperty', ageOfProperty);
+    fd.append('totalFloors', totalFloors);
+    fd.append('propertyOnFloor', propertyOnFloor);
+    fd.append('floorsAllowed', floorsAllowed);
+    fd.append('apartmentType', apartmentType);
+    fd.append('apartmentBhk', apartmentBhk);
     fd.append('city', city);
     fd.append('location', location);
     fd.append('subLocality', subLocality);
     fd.append('apartment', apartment);
     fd.append('houseNo', houseNo);
-    fd.append('selectedOwnership', selectedOwnership);
-    fd.append('bedrooms', bedrooms);
-    fd.append('bathrooms', bathrooms);
-    fd.append('balconies', balconies);
+    //address
+    //pincode
+    //latitude
+    //longitude
+    fd.append('property_facing', propertyFacing);
+    fd.append('road_width', roadWidth);
+    fd.append('road_width_unit', roadUnit);
+    fd.append('located_near', locatedNear);
+    fd.append('parking', parking);
+    fd.append('parkingTypeRetail', parkingTypeRetail);
+    fd.append('coveredParking', coveredParking);
+    fd.append('openParking', openParking);
+    fd.append('expectedPrice', expectedPrice);
+    fd.append('pricePerSqYards', pricePerSqYards);
+    fd.append('bookingAmount', bookingAmount);
+    fd.append('annualDues', annualDues);
+    fd.append('brokerage', brokerage);
+    fd.append('expectedRental', expectedRental);
+    fd.append('expectedRent', expectedRent);
+    fd.append('membershipCharge', membershipCharge);
+    fd.append('brokerageAmount', brokerageAmount);
+    fd.append('maintenance', maintenance);
+    fd.append('maintenanceFreq', maintenanceFreq);
+
+    //sale_price
+    //price_per_sqft
+    //price_negotiable
+    //security_deposit
+    //rent_period
+    //currency
+
+    fd.append('airConditioning', airConditioning);
+    fd.append('oxygen', oxygen);
+    fd.append('ups', ups);
+
+    fd.append('staircases', staircases);
+    fd.append('lifts', lifts);
+    //furnishing_details
+    //fire_safety_features
+
+    //additional_features
+    //amenities
+
+    fd.append('carpetArea', carpetArea);
+    fd.append('carpetUnit', carpetUnit);
+    fd.append('builtUpArea', builtUpArea);
+    fd.append('builtUpUnit', builtUpUnit);
+
+    fd.append('plotArea', plotArea);
+    fd.append('plotAreaUnit', plotAreaUnit);
+    fd.append('plotLength', plotLength);
+    fd.append('plotBreadth', plotBreadth);
+    fd.append('availabilityStatus', availabilityStatus);
+    fd.append('availableFrom', availableFrom);
+    fd.append('willingTo', willingTo);
+
+
+
+
+
+    fd.append('subPropertyQuestionOption', subPropertyQuestionOption);
+    fd.append('subPropertyQuestionOptionLvl2', subPropertyQuestionOptionLvl2);
+
+
+
+
     fd.append('areaType', areaType);
     fd.append('areaUnit', areaUnit);
-    fd.append('totalFloors', totalFloors);
-    fd.append('propertyOnFloor', propertyOnFloor);
-    fd.append('ageOfProperty', ageOfProperty);
+
     fd.append('minSeats', minSeats);
     fd.append('maxSeats', maxSeats);
     fd.append('noOfCabins', noOfCabins);
@@ -643,12 +716,10 @@ const AddProperty = () => {
     fd.append('receptionArea', receptionArea);
     fd.append('pantryType', pantryType);
     fd.append('furnishing', furnishing);
-    fd.append('airConditioning', airConditioning);
-    fd.append('oxygen', oxygen);
-    fd.append('ups', ups);
-    fd.append('staircases', staircases);
-    fd.append('lifts', lifts);
-    fd.append('parking', parking);
+
+
+
+
     fd.append('wallStatus', wallStatus);
     fd.append('doorsConstructed', doorsConstructed);
     fd.append('washroomBare', washroomBare);
@@ -658,54 +729,34 @@ const AddProperty = () => {
     fd.append('ceilingHeight', ceilingHeight);
     fd.append('ceilingUnit', ceilingUnit);
     fd.append('retailWashroom', retailWashroom);
-    fd.append('locatedNear', locatedNear);
-    fd.append('parkingTypeRetail', parkingTypeRetail);
-    fd.append('roadWidth', roadWidth);
-    fd.append('roadUnit', roadUnit);
-    fd.append('propertyFacing', propertyFacing);
-    fd.append('totalRooms', totalRooms);
+
+
+
+
     fd.append('hospitalityWash', hospitalityWash);
     fd.append('qualityRating', qualityRating);
-    fd.append('availabilityStatus', availabilityStatus);
-    fd.append('maintenance', maintenance);
-    fd.append('maintenanceFreq', maintenanceFreq);
-    fd.append('expectedRental', expectedRental);
-    fd.append('bookingAmount', bookingAmount);
-    fd.append('annualDues', annualDues);
-    fd.append('brokerage', brokerage);
-    fd.append('description', description);
-    fd.append('carpetArea', carpetArea);
-    fd.append('carpetUnit', carpetUnit);
-    fd.append('builtUpArea', builtUpArea);
-    fd.append('builtUpUnit', builtUpUnit);
-    fd.append('possessionBy', possessionBy);
-    fd.append('coveredParking', coveredParking);
-    fd.append('openParking', openParking);
-    fd.append('plotArea', plotArea);
-    fd.append('plotAreaUnit', plotAreaUnit);
-    fd.append('plotLength', plotLength);
-    fd.append('plotBreadth', plotBreadth);
-    fd.append('floorsAllowed', floorsAllowed);
+
     fd.append('hasBoundaryWall', hasBoundaryWall);
+
+
+
+
     fd.append('openSides', openSides);
     fd.append('hasConstruction', hasConstruction);
 
 
-    fd.append('availableFrom', availableFrom);
-    fd.append('willingTo', willingTo);
-    fd.append('expectedRent', expectedRent);
+
     fd.append('elecWaterExcluded', elecWaterExcluded);
     fd.append('agreementType', agreementType);
     fd.append('allowBroker', allowBroker);
-    fd.append('membershipCharge', membershipCharge);
-    fd.append('apartmentBhk', apartmentBhk);
+
+
 
     fd.append('selectedSubProperty', selectedSubProperty);
-    fd.append('expectedPrice', expectedPrice);
-    fd.append('pricePerSqYards', pricePerSqYards);
+
 
     fd.append('uniqueProperty', uniqueProperty);
-    fd.append('apartmentType', apartmentType);
+
 
 
 

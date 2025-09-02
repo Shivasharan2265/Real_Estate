@@ -49,8 +49,8 @@ const Header = () => {
 
   const menuItems = [
     { label: 'Home', className: 'home', onClick: () => navigate('/home') },
-    { label: 'Listing', className: 'listing', onClick: () => navigate('/listing') },
-    { label: 'Properties', className: 'Properties', onClick: () => navigate('/Properties') },
+    { label: 'Properties', className: 'listing', onClick: () => navigate('/listing') },
+   
     {
       label: 'Pages', className: 'dropdown2',
       submenu: [
