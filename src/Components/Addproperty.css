@@ -1,0 +1,803 @@
+
+/* Step Headings */
+.step-heading {
+  color: #333;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 5px; 
+}
+
+.step-subheading {
+  color: #333;
+  font-weight: 600;
+  font-size: 18px;
+  /* margin-bottom: 15px; */
+}
+
+.step-label {
+  font-weight: 600;
+  color: #444;
+  font-size: 15px;
+  margin-bottom: 15px;
+}
+
+/* Button Groups */
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+.button-option {
+  padding: 8px 20px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #333;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-width: 90px;
+  text-align: center;
+}
+
+.button-option.active {
+  border: 2px solid #ED2027;
+  background-color: #ED2027;
+  color: #fff;
+}
+
+.button-option-large {
+  min-width: 110px;
+}
+
+/* Sub Property Buttons */
+.subproperty-option {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #555;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.subproperty-option.active {
+  /* border: 1px solid #ED2027; */
+  background-color: #ED2027;
+  color: #ffff;
+}
+
+/* Continue Button */
+.continue-btn {
+  background-color: #ED2027;
+  color: #fff;
+  padding: 10px 28px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+/* Step 2 Specific */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.input-field,
+.select-field {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.ownership-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.ownership-option {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ownership-option.active {
+  border: 2px solid #ED2027;
+  background: #ED2027;
+  color: #fff;
+}
+
+.house-no-group {
+  margin-bottom: 25px;
+}
+
+
+
+
+
+/* Step 3 Container */
+.step3-container {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Headers and Labels */
+.step3-header {
+  color: #333;
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+.step3-subheader {
+  color: #333;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.step3-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.step3-section {
+  margin-bottom: 2rem;
+}
+
+.step3-subsection {
+  margin-bottom: 1.5rem;
+}
+
+.step3-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step3-info-icon {
+  font-weight: 600;
+  color: #6b7280;
+  cursor: default;
+  margin-top: -2px;
+}
+
+.step3-mandatory-text {
+  color: #ED2027;
+  margin: 0.25rem 0;
+}
+
+/* Button Groups */
+.step3-button-group {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.step3-option-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 1.25rem;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.step3-option-btn.active {
+  border-color: #ED2027;
+  background: #ED2027;
+  color: #fff;
+}
+
+.step3-number-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.step3-number-btn.active {
+  border-color: #ED2027;
+  background: #ED2027;
+  color: #fff;
+}
+
+/* Input Groups */
+.step3-input-group {
+  position: relative;
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 0.375rem;
+  background: #fff;
+  margin-top: 0.5rem;
+}
+
+.step3-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  min-width: 0;
+}
+
+.step3-readonly-input {
+  background: #f9fafb;
+}
+
+.step3-unit-selector {
+  padding: 0 0.75rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  border-left: 1px solid #ddd;
+  cursor: pointer;
+  background: #f9fafb;
+  font-size: 0.95rem;
+  font-weight: 500;
+  user-select: none;
+}
+
+.step3-dropdown-icon {
+  margin-left: 0.25rem;
+}
+
+.step3-unit-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  width: 12rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+  margin-top: 0.25rem;
+}
+
+.step3-unit-option {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+}
+
+.step3-unit-option.selected {
+  background: #f5f5f5;
+}
+
+/* Floor Details */
+.step3-floor-group {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.step3-floor-input,
+.step3-floor-select {
+  min-width: 12rem;
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+  height: 50px;
+  background: #fff;
+}
+
+/* Add Button */
+.step3-add-btn {
+  margin-top: 0.75rem;
+  background: #ED2027;
+  border: none;
+  color: #fff;
+  /* font-weight: 600; */
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+/* Checkboxes */
+.step3-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.step3-checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.step3-checkbox {
+  margin-right: 0.5rem;
+  accent-color: #ED2027;
+}
+
+/* Toggle Button */
+.step3-toggle-btn {
+  background: #ED2027;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+
+@media (max-width: 767px) {
+  .step3-toggle-btn {
+    width: 100%;            /* full width on mobile */
+    font-size: 14px;        /* slightly smaller */
+    padding: 10px;          /* more compact padding  */
+    text-align: center;     /* center the label       */
+  }
+}
+
+/* Additional Fields */
+.step3-additional-fields {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step3-unit-select {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+/* Textarea */
+.step3-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+}
+
+/* Continue Button */
+.step3-continue-container {
+  display: flex;
+  margin-top: 2rem;
+}
+
+.step3-continue-btn {
+  background-color: #ED2027;
+  color: #fff;
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.step3-error {
+  color: red;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.section-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.room-options,
+.furnishing-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.room-chip,
+.furnishing-chip {
+  padding: 0.5rem 1rem;
+  border-radius: 1.25rem;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.room-chip.active,
+.furnishing-chip.active {
+  border-color: #ed2027;
+  background-color: #ed2027;
+  color: #fff;
+}
+
+.furnishing-note {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.furnishing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.furnishing-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.count-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.count-btn.hovered {
+  background: #ed2027;
+  color: #fff;
+}
+
+.count-value {
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.furnishing-name {
+  font-size: 0.9rem;
+  margin-left: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.furnishing-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.furnishing-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #ed2027;
+}
+
+.parking-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 480px) {
+  .parking-container {
+    flex-direction: row;
+    gap: 2rem;
+  }
+}
+
+.parking-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.parking-label {
+  font-size: 0.95rem;
+}
+
+
+/* Hide the native radio input */
+.custom-radio input {
+  display: none;
+}
+
+.step3-dropdown-checkbox-list {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 10px;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.validation-msg {
+  color: #ff0000;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.radio-group {
+  display: flex;
+  gap: 16px;
+}
+
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  /* border: 1px solid #ccc; */
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+
+  accent-color: #ed2027;
+  width: 15px;
+  height: 20px;
+}
+
+/* Modal overlay with blur effect */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* backdrop-filter: blur(1px); */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Medium width card (300px) */
+.confirm-card {
+  background: #ffffff;
+  border-radius: 8px;
+  width: 400px;
+  /* Medium width */
+  padding: 20px;
+  padding-bottom: 25px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  position: relative;
+  z-index: 1001;
+}
+
+.confirm-message {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #161e2d;
+  line-height: 1.4;
+  padding: 0 5px;
+  font: "bold"
+}
+
+/* Button container */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 10px;
+  margin-bottom: 15px;
+}
+
+.cancel-btn,
+.popup-continue-btn { 
+  width: 45%;
+  padding: 8px 0;
+  border-radius: 4px;
+  /* margin-top: "20px"; */
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  height: 36px;
+  text-align: center;
+}
+
+.popup-continue-btn { 
+ 
+  background: #f5f5f5;
+  color: #555;
+  border: 1px solid #e0e0e0;
+}
+
+.popup-continue-btn { 
+
+  background: #ed2027;
+  color: #fff;
+  border: 1px solid #ed2027;
+}
+ 
+@media (max-width: 576px) {
+  .col-12.col-md-8 {
+    margin-left: 12px;
+    margin-right: 10px;
+  }
+} 
+
+@media (max-width: 576px) {
+  .title {
+    margin-left: 2px;
+  }
+} 
+
+/* Desktop layout (default) */
+.button-group {
+  display: flex;
+  justify-content: flex-start;
+  /* <- align to the left */
+  gap: 12px;
+}
+
+/* Mobile layout (below 576px) */
+@media (max-width: 576px) {
+  .button-group {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+}
+
+/* Title styles */
+.title {
+  color: #161E2D;
+  margin-bottom: 20px;
+  font-weight: 600;     /* "semibold" */
+}
+
+/* Hide the <br> on small screens */
+@media (max-width: 576px) {
+  .title-break {
+    display: none;
+  }
+}
+
+
+.step3-facility-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  accent-color: #ed2027;
+  font-weight: none;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .step3-facility-row {
+    flex-wrap: wrap;
+  }
+
+  .step3-facility-row label {
+    display: block;
+    width: 100%;
+    margin: 4px 0;
+  }
+}
+
+
+/* Base style */
+.amenity-btn {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  min-width: 120px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+/* Hover (when not active) */
+.amenity-btn:not(.active):hover {
+  border-color: #ED2027;
+}
+
+/* Active / Selected button  */
+.amenity-btn.active {
+  background: #ED2027;
+  border-color: #ED2027;
+  color: #fff;
+  font-weight: 600;
+}
+
+
+.submit-btn {
+  background: #ED2027;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 15px;
+  margin-left: "5px";
+  width: 100%;          /* mobile: full width */
+  max-width: 300px;     /* width on larger screens */
+  transition: background-color 0.15s ease;
+   /* margin-left: 4px;    */
+}
+
+.submit-btn:hover {
+  background: #c41b21;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  .submit-btn {
+    width: auto;
+      margin-left: 0; 
+  }
+}
+

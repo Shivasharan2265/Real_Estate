@@ -1,0 +1,176 @@
+{
+
+  "properties": [
+    {
+      "id": 1,
+      "name": "Casa Lomas de Machashey",
+      "type": "Studio",
+      "for": "For Sale",
+      "featured": true,
+      "location": "33 Maple Street, San Francisco, California",
+      "beds": 3,
+      "baths": 2,
+      "size": "600 SqFT",
+      "priceValue": "7250,00",
+      "priceUnit": "/SqFT",
+      "image": "images/home/house-1.jpg",
+      "agentName": "Arlene McCoy",
+      "avatar": "images/avatar/avt-6.jpg",
+      "detailsUrl": "/Properties"
+    },
+    {
+      "id": 2,
+      "name": "Villa del Mar Retreat, Malibu",
+      "type": "Apartment",
+      "for": "For Sale",
+      "featured": true,
+      "location": "72 Sunset Avenue, Los Angeles, California",
+      "beds": 2,
+      "baths": 2,
+      "size": "600 SqFT",
+      "priceValue": "250,00",
+      "priceUnit": "/month",
+      "image": "images/home/house-2.jpg",
+      "agentName": "Annette Black",
+      "avatar": "images/avatar/avt-7.jpg",
+      "detailsUrl": "/Properties"
+    },
+    {
+      "id": 3,
+      "name": "Rancho Vista Verde, Santa Barbara",
+      "type": "Villa",
+      "for": "For Sale",
+      "featured": true,
+      "location": "33 Maple Street, San Francisco, California",
+      "beds": 4,
+      "baths": 2,
+      "size": "600 SqFT",
+      "priceValue": "5050,00",
+      "priceUnit": "/SqFT",
+      "image": "images/home/house-3.jpg",
+      "agentName": "Ralph Edwards",
+      "avatar": "images/avatar/avt-5.jpg",
+      "detailsUrl": "/Properties"
+    },
+    {
+      "id": 4,
+      "name": "Sunset Heights Estate, Beverly Hills",
+      "type": "House",
+      "for": "For Sale",
+      "featured": true,
+      "location": "1040 Ocean, Santa Monica, California",
+      "beds": 3,
+      "baths": 2,
+      "size": "600 SqFT",
+      "priceValue": "250,00",
+      "priceUnit": "/month",
+      "image": "images/home/house-4.jpg",
+      "agentName": "Jacob Jones",
+      "avatar": "images/avatar/avt-8.jpg",
+      "detailsUrl": "/Properties"
+    },
+    {
+      "id": 5,
+      "name": "Coastal Serenity Cottage",
+      "type": "Office",
+      "for": "For Sale",
+      "featured": true,
+      "location": "21 Hillside Drive, Beverly Hills, California",
+      "beds": 4,
+      "baths": 2,
+      "size": "600 SqFT",
+      "priceValue": "7250,00",
+      "priceUnit": "/SqFT",
+      "image": "images/home/house-5.jpg",
+      "agentName": "Kathryn Murphy",
+      "avatar": "images/avatar/avt-9.jpg",
+      "detailsUrl": "/Properties"
+    },
+    {
+      "id": 6,
+      "name": "Lakeview Haven, Lake Tahoe",
+      "type": "Studio",
+      "for": "For Sale",
+      "featured": true,
+      "location": "8 Broadway, Brooklyn, New York",
+      "beds": 2,
+      "baths": 2,
+      "size": "600 SqFT",
+      "priceValue": "250,00",
+      "priceUnit": "/SqFT",
+      "image": "images/home/house-6.jpg",
+      "agentName": "Floyd Miles",
+      "avatar": "images/avatar/avt-6.jpg",
+      "detailsUrl": "/Properties"
+    }
+  ],
+  "testimonials": [
+    {
+      "text": "I truly appreciate the professionalism and in-depth knowledge of the brokerage team. They not only helped me find the perfect home but also assisted with legal and financial aspects, making me feel confident and secure in my decision.",
+      "name": "Liam Anderson",
+      "role": "CEO Digital",
+      "avatar": "images/avatar/avt-7.jpg"
+    },
+    {
+      "text": "My experience with property management services has exceeded expectations. They efficiently manage properties with a professional and attentive approach in every situation. I feel reassured that any issue will be resolved promptly and effectively.",
+      "name": "Adam Will",
+      "role": "CEO Agency",
+      "avatar": "images/avatar/avt-5.jpg"
+    }
+  ],
+  "agents": [
+    {
+      "name": "Jack Halow",
+      "role": "CEO & Founder",
+      "image": "images/agents/agent-1.jpg",
+      "social": ["facebook", "linkedin", "twitter", "instagram"]
+    },
+    {
+      "name": "John Smith",
+      "role": "Property Manager",
+      "image": "images/agents/agent-2.jpg",
+      "social": ["facebook", "linkedin", "twitter", "instagram"]
+    },
+    {
+      "name": "Chris Patt",
+      "role": "Administrative Staff",
+      "image": "images/agents/agent-3.jpg",
+      "social": ["facebook", "linkedin", "twitter", "instagram"]
+    },
+    {
+      "name": "Jack Halow",
+      "role": "Real Estate Marketer",
+      "image": "images/agents/agent-4.jpg",
+      "social": ["facebook", "linkedin", "twitter", "instagram"]
+    }
+  ],
+  "blogs": [
+    {
+      "url": "blog-detail.html",
+      "image": "images/blog/blog-1.jpg",
+      "date": "January 28, 2024",
+      "author": "Esther",
+      "category": "Furniture",
+      "title": "Building gains into housing stocks and how to trade the sector",
+      "description": "The average contract interest rate for 30-year fixed-rate mortgages with conforming loan balances..."
+    },
+    {
+      "url": "blog-detail.html",
+      "image": "images/blog/blog-2.jpg",
+      "date": "January 31, 2024",
+      "author": "Angel",
+      "category": "Interior",
+      "title": "92% of millennial homebuyers say inflation has impacted their plans",
+      "description": "Mortgage applications to purchase a home, however, dropped 4% last week compared..."
+    },
+    {
+      "url": "blog-detail.html",
+      "image": "images/blog/blog-3.jpg",
+      "date": "January 28, 2024",
+      "author": "Colleen",
+      "category": "Architecture",
+      "title": "We are hiring ‘moderately,’ says Compass CEO",
+      "description": "New listings were down 20% year over year in March, according to Realtor.com, and total inventory..."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Casa Lomas de Machashey",
+    "type": "Studio",
+    "for": "For Sale",
+    "featured": true,
+    "location": "33 Maple Street, San Francisco, California",
+    "beds": 3,
+    "baths": 2,
+    "size": "600 SqFT",
+    "priceValue": "7250,00",
+    "priceUnit": "/SqFT",
+    "image": "images/home/house-1.jpg",
+    "agentName": "Arlene McCoy",
+    "avatar": "images/avatar/avt-6.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Villa del Mar Retreat, Malibu",
+    "type": "Apartment",
+    "for": "For Sale",
+    "featured": true,
+    "location": "72 Sunset Avenue, Los Angeles, California",
+    "beds": 2,
+    "baths": 2,
+    "size": "600 SqFT",
+    "priceValue": "250,00",
+    "priceUnit": "/month",
+    "image": "images/home/house-2.jpg",
+    "agentName": "Annette Black",
+    "avatar": "images/avatar/avt-7.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Rancho Vista Verde, Santa Barbara",
+    "type": "Villa",
+    "for": "For Sale",
+    "featured": true,
+    "location": "33 Maple Street, San Francisco, California",
+    "beds": 4,
+    "baths": 2,
+    "size": "600 SqFT",
+    "priceValue": "5050,00",
+    "priceUnit": "/SqFT",
+    "image": "images/home/house-3.jpg",
+    "agentName": "Ralph Edwards",
+    "avatar": "images/avatar/avt-5.jpg"
+  }
+]
