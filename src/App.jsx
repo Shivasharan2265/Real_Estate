@@ -37,7 +37,7 @@ function App() {
       <Route exact path="/home" element={<HomePAge />} />
       <Route exact path="/footer" element={<Footer />} />
       <Route exact path="/listing" element={<Listing />} />
-      <Route exact path="/Properties" element={<Properties />} />
+      <Route exact path="/property/:id" element={<Properties />} />
       <Route exact path="/myprofile" element={<MyProfile />} />
       <Route exact path="/aboutus" element={<AboutUs />} />
       <Route exact path="/contactus" element={<ContactUs />} />

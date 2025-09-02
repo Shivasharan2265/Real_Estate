@@ -288,9 +288,9 @@ const MyProfile = () => {
 
 
                                                     <div
-                                                        style={{ position: "relative", display: "inline-block" }}
-                                                        onMouseEnter={() => setDropdownOpen(true)}
-                                                        onMouseLeave={() => setDropdownOpen(false)}
+                                                        // style={{ position: "relative", display: "inline-block" }}
+                                                        // onMouseEnter={() => setDropdownOpen(true)}
+                                                        // onMouseLeave={() => setDropdownOpen(false)}
                                                     >
                                                         {/* Avatar + Name */}
                                                         <div

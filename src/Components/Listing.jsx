@@ -2,26 +2,135 @@ import React, { useEffect, useState } from 'react'
 import Header from './Header';
 import Footer from './Footer';
 import { Link } from 'react-router-dom';
+import api from '../api/api';
 
 
 
 
 const Listing = () => {
     const [properties, setProperties] = useState([]);
-        const [latest, setLatest] = useState([]);
+    const [latest, setLatest] = useState([]);
+
+
+
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
-        fetch('/properties.json')
-            .then(res => res.json())
-            .then(data => setProperties(data));
-    }, []);
-    
+        fetchList(page);
+    }, [page]);
 
-    useEffect(() => {
-        fetch('/Latest.json')
-            .then(res => res.json())
-            .then(data => setLatest(data));
-    }, []);
+    const fetchList = async (pageNumber) => {
+        setLoading(true);
+        const fd = new FormData();
+        fd.append("programType", "getProperties");
+        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("page", pageNumber);
+        fd.append("limit", limit);
+
+        try {
+            const response = await api.post("/properties/property", fd);
+            console.log("API Response:", response);
+
+            const { properties, page, limit } = response.data.data;
+            const mapped = properties.map((item) => {
+                let priceValue = "N/A";
+                let priceUnit = "";
+
+                if (item.listing_type === "rent") {
+                    priceValue =
+                        item.expected_rent && item.expected_rent !== "0.00"
+                            ? item.expected_rent
+                            : "N/A";
+                    priceUnit = item.rent_period ? `/${item.rent_period}` : "/month";
+                } else {
+                    priceValue =
+                        item.expected_price && item.expected_price !== "0.00"
+                            ? item.expected_price
+                            : "N/A";
+                }
+
+                // dynamically prepare meta info
+                const metaInfo = [];
+                if (item.bedrooms) {
+                    metaInfo.push({ icon: "icon-bed", label: `${item.bedrooms} Beds` });
+                }
+                if (item.bathrooms) {
+                    metaInfo.push({ icon: "icon-bathtub", label: `${item.bathrooms} Baths` });
+                }
+                if (item.carpet_area) {
+                    metaInfo.push({
+                        icon: "icon-ruler",
+                        label: `${item.carpet_area} ${item.carpet_area_unit || ""}`,
+                    });
+                }
+                // if (item.property_type_id) {
+                //     metaInfo.push({ icon: "icon-home", label: item.property_type_id });
+                // }
+
+                return {
+                    id: item.id,
+                    image: item.image_path,
+                    name: item.title,
+                    location: item.location,
+                    featured: item.featured === 1,
+                    for: item.listing_type,
+                    type: item.property_type_id,
+                    detailsUrl: `/property/${item.slug}`,
+                    avatar: "/assets/images/default-agent.jpg",
+                    agentName: item.customerName || "Agent",
+                    priceValue,
+                    priceUnit,
+                    metaInfo, // attach here
+                };
+            });
+
+            setProperties(mapped);
+
+            // if API provides total count, compute totalPages
+            if (response.data.data.total) {
+                setTotalPages(Math.ceil(response.data.data.total / limit));
+            } else {
+                // fallback: stop if less results than limit
+                setTotalPages(mapped.length < limit ? page : page + 1);
+            }
+        } catch (error) {
+            console.error("Error fetching properties:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Skeleton component
+    const SkeletonCard = () => (
+        <div className="col-md-12">
+            <div className="homeya-box list-style-1 list-style-2">
+                <div className="images-group">
+                    <div
+                        className="images-style"
+                        style={{ background: "#eee", height: "200px" }}
+                    ></div>
+                </div>
+                <div className="content p-3">
+                    <div
+                        className="skeleton mb-2"
+                        style={{ background: "#eee", height: "20px", width: "60%" }}
+                    ></div>
+                    <div
+                        className="skeleton mb-2"
+                        style={{ background: "#eee", height: "15px", width: "40%" }}
+                    ></div>
+                    <div
+                        className="skeleton"
+                        style={{ background: "#eee", height: "15px", width: "80%" }}
+                    ></div>
+                </div>
+            </div>
+        </div>
+    );
 
     return (
 
@@ -40,13 +149,13 @@ const Listing = () => {
                                     <a href="#listLayout" className="nav-link-item active" data-bs-toggle="tab"><i className="icon icon-list"></i></a>
                                 </li>
                             </ul>
-                            <div className="nice-select list-page" tabindex="0"><span className="current">12 Per Page</span>
+                            {/* <div className="nice-select list-page" tabindex="0"><span className="current">12 Per Page</span>
                                 <ul className="list">
                                     <li data-value="1" className="option">10 Per Page</li>
                                     <li data-value="2" className="option">11 Per Page</li>
                                     <li data-value="3" className="option selected">12 Per Page</li>
                                 </ul>
-                            </div>
+                            </div> */}
                             <div className="nice-select list-sort" tabindex="0"><span className="current">Sort by (Default)</span>
                                 <ul className="list">
                                     <li data-value="default" className="option selected">Sort by (Default)</li>
@@ -355,7 +464,7 @@ const Listing = () => {
                         <div className="col-xl-8 col-lg-7">
                             <div className="tab-content">
                                 <div className="tab-pane fade" id="gridLayout" role="tabpanel">
-                                <div className="row">
+                                    <div className="row">
                                         <div className="col-md-6">
                                             <div className="homeya-box">
                                                 <div className="archive-top">
@@ -844,7 +953,7 @@ const Listing = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div> 
+                                    </div>
                                     {/* <ul className="wd-navigation">
                                         <li><a href="#" className="nav-item active">1</a></li>
                                         <li><a href="#" className="nav-item">2</a></li>
@@ -852,68 +961,101 @@ const Listing = () => {
                                         <li><a href="#" className="nav-item"><i className="icon icon-arr-r"></i></a></li>
                                     </ul> */}
                                 </div>
-                                <div className="tab-pane fade active show" id="listLayout" role="tabpanel">
+                                <div
+                                    className="tab-pane fade active show"
+                                    id="listLayout"
+                                    role="tabpanel"
+                                >
                                     <div className="row">
-                                        {properties.map(property => (
-                                            <div className="col-md-12" key={property.id}>
-                                                <div className="homeya-box list-style-1 list-style-2">
-                                                    <Link to="/Properties" className="images-group">
-                                                        <div className="images-style">
-                                                            <img src={property.image} alt="img" />
-                                                        </div>
-                                                        <div className="top">
-                                                            <ul className="d-flex gap-4 flex-wrap">
-                                                                <li className="flag-tag style-1">{property.for}</li>
-                                                            </ul>
-                                                            <ul className="d-flex gap-4">
-                                                                
-                                                                <li className="box-icon w-32">
-                                                                    <span className="icon icon-eye"></span>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                        <div className="bottom">
-                                                            <span className="flag-tag style-2">{property.type}</span>
-                                                        </div>
-                                                    </Link>
-                                                    <div className="content">
-                                                        <div className="archive-top">
-                                                            <div className="h7 text-capitalize fw-7">
-                                                                {property.name}
+                                        {loading
+                                            ? [...Array(limit)].map((_, i) => <SkeletonCard key={i} />)
+                                            : properties.map((property) => (
+                                                <div className="col-md-12" key={property.id}>
+                                                    <div className="homeya-box list-style-1 list-style-2">
+                                                        <Link to={property.detailsUrl} className="images-group">
+                                                            <div className="images-style">
+                                                                <img
+                                                                    src="https://themesflat.co/html/homzen/images/home/house-6.jpg"
+                                                                    alt={property.name}
+                                                                />
                                                             </div>
-                                                            <div className="desc">
-                                                                <i className="fs-16 icon icon-mapPin"></i>
-                                                                <p>{property.location}</p>
+                                                            <div className="top">
+                                                                <ul className="d-flex gap-4 flex-wrap">
+                                                                    <li className="flag-tag style-1">{property.for}</li>
+                                                                </ul>
                                                             </div>
-                                                            <ul className="meta-list">
-                                                                <li className="item"><i className="icon icon-bed"></i> <span>{property.beds}</span></li>
-                                                                <li className="item"><i className="icon icon-bathtub"></i> <span>{property.baths}</span></li>
-                                                                <li className="item"><i className="icon icon-ruler"></i> <span>{property.size}</span></li>
-                                                            </ul>
-                                                        </div>
-                                                        <div className="d-flex justify-content-between align-items-center archive-bottom">
-                                                            <div className="d-flex gap-8 align-items-center">
-                                                                <div className="avatar avt-40 round">
-                                                                    <img src={property.avatar} alt="avt" />
+                                                            <div className="bottom">
+                                                                <span className="flag-tag style-2">
+                                                                    {property.type}
+                                                                </span>
+                                                            </div>
+                                                        </Link>
+                                                        <div className="content">
+                                                            <div className="archive-top">
+                                                                <div className="h7 text-capitalize fw-7">
+                                                                    {property.name}
                                                                 </div>
-                                                                <span>{property.agentName}</span>
+                                                                <div className="desc">
+                                                                    <i className="fs-16 icon icon-mapPin"></i>
+                                                                    <p>{property.location}</p>
+                                                                </div>
+                                                                <ul className="meta-list">
+                                                                    {property.metaInfo.map((meta, i) => (
+                                                                        <li className="item" key={i}>
+                                                                            <i className={`icon ${meta.icon}`}></i>{" "}
+                                                                            <span>{meta.label}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+
                                                             </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <div className="h7 fw-7">${property.priceValue}</div>
-                                                                <span className="text-variant-1">{property.priceUnit}</span>
+                                                            <div className="d-flex justify-content-between align-items-center archive-bottom">
+                                                                <div className="d-flex gap-8 align-items-center">
+                                                                    <div className="avatar avt-40 round">
+                                                                        <img
+                                                                            src="https://themesflat.co/html/homzen/images/avatar/avt-9.jpg"
+                                                                            alt="avt"
+                                                                        />
+                                                                    </div>
+                                                                    <span>{property.agentName}</span>
+                                                                </div>
+                                                                <div className="d-flex align-items-center">
+                                                                    <div className="h7 fw-7">
+                                                                        ₹{property.priceValue}
+                                                                    </div>
+                                                                    <span className="text-variant-1">
+                                                                        {property.priceUnit}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-
+                                            ))}
                                     </div>
+
+                                    {/* Pagination */}
                                     <ul className="justify-content-center wd-navigation">
-                                        <li><a href="#" className="nav-item active">1</a></li>
-                                        <li><a href="#" className="nav-item">2</a></li>
-                                        <li><a href="#" className="nav-item">3</a></li>
-                                        <li><a href="#" className="nav-item"><i className="icon icon-arr-r"></i></a></li>
+                                        {[...Array(totalPages)].map((_, i) => (
+                                            <li key={i}>
+                                                <button
+                                                    style={{ border: "none" }}
+                                                    onClick={() => setPage(i + 1)}
+                                                    className={`nav-item ${page === i + 1 ? "active" : ""}`}
+                                                >
+                                                    {i + 1}
+                                                </button>
+                                            </li>
+                                        ))}
+                                        <li>
+                                            <button
+                                                style={{ border: "none" }}
+                                                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                                                className="nav-item"
+                                            >
+                                                <i className="icon icon-arr-r"></i>
+                                            </button>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>

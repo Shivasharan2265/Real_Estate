@@ -1,40 +1,235 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 import Header from "./Header";
 import Footer from "./Footer";
-import propertyData from "./propertyData.json";
-
-
-
-
-const images1 = [
-    "images/banner/banner-property-1.jpg",
-    "images/banner/banner-property-3.jpg",
-    "images/banner/banner-property-2.jpg",
-    "images/banner/banner-property-1.jpg",
-    "images/banner/banner-property-3.jpg",
-    "images/banner/banner-property-2.jpg",
-];
-
+import api from "../api/api";
 
 const Properties = () => {
-    const data = propertyData;
-    const featured = data.featuredProperties;
-
+    const { id } = useParams();
+    const [propertyData, setPropertyData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [activeFloor, setActiveFloor] = useState(null);
+    const [featuredProperties, setFeaturedProperties] = useState([]);
+    const [isPlot, setIsPlot] = useState(false);
 
     const handleToggleFloor = (index) => {
-        // if already open, close it; otherwise open it
         setActiveFloor(activeFloor === index ? null : index);
     };
 
+    const fetchDetails = async () => {
+        const fd = new FormData();
+        fd.append("programType", "propertyOverView");
+        fd.append("id", id);
+        fd.append("authToken", localStorage.getItem("authToken"));
 
+        try {
+            const response = await api.post("/properties/property", fd);
+            console.log("API Response:", response);
+            
+            if (response.data.success) {
+                const data = response.data.data[0];
+                setPropertyData(data);
+                
+                // Check if it's a plot
+                const isPlotProperty = data.details.apartment_type === "Plot" || 
+                                     data.property.sub_property_type_id === "Residential Plot" ||
+                                     data.area.plot_area > 0;
+                setIsPlot(isPlotProperty);
+                
+                // For demo purposes, we'll use the same property as featured
+                setFeaturedProperties([data]);
+            } else {
+                setError(response.data.message || "Failed to fetch property details");
+            }
+        } catch (error) {
+            console.error("Error fetching properties:", error);
+            setError("Error fetching property details");
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
+        fetchDetails();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div>
+                <Header />
+                <div className="container text-center py-5">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-3">Loading property details...</p>
+                </div>
+               
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div>
+                <Header />
+                <div className="container text-center py-5">
+                    <div className="alert alert-danger">{error}</div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    if (!propertyData) {
+        return (
+            <div>
+                <Header />
+                <div className="container text-center py-5">
+                    <div className="alert alert-warning">No property data found</div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    // Extract property images for the slider
+    const propertyImages = propertyData.propertyImages || [];
+    const imageSources = propertyImages.map(img => img.image_path);
+
+    // Fallback images if no property images available
+    const images1 = imageSources.length > 0 ? imageSources : [
+        "images/banner/banner-property-1.jpg",
+        "images/banner/banner-property-3.jpg",
+        "images/banner/banner-property-2.jpg",
+        "images/banner/banner-property-1.jpg",
+        "images/banner/banner-property-3.jpg",
+        "images/banner/banner-property-2.jpg",
+    ];
+
+    // Format currency
+    const formatCurrency = (amount, currency = "INR") => {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: currency,
+            maximumFractionDigits: 0
+        }).format(amount);
+    };
+
+    // Features data - conditionally show based on property type
+    const featuresData = isPlot ? [
+        { icon: "icon-ruler", label: `${propertyData.area.plot_area} ${propertyData.area.plot_area_unit || 'sqft'}` },
+        { icon: "icon-arrows-out", label: `${propertyData.construction.open_sides || 0} Open Sides` },
+        { icon: "icon-fence", label: propertyData.construction.has_boundary_wall ? "Boundary Wall" : "No Boundary Wall" },
+        { icon: "icon-map-pin", label: `Facing ${propertyData.location.property_facing || 'East'}` }
+    ] : [
+        { icon: "icon-bed", label: `${propertyData.details.bedrooms} Bedrooms` },
+        { icon: "icon-bathtub", label: `${propertyData.details.bathrooms} Bathrooms` },
+        { icon: "icon-ruler", label: `${propertyData.area.carpet_area || propertyData.area.built_up_area} ${propertyData.area.carpet_area_unit || propertyData.area.built_up_area_unit || 'sqft'}` },
+        { icon: "icon-buildings", label: `Floor ${propertyData.details.property_on_floor}/${propertyData.details.total_floors}` }
+    ];
+
+    // Overview data - conditionally show based on property type
+    const overviewData = isPlot ? [
+        { icon: "icon-ruler", label: "Plot Area", value: `${propertyData.area.plot_area} ${propertyData.area.plot_area_unit || 'sqft'}` },
+        { icon: "icon-arrows-out", label: "Dimensions", value: `${propertyData.construction.plot_length || propertyData.area.plot_length || '0'} x ${propertyData.construction.plot_breadth || propertyData.area.plot_breadth || '0'} ft` },
+        { icon: "icon-arrows-out", label: "Open Sides", value: propertyData.construction.open_sides || 0 },
+        { icon: "icon-calendar", label: "Floors Allowed", value: propertyData.details.floors_allowed || 0 }
+    ] : [
+        { icon: "icon-bed", label: "Bedrooms", value: propertyData.details.bedrooms },
+        { icon: "icon-bathtub", label: "Bathrooms", value: propertyData.details.bathrooms },
+        { icon: "icon-ruler", label: "Area", value: `${propertyData.area.carpet_area || propertyData.area.built_up_area} ${propertyData.area.carpet_area_unit || propertyData.area.built_up_area_unit || 'sqft'}` },
+        { icon: "icon-buildings", label: "Year Built", value: propertyData.construction.year_built || 'N/A' }
+    ];
+
+    // Property details - conditionally show based on property type
+    const propertyDetailsData = isPlot ? [
+        { label: "Property Type", value: propertyData.property.sub_property_type_id || propertyData.property.property_type_id },
+        { label: "Listing Type", value: propertyData.property.listing_type },
+        { label: "Plot Dimensions", value: `${propertyData.construction.plot_length || propertyData.area.plot_length || '0'} x ${propertyData.construction.plot_breadth || propertyData.area.plot_breadth || '0'} ft` },
+        { label: "Road Width", value: `${propertyData.location.road_width} ${propertyData.location.road_width_unit}` },
+        { label: "Facing", value: propertyData.location.property_facing || 'East' },
+        { label: "Price per sqft", value: `${propertyData.pricing.currency} ${propertyData.pricing.price_per_sqft}` }
+    ] : [
+        { label: "Property Type", value: propertyData.property.property_type_id },
+        { label: "Listing Type", value: propertyData.property.listing_type },
+        { label: "Floor", value: `${propertyData.details.property_on_floor} of ${propertyData.details.total_floors}` },
+        { label: "Furnishing", value: propertyData.features.furnishing },
+        { label: "Availability", value: propertyData.availability.availability_status },
+        { label: "Price per sqft", value: `${propertyData.pricing.currency} ${propertyData.pricing.price_per_sqft}` }
+    ];
+
+    // Sample amenities data (categorized)
+    const amenitiesData = [
+        {
+            category: "Amenities",
+            items: propertyData.features.amenities.map(amenity => ({
+                icon: "icon-check",
+                label: amenity.replace(/_/g, ' ')
+            }))
+        },
+        {
+            category: "Additional Features",
+            items: propertyData.features.additional_features.map(feature => ({
+                icon: "icon-check",
+                label: feature.replace(/_/g, ' ')
+            }))
+        }
+    ];
+
+    // Add construction features for plots
+    if (isPlot) {
+        amenitiesData.push({
+            category: "Plot Features",
+            items: [
+                { icon: "icon-check", label: propertyData.construction.has_boundary_wall ? "Boundary Wall" : "No Boundary Wall" },
+                { icon: "icon-check", label: `${propertyData.construction.open_sides || 0} Open Sides` },
+                { icon: "icon-check", label: `Entrance Width: ${propertyData.construction.entrance_width} ${propertyData.construction.entrance_width_unit}` }
+            ].filter(item => item.label)
+        });
+    } else {
+        // Add furnishing details for buildings
+        if (propertyData.features.furnishing_details && propertyData.features.furnishing_details.length > 0) {
+            amenitiesData.push({
+                category: "Furnishing Details",
+                items: propertyData.features.furnishing_details.map(detail => ({
+                    icon: "icon-check",
+                    label: detail.replace(/_/g, ' ')
+                }))
+            });
+        }
+    }
+
+    // Add safety features if available
+    if (propertyData.features.fire_safety_features && propertyData.features.fire_safety_features.length > 0) {
+        amenitiesData.push({
+            category: "Safety Features",
+            items: propertyData.features.fire_safety_features.map(safety => ({
+                icon: "icon-check",
+                label: safety.replace(/_/g, ' ')
+            }))
+        });
+    }
+
+    // Sample contact seller data
+    const contactSellerData = {
+        avatar: propertyData.customerDetails.profile || "images/avatar/avatar-default.png",
+        name: `${propertyData.customerDetails.firstName} ${propertyData.customerDetails.lastName}`,
+        phone: propertyData.customerDetails.mobile,
+        email: propertyData.customerDetails.email
+    };
+
+    // Sample why choose us data
+    const whyChooseUsData = [
+        { icon: "icon-shield-check", label: "Verified Property" },
+        { icon: "icon-currency-circle-dollar", label: "Best Price Guarantee" },
+        { icon: "icon-headset", label: "24/7 Support" },
+        { icon: "icon-map-pin", label: "Prime Location" }
+    ];
 
     return (
         <div>
@@ -46,7 +241,7 @@ const Properties = () => {
                     slidesPerView={2}
                     spaceBetween={20}
                     centeredSlides={true}
-                    loop={true} // Infinite loop
+                    loop={true}
                     autoplay={{
                         delay: 2500,
                         disableOnInteraction: false,
@@ -64,7 +259,7 @@ const Properties = () => {
                                 data-fancybox="gallery"
                                 className="box-imgage-detail d-block"
                             >
-                                <img src={src} alt={`img-property-${index}`} />
+                                <img src="https://themesflat.co/html/homzen/images/banner/banner-property-1.jpg" alt={`img-property-${index}`} />
                             </Link>
                         </SwiperSlide>
                     ))}
@@ -86,7 +281,7 @@ const Properties = () => {
                         <span className="icon icon-map-trifold"></span>
                     </Link>
                     <Link
-                        to="images/banner/banner-property-1.jpg"
+                        to={images1[0] || "#"}
                         className="item active"
                         data-fancybox="gallery"
                     >
@@ -94,25 +289,31 @@ const Properties = () => {
                     </Link>
                 </div>
             </section>
+            
             <section className="flat-section pt-0 flat-property-detail">
                 <div className="container">
                     {/* Header */}
                     <div className="header-property-detail">
                         <div className="content-top d-flex justify-content-between align-items-center">
                             <div className="box-name">
-                                <a href="#" className="flag-tag primary">{data.header.status}</a>
-                                <h4 className="title link">{data.header.title}</h4>
+                                <a href="#" className="flag-tag primary">
+                                    {propertyData.property.status === 1 ? "Active" : "Inactive"}
+                                </a>
+                                <h4 className="title link">{propertyData.property.title}</h4>
+                                {isPlot && <span className="badge bg-secondary ms-2">Plot</span>}
                             </div>
                             <div className="box-price d-flex align-items-center">
-                                <h4>{data.header.price.value}</h4>
-                                <span className="body-1 text-variant-1">{data.header.price.period}</span>
+                                <h4>{formatCurrency(propertyData.pricing.sale_price || propertyData.pricing.expected_price)}</h4>
+                                {propertyData.pricing.expected_rent && (
+                                    <span className="body-1 text-variant-1">/month</span>
+                                )}
                             </div>
                         </div>
                         <div className="content-bottom">
                             <div className="info-box">
-                                <div className="label">FEATUREs:</div>
+                                <div className="label">FEATURES:</div>
                                 <ul className="meta">
-                                    {data.header.features.map((f, i) => (
+                                    {featuresData.map((f, i) => (
                                         <li className="meta-item" key={i}>
                                             <span className={`icon ${f.icon}`}></span> {f.label}
                                         </li>
@@ -122,14 +323,14 @@ const Properties = () => {
                             <div className="info-box">
                                 <div className="label">LOCATION:</div>
                                 <p className="meta-item">
-                                    <span className={`icon ${data.header.location.icon}`}></span>
-                                    {data.header.location.address}
+                                    <span className="icon icon-mapPin"></span>
+                                    {propertyData.location.address}, {propertyData.location.location}
                                 </p>
                             </div>
                             <ul className="icon-box">
-                                {data.header.actions.map((a, i) => (
-                                    <li key={i}><a href="#" className="item"><span className={`icon ${a.icon}`}></span></a></li>
-                                ))}
+                                <li><a href="#" className="item"><span className="icon icon-heart"></span></a></li>
+                                <li><a href="#" className="item"><span className="icon icon-share-network"></span></a></li>
+                                <li><a href="#" className="item"><span className="icon icon-printer"></span></a></li>
                             </ul>
                         </div>
                     </div>
@@ -139,17 +340,16 @@ const Properties = () => {
                         <div className="col-lg-8">
                             {/* Description */}
                             <div className="single-property-element single-property-desc">
-                                <div className="h7 title fw-7">{data.description.title}</div>
-                                {data.description.paragraphs.map((p, i) => (
-                                    <p key={i} className="body-2 text-variant-1">{p}</p>
-                                ))}
-                                <a href={data.description.viewMore} className="btn-view"><span className="text">View More</span></a>
+                                <div className="h7 title fw-7">Description</div>
+                                <p className="body-2 text-variant-1">{propertyData.property.description}</p>
+                                <p className="body-2 text-variant-1">{propertyData.property.unique_property}</p>
                             </div>
+                            
                             {/* Overview */}
                             <div className="single-property-element single-property-overview">
                                 <div className="h7 title fw-7">Overview</div>
                                 <ul className="info-box">
-                                    {data.overview.map((o, i) => (
+                                    {overviewData.map((o, i) => (
                                         <li className="item" key={i}>
                                             <a href="#" className="box-icon w-52"><i className={`icon ${o.icon}`}></i></a>
                                             <div className="content">
@@ -160,170 +360,234 @@ const Properties = () => {
                                     ))}
                                 </ul>
                             </div>
-                            {/* Video */}
-                            <div className="single-property-element single-property-video">
-                                <div className="h7 title fw-7">{data.video.title}</div>
-                                <div className="img-video">
-                                    <img src={data.video.thumbnail} alt="img-video" />
-                                    <a href={data.video.url} data-fancybox="gallery2" className="btn-video"> <span className="icon icon-play"></span></a>
+                            
+                            {/* Video - Only show if not a plot or if plot has video */}
+                            {!isPlot && (
+                                <div className="single-property-element single-property-video">
+                                    <div className="h7 title fw-7">Property Video</div>
+                                    <div className="img-video">
+                                        <img src="images/banner/banner-property-1.jpg" alt="img-video" />
+                                        <a href="https://www.youtube.com/watch?v=LXb3EKWsInQ" data-fancybox="gallery2" className="btn-video"> <span className="icon icon-play"></span></a>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
+                            
                             {/* Property Details */}
                             <div className="single-property-element single-property-info">
                                 <div className="h7 title fw-7">Property Details</div>
                                 <div className="row">
-                                    {data.propertyDetails.map((d, i) => (
+                                    {propertyDetailsData.map((d, i) => (
                                         <div className="col-md-6" key={i}>
                                             <div className="inner-box">
                                                 <span className="label">{d.label}:</span>
                                                 <div className="content fw-7">
                                                     {d.value}
-                                                    {d.period && <span className="caption-1 fw-4 text-variant-1">{d.period}</span>}
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
+                            
                             {/* Amenities and Features */}
                             <div className="single-property-element single-property-feature">
                                 <div className="h7 title fw-7">Amenities and features</div>
                                 <div className="wrap-feature">
-                                    {data.amenitiesAndFeatures.map((cat, ci) => (
-                                        <div className="box-feature" key={ci}>
-                                            <div className="fw-7">{cat.category}:</div>
-                                            <ul>
-                                                {cat.items.map((f, fi) => (
-                                                    <li className="feature-item" key={fi}>
-                                                        <span className={`icon ${f.icon}`}></span>
-                                                        {f.label}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
+                                    {amenitiesData.map((cat, ci) => (
+                                        cat.items.length > 0 && (
+                                            <div className="box-feature" key={ci}>
+                                                <div className="fw-7">{cat.category}:</div>
+                                                <ul>
+                                                    {cat.items.map((f, fi) => (
+                                                        <li className="feature-item" key={fi}>
+                                                            <span className={`icon ${f.icon}`}></span>
+                                                            {f.label}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )
                                     ))}
                                 </div>
                             </div>
+                            
                             {/* Map */}
                             <div className="single-property-element single-property-map">
                                 <div className="h7 title fw-7">Map</div>
                                 <div id="map-single" className="map-single"></div>
                                 <ul className="info-map">
-                                    {data.map.info.map((m, i) => (
-                                        <li key={i}>
-                                            <div className="fw-7">{m.label}</div>
-                                            <span className="mt-4 text-variant-1">{m.value}</span>
-                                        </li>
-                                    ))}
+                                    <li>
+                                        <div className="fw-7">Address</div>
+                                        <span className="mt-4 text-variant-1">{propertyData.location.address}, {propertyData.location.location}</span>
+                                    </li>
+                                    <li>
+                                        <div className="fw-7">City</div>
+                                        <span className="mt-4 text-variant-1">{propertyData.location.city_id}</span>
+                                    </li>
+                                    <li>
+                                        <div className="fw-7">Postal Code</div>
+                                        <span className="mt-4 text-variant-1">{propertyData.location.postal_code}</span>
+                                    </li>
                                 </ul>
                             </div>
-                            {/* Floor Plans */}
-                            <div className="single-property-element single-property-floor">
-                                <div className="h7 title fw-7">Floor plans</div>
-                                <ul className="box-floor" id="parent-floor">
-                                    {data.floorPlans.map((floor, fi) => (
-                                        <li className="floor-item" key={fi}>
+                            
+                            {/* Floor Plans - Only show for buildings */}
+                            {!isPlot && (
+                                <div className="single-property-element single-property-floor">
+                                    <div className="h7 title fw-7">Floor plans</div>
+                                    <ul className="box-floor" id="parent-floor">
+                                        <li className="floor-item">
                                             <div
                                                 className="floor-header"
-                                                onClick={() => handleToggleFloor(fi)}
+                                                onClick={() => handleToggleFloor(0)}
                                                 style={{ cursor: "pointer" }}
                                             >
                                                 <div className="inner-left">
                                                     <i className="icon icon-arr-r"></i>
-                                                    <span className="fw-7">{floor.name}</span>
+                                                    <span className="fw-7">First Floor</span>
                                                 </div>
                                                 <ul className="inner-right">
-                                                    {floor.details.map((det, di) => (
-                                                        <li className="d-flex align-items-center gap-8" key={di}>
-                                                            <i className={`icon ${det.icon}`}></i> {det.label}
-                                                        </li>
-                                                    ))}
+                                                    <li className="d-flex align-items-center gap-8">
+                                                        <i className="icon icon-bed"></i> 3 Bedrooms
+                                                    </li>
+                                                    <li className="d-flex align-items-center gap-8">
+                                                        <i className="icon icon-bathtub"></i> 2 Bathrooms
+                                                    </li>
+                                                    <li className="d-flex align-items-center gap-8">
+                                                        <i className="icon icon-ruler"></i> 1200 Sq Ft
+                                                    </li>
                                                 </ul>
                                             </div>
 
-                                            {activeFloor === fi && (
+                                            {activeFloor === 0 && (
                                                 <div className="faq-body">
                                                     <div className="box-img">
-                                                        <img src={floor.image} alt="img-floor" />
+                                                        <img src="images/banner/banner-property-1.jpg" alt="img-floor" />
                                                     </div>
                                                 </div>
                                             )}
                                         </li>
-                                    ))}
-                                </ul>
-                            </div>
+                                    </ul>
+                                </div>
+                            )}
+                            
+                            {/* Plot Layout - Only show for plots */}
+                            {isPlot && propertyImages.some(img => img.image_type === 'floor_plan' || img.image_type === 'plot_layout') && (
+                                <div className="single-property-element single-property-floor">
+                                    <div className="h7 title fw-7">Plot Layout</div>
+                                    <div className="box-img">
+                                        <img src={propertyImages.find(img => img.image_type === 'floor_plan' || img.image_type === 'plot_layout')?.image_path || "images/banner/banner-property-1.jpg"} alt="plot-layout" />
+                                    </div>
+                                </div>
+                            )}
+                            
                             {/* Attachments */}
                             <div className="single-property-element single-property-attachments">
                                 <div className="h7 title fw-7">File Attachments</div>
                                 <div className="row">
-                                    {data.attachments.map((a, i) => (
-                                        <div className="col-sm-6" key={i}>
-                                            <a href="#" target="_blank" className="attachments-item">
-                                                <div className="box-icon w-60">
-                                                    <img src={a.icon} alt="file" />
-                                                </div>
-                                                <span>{a.name}</span>
-                                                <i className="icon icon-download"></i>
-                                            </a>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            {/* Explore */}
-                            <div className="single-property-element single-property-explore">
-                                <div className="h7 title fw-7">Explore Property</div>
-                                <div className="box-img">
-                                    <img src={data.explore.image} alt="img" />
-                                    <div className="box-icon w-80">
-                                        <span className={`icon ${data.explore.icon}`}></span>
+                                    <div className="col-sm-6">
+                                        <a href="#" target="_blank" className="attachments-item">
+                                            <div className="box-icon w-60">
+                                                <img src="https://themesflat.co/html/homzen/images/home/file-1.png" alt="file" />
+                                            </div>
+                                            <span>Property Brochure</span>
+                                            <i className="icon icon-download"></i>
+                                        </a>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <a href="#" target="_blank" className="attachments-item">
+                                            <div className="box-icon w-60">
+                                                <img src="https://themesflat.co/html/homzen/images/home/file-1.png" alt="file" />
+                                            </div>
+                                            <span>{isPlot ? "Plot Layout" : "Floor Plan Details"}</span>
+                                            <i className="icon icon-download"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
+                            
+                            {/* Explore - Only show for buildings */}
+                            {!isPlot && (
+                                <div className="single-property-element single-property-explore">
+                                    <div className="h7 title fw-7">Explore Property</div>
+                                    <div className="box-img">
+                                        <img src="images/banner/banner-property-1.jpg" alt="img" />
+                                        <div className="box-icon w-80">
+                                            <span className="icon icon-360-view"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
                             {/* Loan Calculator */}
                             <div className="single-property-element single-property-loan">
                                 <div className="h7 title fw-7">Loan Calculator</div>
                                 <form action="#" className="box-loan-calc">
                                     <div className="box-top">
-                                        {data.loanCalculator.fields.map((f, i) => (
-                                            <div className="item-calc" key={i}>
-                                                <label className="label">{f.label}:</label>
-                                                <input type="number" placeholder={f.placeholder} className="form-control" />
-                                            </div>
-                                        ))}
+                                        <div className="item-calc">
+                                            <label className="label">Home Price:</label>
+                                            <input type="number" placeholder="2500000" className="form-control" />
+                                        </div>
+                                        <div className="item-calc">
+                                            <label className="label">Down Payment:</label>
+                                            <input type="number" placeholder="500000" className="form-control" />
+                                        </div>
+                                        <div className="item-calc">
+                                            <label className="label">Loan Term (Years):</label>
+                                            <input type="number" placeholder="20" className="form-control" />
+                                        </div>
+                                        <div className="item-calc">
+                                            <label className="label">Interest Rate (%):</label>
+                                            <input type="number" placeholder="7.5" className="form-control" />
+                                        </div>
                                     </div>
                                     <div className="box-bottom">
                                         <button className="tf-btn primary">Calculator</button>
                                         <div className="d-flex gap-4">
                                             <span className="h7 fw-7">Monthly Payment:</span>
-                                            <span className="result h7 fw-7">{data.loanCalculator.monthlyPayment}</span>
+                                            <span className="result h7 fw-7">$1,976</span>
                                         </div>
                                     </div>
                                 </form>
                             </div>
+                            
                             {/* Nearby */}
                             <div className="single-property-element single-property-nearby">
-                                <div className="h7 title fw-7">What’s nearby?</div>
-                                <p className="body-2">{data.nearby.description}</p>
+                                <div className="h7 title fw-7">What's nearby?</div>
+                                <p className="body-2">This property is conveniently located near various amenities and facilities.</p>
                                 <div className="grid-2 box-nearby">
                                     <ul className="box-left">
-                                        {data.nearby.left.map((n, i) => (
-                                            <li className="item-nearby" key={i}>
-                                                <span className="label">{n.label}:</span>
-                                                <span className="fw-7">{n.value}</span>
-                                            </li>
-                                        ))}
+                                        <li className="item-nearby">
+                                            <span className="label">Schools:</span>
+                                            <span className="fw-7">Within 1 km</span>
+                                        </li>
+                                        <li className="item-nearby">
+                                            <span className="label">Hospitals:</span>
+                                            <span className="fw-7">Within 2 km</span>
+                                        </li>
+                                        <li className="item-nearby">
+                                            <span className="label">Shopping Malls:</span>
+                                            <span className="fw-7">Within 1.5 km</span>
+                                        </li>
                                     </ul>
                                     <ul className="box-right">
-                                        {data.nearby.right.map((n, i) => (
-                                            <li className="item-nearby" key={i}>
-                                                <span className="label">{n.label}:</span>
-                                                <span className="fw-7">{n.value}</span>
-                                            </li>
-                                        ))}
+                                        <li className="item-nearby">
+                                            <span className="label">Public Transport:</span>
+                                            <span className="fw-7">Within 500 m</span>
+                                        </li>
+                                        <li className="item-nearby">
+                                            <span className="label">Parks:</span>
+                                            <span className="fw-7">Within 800 m</span>
+                                        </li>
+                                        <li className="item-nearby">
+                                            <span className="label">Restaurants:</span>
+                                            <span className="fw-7">Within 1 km</span>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
-                            {/* Reviews */}
+                            
+                            {/* Reviews - Keeping this section as it was */}
                             <div className="single-property-element single-wrapper-review">
                                 <div className="box-title-review d-flex justify-content-between align-items-center flex-wrap gap-20">
                                     <div className="h7 fw-7">Guest Reviews</div>
@@ -331,49 +595,41 @@ const Properties = () => {
                                 </div>
                                 <div className="wrap-review">
                                     <ul className="box-review">
-                                        {data.reviews.map((r, i) => (
-                                            <li className="list-review-item" key={i}>
-                                                <div className="avatar avt-60 round">
-                                                    <img src={r.avatar} alt="avatar" />
-                                                </div>
-                                                <div className="content">
-                                                    <div className="name h7 fw-7 text-black">{r.name}</div>
-                                                    <span className="mt-4 d-inline-block date body-3 text-variant-2">{r.date}</span>
-                                                    <ul className="mt-8 list-star">
-                                                        {[...Array(r.stars)].map((_, si) => (
-                                                            <li className="icon-star" key={si}></li>
-                                                        ))}
-                                                    </ul>
-                                                    <p className="mt-12 body-2 text-black">{r.content}</p>
-                                                    {r.images && r.images.length > 0 && (
-                                                        <ul className="box-img-review">
-                                                            {r.images.map((img, ii) => (
-                                                                <li key={ii}><a href="#" className="img-review"><img src={img} alt="img-review" /></a></li>
-                                                            ))}
-                                                            {r.moreImages && (
-                                                                <li><a href="#" className="img-review"><span className="fw-7">+{r.moreImages}</span></a></li>
-                                                            )}
-                                                        </ul>
-                                                    )}
-                                                    {r.questions && (
-                                                        <a href="#" className="view-question">
-                                                            See more answered questions ({r.questions})
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </li>
-                                        ))}
+                                        <li className="list-review-item">
+                                            <div className="avatar avt-60 round">
+                                                <img src="images/avatar/avt-1.jpg" alt="avatar" />
+                                            </div>
+                                            <div className="content">
+                                                <div className="name h7 fw-7 text-black">John Doe</div>
+                                                <span className="mt-4 d-inline-block date body-3 text-variant-2">2 weeks ago</span>
+                                                <ul className="mt-8 list-star">
+                                                    <li className="icon-star"></li>
+                                                    <li className="icon-star"></li>
+                                                    <li className="icon-star"></li>
+                                                    <li className="icon-star"></li>
+                                                    <li className="icon-star"></li>
+                                                </ul>
+                                                <p className="mt-12 body-2 text-black">Great property with amazing amenities. The location is perfect and the views are stunning.</p>
+                                                <ul className="box-img-review">
+                                                    <li><a href="#" className="img-review"><img src="images/banner/banner-property-1.jpg" alt="img-review" /></a></li>
+                                                    <li><a href="#" className="img-review"><img src="images/banner/banner-property-2.jpg" alt="img-review" /></a></li>
+                                                    <li><a href="#" className="img-review"><span className="fw-7">+5</span></a></li>
+                                                </ul>
+                                                <a href="#" className="view-question">
+                                                    See more answered questions (3)
+                                                </a>
+                                            </div>
+                                        </li>
                                     </ul>
                                 </div>
-
 
                                 <div className="wrap-form-comment">
                                     <div className="h7">Leave A Reply</div>
                                     <div id="comments" className="comments">
                                         <div className="respond-comment">
                                             <form method="post" id="contactform" className="comment-form form-submit"
-                                                action="https://themesflat.co/html/homzen/contact/contact-process.php" accept-charset="utf-8"
-                                                novalidate="novalidate">
+                                                action="https://themesflat.co/html/homzen/contact/contact-process.php" acceptCharset="utf-8"
+                                                noValidate="novalidate">
 
                                                 <div className="form-wg group-ip">
                                                     <fieldset>
@@ -386,12 +642,12 @@ const Properties = () => {
                                                     </fieldset>
                                                 </div>
                                                 <fieldset className="form-wg d-flex align-items-center gap-8">
-                                                    <input type="checkbox" className="tf-checkbox" id="cb-ip"style={{accentColor:"#ED2027"}}/>
-                                                    <label for="cb-ip" className="text-black text-checkbox">Save your name, email for the next time review </label>
+                                                    <input type="checkbox" className="tf-checkbox" id="cb-ip" style={{accentColor:"#ED2027"}}/>
+                                                    <label htmlFor="cb-ip" className="text-black text-checkbox">Save your name, email for the next time review </label>
                                                 </fieldset>
                                                 <fieldset className="form-wg">
                                                     <label className="sub-ip">Review</label>
-                                                    <textarea id="comment-message" name="message" rows="4" tabindex="4"
+                                                    <textarea id="comment-message" name="message" rows="4" tabIndex="4"
                                                         placeholder="Write comment " aria-required="true"></textarea>
                                                 </fieldset>
                                                 <button className="form-wg tf-btn primary" name="submit" type="submit">
@@ -401,29 +657,29 @@ const Properties = () => {
                                         </div>
                                     </div>
                                 </div>
-                                {/* You can add the review form here if needed */}
                             </div>
                         </div>
+                        
                         {/* Sidebar */}
                         <div className="col-lg-4">
                             <div className="widget-sidebar fixed-sidebar wrapper-sidebar-right">
                                 {/* Contact Seller */}
                                 <div className="widget-box single-property-contact bg-surface">
-                                    <div className="h7 title fw-7">Contact Sellers</div>
+                                    <div className="h7 title fw-7">Contact Seller</div>
                                     <div className="box-avatar">
                                         <div className="avatar avt-100 round">
-                                            <img src={data.contactSeller.avatar} alt="avatar" />
+                                            <img src="https://themesflat.co/html/homzen/images/avatar/avt-12.jpg" alt="avatar" />
                                         </div>
                                         <div className="info">
-                                            <div className="text-1 name">{data.contactSeller.name}</div>
-                                            <span>{data.contactSeller.phone} {data.contactSeller.email}</span>
+                                            <div className="text-1 name">{contactSellerData.name}</div>
+                                            <span>{contactSellerData.phone} {contactSellerData.email}</span>
                                         </div>
                                     </div>
-                                    {/* Contact form (static) */}
+                                    {/* Contact form */}
                                     <form action="#" className="contact-form">
                                         <div className="ip-group">
                                             <label>Full Name:</label>
-                                            <input type="text" placeholder="Jony Dane" className="form-control" />
+                                            <input type="text" placeholder="Your Name" className="form-control" />
                                         </div>
                                         <div className="ip-group">
                                             <label>Phone Number:</label>
@@ -431,7 +687,7 @@ const Properties = () => {
                                         </div>
                                         <div className="ip-group">
                                             <label>Email Address:</label>
-                                            <input type="text" placeholder={data.contactSeller.email} className="form-control" />
+                                            <input type="text" placeholder="your@email.com" className="form-control" />
                                         </div>
                                         <div className="ip-group">
                                             <label>Your Message:</label>
@@ -440,7 +696,8 @@ const Properties = () => {
                                         <button className="tf-btn primary w-100">Send Message</button>
                                     </form>
                                 </div>
-                                {/* Search Widget */}
+                                
+                                {/* Search Widget - Keeping this section as it was */}
                                 <div className="flat-tab flat-tab-form widget-filter-search widget-box bg-surface">
                                     <div className="h7 title fw-7">Search</div>
                                     <ul className="nav-tab-form" role="tablist">
@@ -471,7 +728,7 @@ const Properties = () => {
                                                             <div className="form-style">
                                                                 <label className="title-select">Type</label>
                                                                 <div className="group-select">
-                                                                    <div className="nice-select" tabindex="0"><span className="current">All</span>
+                                                                    <div className="nice-select" tabIndex="0"><span className="current">All</span>
                                                                         <ul className="list">
                                                                             <li data-value className="option selected">All</li>
                                                                             <li data-value="villa" className="option">Villa</li>
@@ -483,7 +740,7 @@ const Properties = () => {
                                                             </div>
                                                             <div className="form-style box-select">
                                                                 <label className="title-select">Rooms</label>
-                                                                <div className="nice-select" tabindex="0"><span className="current">2</span>
+                                                                <div className="nice-select" tabIndex="0"><span className="current">2</span>
                                                                     <ul className="list">
                                                                         <li data-value="2" className="option">1</li>
                                                                         <li data-value="2" className="option selected">2</li>
@@ -500,7 +757,7 @@ const Properties = () => {
                                                             </div>
                                                             <div className="form-style box-select">
                                                                 <label className="title-select">Bathrooms</label>
-                                                                <div className="nice-select" tabindex="0"><span className="current">4</span>
+                                                                <div className="nice-select" tabIndex="0"><span className="current">4</span>
                                                                     <ul className="list">
                                                                         <li data-value="all" className="option">All</li>
                                                                         <li data-value="1" className="option">1</li>
@@ -518,7 +775,7 @@ const Properties = () => {
                                                             </div>
                                                             <div className="form-style box-select">
                                                                 <label className="title-select">Bedrooms</label>
-                                                                <div className="nice-select" tabindex="0"><span className="current">4</span>
+                                                                <div className="nice-select" tabIndex="0"><span className="current">4</span>
                                                                     <ul className="list">
                                                                         <li data-value="1" className="option">All</li>
                                                                         <li data-value="1" className="option">1</li>
@@ -577,100 +834,100 @@ const Properties = () => {
                                                                     <div className="text-1">Amenities:</div>
                                                                     <div className="group-amenities">
                                                                         <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb1" checked />
-                                                                            <label for="cb1" className="text-cb-amenities">Air Condition</label>
+                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb1" defaultChecked />
+                                                                            <label htmlFor="cb1" className="text-cb-amenities">Air Condition</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb2" />
-                                                                            <label for="cb2" className="text-cb-amenities">Disabled Access</label>
+                                                                            <label htmlFor="cb2" className="text-cb-amenities">Disabled Access</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb3" />
-                                                                            <label for="cb3" className="text-cb-amenities">Ceiling Height</label>
+                                                                            <label htmlFor="cb3" className="text-cb-amenities">Ceiling Height</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb4" checked />
-                                                                            <label for="cb4" className="text-cb-amenities">Floor</label>
+                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb4" defaultChecked />
+                                                                            <label htmlFor="cb4" className="text-cb-amenities">Floor</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb5" />
-                                                                            <label for="cb5" className="text-cb-amenities">Heating</label>
+                                                                            <label htmlFor="cb5" className="text-cb-amenities">Heating</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb6" />
-                                                                            <label for="cb6" className="text-cb-amenities">Renovation</label>
+                                                                            <label htmlFor="cb6" className="text-cb-amenities">Renovation</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb7" />
-                                                                            <label for="cb7" className="text-cb-amenities">Window Type</label>
+                                                                            <label htmlFor="cb7" className="text-cb-amenities">Window Type</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb8" />
-                                                                            <label for="cb8" className="text-cb-amenities">Cable TV</label>
+                                                                            <label htmlFor="cb8" className="text-cb-amenities">Cable TV</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb9" checked />
-                                                                            <label for="cb9" className="text-cb-amenities">Elevator</label>
+                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb9" defaultChecked />
+                                                                            <label htmlFor="cb9" className="text-cb-amenities">Elevator</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb10" />
-                                                                            <label for="cb10" className="text-cb-amenities">Furnishing</label>
+                                                                            <label htmlFor="cb10" className="text-cb-amenities">Furnishing</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb11" />
-                                                                            <label for="cb11" className="text-cb-amenities">Intercom</label>
+                                                                            <label htmlFor="cb11" className="text-cb-amenities">Intercom</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb12" />
-                                                                            <label for="cb12" className="text-cb-amenities">Security</label>
+                                                                            <label htmlFor="cb12" className="text-cb-amenities">Security</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb13" />
-                                                                            <label for="cb13" className="text-cb-amenities">Search property</label>
+                                                                            <label htmlFor="cb13" className="text-cb-amenities">Search property</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb14" />
-                                                                            <label for="cb14" className="text-cb-amenities">Ceiling Height</label>
+                                                                            <label htmlFor="cb14" className="text-cb-amenities">Ceiling Height</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb15" />
-                                                                            <label for="cb15" className="text-cb-amenities">Fence</label>
+                                                                            <label htmlFor="cb15" className="text-cb-amenities">Fence</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb16" />
-                                                                            <label for="cb16" className="text-cb-amenities">Fence</label>
+                                                                            <label htmlFor="cb16" className="text-cb-amenities">Fence</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb17" checked />
-                                                                            <label for="cb17" className="text-cb-amenities">Garage</label>
+                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb17" defaultChecked />
+                                                                            <label htmlFor="cb17" className="text-cb-amenities">Garage</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb18" />
-                                                                            <label for="cb18" className="text-cb-amenities">Parking</label>
+                                                                            <label htmlFor="cb18" className="text-cb-amenities">Parking</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb19" />
-                                                                            <label for="cb19" className="text-cb-amenities">Swimming Pool</label>
+                                                                            <label htmlFor="cb19" className="text-cb-amenities">Swimming Pool</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb20" />
-                                                                            <label for="cb20" className="text-cb-amenities">Construction Year</label>
+                                                                            <label htmlFor="cb20" className="text-cb-amenities">Construction Year</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb21" />
-                                                                            <label for="cb21" className="text-cb-amenities">Fireplace</label>
+                                                                            <label htmlFor="cb21" className="text-cb-amenities">Fireplace</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb22" />
-                                                                            <label for="cb22" className="text-cb-amenities">Garden</label>
+                                                                            <label htmlFor="cb22" className="text-cb-amenities">Garden</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb23" />
-                                                                            <label for="cb23" className="text-cb-amenities">Pet Friendly</label>
+                                                                            <label htmlFor="cb23" className="text-cb-amenities">Pet Friendly</label>
                                                                         </fieldset>
                                                                         <fieldset className="amenities-item">
                                                                             <input type="checkbox" className="tf-checkbox style-1" id="cb24" />
-                                                                            <label for="cb24" className="text-cb-amenities">WiFi</label>
+                                                                            <label htmlFor="cb24" className="text-cb-amenities">WiFi</label>
                                                                         </fieldset>
                                                                     </div>
 
@@ -693,11 +950,12 @@ const Properties = () => {
 
                                     </div>
                                 </div>
+                                
                                 {/* Why Choose Us */}
                                 <div className="widget-box single-property-whychoose bg-surface">
                                     <div className="h7 title fw-7">Why Choose Us?</div>
                                     <ul className="box-whychoose">
-                                        {data.whyChooseUs.map((w, i) => (
+                                        {whyChooseUsData.map((w, i) => (
                                             <li className="item-why" key={i}>
                                                 <i className={`icon ${w.icon}`}></i>
                                                 {w.label}
@@ -707,6 +965,8 @@ const Properties = () => {
                                 </div>
                             </div>
                         </div>
+                        
+                        {/* Featured Properties Section */}
                         <section className="flat-section pt-0 flat-latest-property">
                             <div className="container">
                                 <div className="box-title">
@@ -725,13 +985,13 @@ const Properties = () => {
                                         1024: { slidesPerView: 3 },
                                     }}
                                 >
-                                    {featured.map((property, index) => (
+                                    {featuredProperties.map((property, index) => (
                                         <SwiperSlide key={index}>
                                             <div className="homeya-box style-2">
                                                 <div className="archive-top">
                                                     <Link to="#" className="images-group">
                                                         <div className="images-style">
-                                                            <img src={property.img} alt="img" />
+                                                            <img src={propertyImages[0]?.image_path || "images/banner/banner-property-1.jpg"} alt="img" />
                                                         </div>
                                                         <div className="top">
                                                             <ul className="d-flex gap-8">
@@ -739,38 +999,40 @@ const Properties = () => {
                                                                 <li className="flag-tag style-1">For Sale</li>
                                                             </ul>
                                                             <ul className="d-flex gap-4">
-                                                              
+                                                                <li className="box-icon w-32">
+                                                                    <span className="icon icon-heart"></span>
+                                                                </li>
                                                                 <li className="box-icon w-32">
                                                                     <span className="icon icon-eye"></span>
                                                                 </li>
                                                             </ul>
                                                         </div>
                                                         <div className="bottom">
-                                                            <span className="flag-tag style-2">{property.tag}</span>
+                                                            <span className="flag-tag style-2">{propertyData.property.listing_type}</span>
                                                         </div>
                                                     </Link>
                                                     <div className="content">
                                                         <div className="h7 text-capitalize fw-7">
                                                             <Link to="#" className="link">
-                                                                {property.title}
+                                                                {propertyData.property.title}
                                                             </Link>
                                                         </div>
                                                         <div className="desc">
                                                             <i className="fs-16 icon icon-mapPin"></i>
-                                                            <p>{property.location}</p>
+                                                            <p>{propertyData.location.address}, {propertyData.location.location}</p>
                                                         </div>
                                                         <ul className="meta-list">
                                                             <li className="item">
                                                                 <i className="icon icon-bed"></i>
-                                                                <span>{property.bed}</span>
+                                                                <span>{propertyData.details.bedrooms}</span>
                                                             </li>
                                                             <li className="item">
                                                                 <i className="icon icon-bathtub"></i>
-                                                                <span>{property.bath}</span>
+                                                                <span>{propertyData.details.bathrooms}</span>
                                                             </li>
                                                             <li className="item">
                                                                 <i className="icon icon-ruler"></i>
-                                                                <span>{property.size}</span>
+                                                                <span>{propertyData.area.carpet_area} {propertyData.area.carpet_area_unit}</span>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -778,13 +1040,15 @@ const Properties = () => {
                                                 <div className="archive-bottom d-flex justify-content-between align-items-center">
                                                     <div className="d-flex gap-8 align-items-center">
                                                         <div className="avatar avt-40 round">
-                                                            <img src={property.avatar} alt="avt" />
+                                                            <img src={contactSellerData.avatar} alt="avt" />
                                                         </div>
-                                                        <span>{property.author}</span>
+                                                        <span>{contactSellerData.name}</span>
                                                     </div>
                                                     <div className="d-flex align-items-center">
-                                                        <h6>{property.price}</h6>
-                                                        <span className="text-variant-1">{property.period}</span>
+                                                        <h6>{formatCurrency(propertyData.pricing.sale_price)}</h6>
+                                                        {propertyData.pricing.expected_rent && (
+                                                            <span className="text-variant-1">/month</span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -797,13 +1061,14 @@ const Properties = () => {
                     </div>
                 </div>
             </section>
+            
             <Footer />
             
-                    <div className="progress-wrap">
-                        <svg className="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
-                            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" style={{ transition: 'stroke-dashoffset 10ms linear 0s', strokeDasharray: '307.919, 307.919', strokeDashoffset: '286.138' }}></path>
-                        </svg>
-                    </div>
+            <div className="progress-wrap">
+                <svg className="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+                    <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" style={{ transition: 'stroke-dashoffset 10ms linear 0s', strokeDasharray: '307.919, 307.919', strokeDashoffset: '286.138' }}></path>
+                </svg>
+            </div>
         </div>
     );
 };

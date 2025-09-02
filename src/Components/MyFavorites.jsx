@@ -320,9 +320,7 @@ const MyFavorites = () => {
 
                         <div className="main-content">
                             <div className="main-content-inner wrap-dashboard-content-2">
-                                <div className="button-show-hide" onClick={toggleDashboard}>
-                                    <span className="icon icon-categories"></span>
-                                </div>
+                                
 
                                 <div className="widget-box-2 wd-listing">
                                     <h6 className="title">My Favorites</h6>
