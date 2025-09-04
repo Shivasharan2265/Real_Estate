@@ -1,0 +1,29 @@
+.skeleton-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.skeleton-img {
+    width: 80px;
+    height: 60px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.skeleton-content {
+    flex: 1;
+}
+
+.skeleton-line {
+    height: 12px;
+    background: #e0e0e0;
+    margin: 6px 0;
+    border-radius: 4px;
+}
+
+.skeleton-line.short {
+    width: 50%;
+}

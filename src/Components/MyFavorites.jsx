@@ -1,6 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../api/api';
+import "./MyFavorites.css"
+
 
 
 const MyFavorites = () => {
@@ -10,6 +13,10 @@ const MyFavorites = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+       const [name, setName] = useState(localStorage.getItem("name"));
+            console.log(name);
+    
 
 
     const toggleDropdown = () => {
@@ -98,6 +105,62 @@ const MyFavorites = () => {
     }, [dropdownOpen]);
 
 
+
+
+    const [favorites, setFavorites] = useState([]);
+    const [loading, setLoading] = useState(true); // <-- new loading state
+
+    const myFavoritesList = async () => {
+        setLoading(true); // start loading
+        const fd = new FormData();
+        fd.append("programType", "myFavoritesProperty");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("/properties/property", fd);
+            console.log("Favorites API:", response);
+
+            if (response.data.success && response.data.data.Favorites) {
+                setFavorites(response.data.data.Favorites);
+            } else {
+                setFavorites([]);
+            }
+        } catch (error) {
+            console.error("myfavorites error:", error);
+            setFavorites([]);
+        } finally {
+            setLoading(false); // stop loading
+        }
+    };
+
+
+    useEffect(() => {
+        myFavoritesList();
+    }, []);
+
+        const remove = async (id) => {
+    
+            console.log("removing")
+            const fd = new FormData();
+            fd.append("programType", "removeFavorites");
+            fd.append("authToken", localStorage.getItem("authToken"));
+            fd.append("favoriteId", id)
+             console.log(id)
+    
+            try {
+    
+                const response = await api.post("/properties/property", fd);
+                console.log(response)
+                if (response.data.success) {
+                    setProperties([])
+                    myPropertyList()
+                }
+            } catch (error) {
+                console.error("Property fetch error:", error);
+            }
+        };
+
+
     return (
         <div className={`body bg-surface ${menuVisible ? 'mobile-menu-visible' : ''}`}>
             <div id="wrapper">
@@ -172,9 +235,9 @@ const MyFavorites = () => {
                                                     style={{ position: 'relative' }}
                                                 >
                                                     <div className="avatar avt-40 round">
-                                                        <img src="images/avatar/avt-2.jpg" alt="avt" />
+                                                        <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
                                                     </div>
-                                                    <p className="name" style={{ cursor: "pointer" }}>Tony Nguyen<span className="icon icon-arr-down"></span></p>
+                                                    <p className="name" style={{ cursor: "pointer" }}>{name}<span className="icon icon-arr-down"></span></p>
                                                     <div
                                                         className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`}
                                                         style={{
@@ -189,7 +252,12 @@ const MyFavorites = () => {
                                                         <Link className="dropdown-item" to="/myfavorites">My Favorites</Link>
                                                         <Link className="dropdown-item" to="/reviews">Reviews</Link>
                                                         <Link className="dropdown-item" to="/myprofile">My Profile</Link>
-                                                        <Link className="dropdown-item" to="/logout">Logout</Link>
+                                                        <Link className="dropdown-item" onClick={(e) => {
+                                            e.preventDefault();
+                                            localStorage.removeItem("authToken"); // clear token
+                                            navigate("/home"); // redirect after logout
+                                            window.location.reload(); // reload so header updates
+                                        }}>Logout</Link>
 
                                                     </div>
                                                 </div>
@@ -320,7 +388,7 @@ const MyFavorites = () => {
 
                         <div className="main-content">
                             <div className="main-content-inner wrap-dashboard-content-2">
-                                
+
 
                                 <div className="widget-box-2 wd-listing">
                                     <h6 className="title">My Favorites</h6>
@@ -335,119 +403,79 @@ const MyFavorites = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr className="file-delete">
-                                                        <td>
-                                                            <div className="listing-box">
-                                                                <div className="images">
-                                                                    <img src="images/home/house-1.jpg" alt="images" />
-                                                                </div>
-                                                                <div className="content">
-                                                                    <div className="title"><Link to="property-details-v1.html" className="link">Gorgeous Apartment Building</Link>  </div>
-                                                                    <div className="text-date">12 Lowell Road, Port Washington</div>
-                                                                    <div className="text-1 fw-7">$5050,00</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>April 9, 2024</span>
-                                                        </td>
-
-                                                        <td>
-                                                            <ul className="list-action">
-                                                                <li><Link className="item"><i className="icon icon-edit"></i>Edit</Link> </li>
-                                                                <li><Link className="item"><i className="icon icon-sold"></i>Sold</Link> </li>
-                                                                <li><Link className="remove-file item"><i className="icon icon-trash"></i>Delete</Link> </li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                    {/* <!-- col 2 --> */}
-                                                    <tr className="file-delete">
-                                                        <td>
-                                                            <div className="listing-box">
-                                                                <div className="images">
-                                                                    <img src="images/home/house-2.jpg" alt="images" />
-                                                                </div>
-                                                                <div className="content">
-                                                                    <div className="title"><Link to="property-details-v1.html" className="link">Mountain Mist Retreat, Aspen</Link>  </div>
-                                                                    <div className="text-date">Brian Drive, Montvale, New Jersey</div>
-
-                                                                    <div className="text-1 fw-7">$5050,00</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>April 9, 2024</span>
-                                                        </td>
-
-                                                        <td>
-                                                            <ul className="list-action">
-                                                                <li><Link className="item"><i className="icon icon-edit"></i>Edit</Link> </li>
-                                                                <li><Link className="item"><i className="icon icon-sold"></i>Sold</Link> </li>
-                                                                <li><Link className="remove-file item"><i className="icon icon-trash"></i>Delete</Link> </li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                    {/* <!-- col 3 --> */}
-                                                    <tr className="file-delete">
-                                                        <td>
-                                                            <div className="listing-box">
-                                                                <div className="images">
-                                                                    <img src="images/home/house-3.jpg" alt="images" />
-                                                                </div>
-                                                                <div className="content">
-                                                                    <div className="title"><Link to="property-details-v1.html" className="link">Lakeview Haven, Lake Tahoe</Link>  </div>
-                                                                    <div className="text-date">12 Lowell Road, Port Washington</div>
-
-                                                                    <div className="text-1 fw-7">$5050,00</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>April 9, 2024</span>
-                                                        </td>
-
-                                                        <td>
-                                                            <ul className="list-action">
-                                                                <li><Link className="item"><i className="icon icon-edit"></i>Edit</Link> </li>
-                                                                <li><Link className="item"><i className="icon icon-sold"></i>Sold</Link> </li>
-                                                                <li><Link className="remove-file item"><i className="icon icon-trash"></i>Delete</Link> </li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                    {/* <!-- col 4 --> */}
-                                                    <tr className="file-delete">
-                                                        <td>
-                                                            <div className="listing-box">
-                                                                <div className="images">
-                                                                    <img src="images/home/house-4.jpg" alt="images" />
-                                                                </div>
-                                                                <div className="content">
-                                                                    <div className="title"><Link to="property-details-v1.html" className="link">Coastal Serenity Cottage</Link>  </div>
-                                                                    <div className="text-date">Brian Drive, Montvale, New Jersey</div>
-                                                                    <div className="text-1 fw-7">$5050,00</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>April 9, 2024</span>
-                                                        </td>
-
-                                                        <td>
-                                                            <ul className="list-action">
-                                                                <li><Link className="item"><i className="icon icon-edit"></i>Edit</Link> </li>
-                                                                <li><Link className="item"><i className="icon icon-sold"></i>Sold</Link> </li>
-                                                                <li><Link className="remove-file item"><i className="icon icon-trash"></i>Delete</Link> </li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
+                                                    {loading ? (
+                                                        // Skeleton loader rows
+                                                        Array.from({ length: 3 }).map((_, index) => (
+                                                            <tr key={index}>
+                                                                <td colSpan="3">
+                                                                    <div className="skeleton-row">
+                                                                        <div className="skeleton-img"></div>
+                                                                        <div className="skeleton-content">
+                                                                            <div className="skeleton-line short"></div>
+                                                                            <div className="skeleton-line"></div>
+                                                                            <div className="skeleton-line"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : favorites.length > 0 ? (
+                                                        favorites.map((fav) => (
+                                                            <tr key={fav.favoriteId} className="file-delete">
+                                                                <td>
+                                                                    <div className="listing-box">
+                                                                        <div className="images">
+                                                                            <img
+                                                                                src="https://themesflat.co/html/homzen/images/home/house-1.jpg"
+                                                                                alt={fav.title}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="content">
+                                                                            <div className="title">
+                                                                                <Link to={`/property-details/${fav.slug}`} className="link">
+                                                                                    {fav.title}
+                                                                                </Link>
+                                                                            </div>
+                                                                            <div className="text-date">
+                                                                                {fav.location}, {fav.sub_locality}
+                                                                            </div>
+                                                                            <div className="text-1 fw-7">
+                                                                                {fav.listing_type === "rent"
+                                                                                    ? `₹${fav.expected_rent} / ${fav.rent_period}`
+                                                                                    : `₹${fav.expected_price}`}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <span>{new Date(fav.created_at).toLocaleDateString()}</span>
+                                                                </td>
+                                                                <td>
+                                                                    <ul className="list-action">
+                                                                      
+                                                                        <li onClick={() => remove(property.id)}>
+                                                                            <Link className="remove-file item">
+                                                                                <i className="icon icon-trash"></i>Remove
+                                                                            </Link>
+                                                                        </li>
+                                                                    </ul>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan="3" className="text-center">
+                                                                No favorites found
+                                                            </td>
+                                                        </tr>
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>
 
                                         <ul className="wd-navigation">
                                             <li><Link to="#" className="nav-item active">1</Link> </li>
-                                            <li><Link to="#" className="nav-item">2</Link> </li>
-                                            <li><Link to="#" className="nav-item">3</Link> </li>
+                                           
                                             <li><Link to="#" className="nav-item"><i className="icon icon-arr-r"></i></Link> </li>
                                         </ul>
                                     </div>

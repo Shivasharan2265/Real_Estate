@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 import Header from "./Header";
@@ -10,12 +10,23 @@ import api from "../api/api";
 
 const Properties = () => {
     const { id } = useParams();
+    const navigate = useNavigate()
     const [propertyData, setPropertyData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeFloor, setActiveFloor] = useState(null);
     const [featuredProperties, setFeaturedProperties] = useState([]);
     const [isPlot, setIsPlot] = useState(false);
+
+    const [name, setName] = useState(localStorage.getItem("name"));
+    const [mobile, setMobile] = useState(localStorage.getItem("mobile"));
+
+    const [email, setEmail] = useState(localStorage.getItem("email"));
+    const [message, setMessage] = useState("I am Intersted!");
+
+
+
+
 
     const handleToggleFloor = (index) => {
         setActiveFloor(activeFloor === index ? null : index);
@@ -30,17 +41,17 @@ const Properties = () => {
         try {
             const response = await api.post("/properties/property", fd);
             console.log("API Response:", response);
-            
+
             if (response.data.success) {
                 const data = response.data.data[0];
                 setPropertyData(data);
-                
+
                 // Check if it's a plot
-                const isPlotProperty = data.details.apartment_type === "Plot" || 
-                                     data.property.sub_property_type_id === "Residential Plot" ||
-                                     data.area.plot_area > 0;
+                const isPlotProperty = data.details.apartment_type === "Plot" ||
+                    data.property.sub_property_type_id === "Residential Plot" ||
+                    data.area.plot_area > 0;
                 setIsPlot(isPlotProperty);
-                
+
                 // For demo purposes, we'll use the same property as featured
                 setFeaturedProperties([data]);
             } else {
@@ -58,17 +69,60 @@ const Properties = () => {
         fetchDetails();
     }, [id]);
 
+    // Alternative: Bouncing cubes loader
     if (loading) {
         return (
             <div>
                 <Header />
-                <div className="container text-center py-5">
-                    <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
+                <div
+                    style={{
+                        minHeight: "80vh",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "column",
+                    }}
+                >
+                    <div className="bouncing-cubes">
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
                     </div>
                     <p className="mt-3">Loading property details...</p>
                 </div>
-               
+
+                <style>{`
+                .bouncing-cubes {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    height: 50px;
+                }
+                
+                .cube {
+                    width: 20px;
+                    height: 20px;
+                    animation: bounce 1.5s infinite ease-in-out;
+                }
+                
+                .cube:nth-child(2) {
+                    animation-delay: 0.2s;
+                }
+                
+                .cube:nth-child(3) {
+                    animation-delay: 0.4s;
+                }
+                
+                @keyframes bounce {
+                    0%, 100% {
+                        transform: translateY(0);
+                    }
+                    50% {
+                        transform: translateY(-20px);
+                    }
+                }
+            `}</style>
             </div>
         );
     }
@@ -289,7 +343,7 @@ const Properties = () => {
                     </Link>
                 </div>
             </section>
-            
+
             <section className="flat-section pt-0 flat-property-detail">
                 <div className="container">
                     {/* Header */}
@@ -344,7 +398,7 @@ const Properties = () => {
                                 <p className="body-2 text-variant-1">{propertyData.property.description}</p>
                                 <p className="body-2 text-variant-1">{propertyData.property.unique_property}</p>
                             </div>
-                            
+
                             {/* Overview */}
                             <div className="single-property-element single-property-overview">
                                 <div className="h7 title fw-7">Overview</div>
@@ -360,18 +414,18 @@ const Properties = () => {
                                     ))}
                                 </ul>
                             </div>
-                            
+
                             {/* Video - Only show if not a plot or if plot has video */}
                             {!isPlot && (
-                                <div className="single-property-element single-property-video">
-                                    <div className="h7 title fw-7">Property Video</div>
-                                    <div className="img-video">
-                                        <img src="images/banner/banner-property-1.jpg" alt="img-video" />
-                                        <a href="https://www.youtube.com/watch?v=LXb3EKWsInQ" data-fancybox="gallery2" className="btn-video"> <span className="icon icon-play"></span></a>
+                                <div class="single-property-element single-property-video">
+                                    <div class="h7 title fw-7">Video</div>
+                                    <div class="img-video">
+                                        <img src="https://www.iitkgp.ac.in/assets/images/no-banner.jpg" alt="img-video" />
+                                        <a href="https://youtu.be/MLpWrANjFbI" data-fancybox="gallery2" class="btn-video"> <span class="icon icon-play"></span></a>
                                     </div>
                                 </div>
                             )}
-                            
+
                             {/* Property Details */}
                             <div className="single-property-element single-property-info">
                                 <div className="h7 title fw-7">Property Details</div>
@@ -388,7 +442,7 @@ const Properties = () => {
                                     ))}
                                 </div>
                             </div>
-                            
+
                             {/* Amenities and Features */}
                             <div className="single-property-element single-property-feature">
                                 <div className="h7 title fw-7">Amenities and features</div>
@@ -410,27 +464,28 @@ const Properties = () => {
                                     ))}
                                 </div>
                             </div>
-                            
+
                             {/* Map */}
-                            <div className="single-property-element single-property-map">
-                                <div className="h7 title fw-7">Map</div>
-                                <div id="map-single" className="map-single"></div>
-                                <ul className="info-map">
+                            <div class="single-property-element single-property-map">
+                                <div class="h7 title fw-7">Map</div>
+                                <div id="map-single" class="map-single" data-map-zoom="16" data-map-scroll="true"></div>
+                                <ul class="info-map">
                                     <li>
-                                        <div className="fw-7">Address</div>
-                                        <span className="mt-4 text-variant-1">{propertyData.location.address}, {propertyData.location.location}</span>
+                                        <div class="fw-7">Address</div>
+                                        <span class="mt-4 text-variant-1">8 Broadway, Brooklyn, New York</span>
                                     </li>
                                     <li>
-                                        <div className="fw-7">City</div>
-                                        <span className="mt-4 text-variant-1">{propertyData.location.city_id}</span>
+                                        <div class="fw-7">Downtown</div>
+                                        <span class="mt-4 text-variant-1">5 min</span>
+
                                     </li>
                                     <li>
-                                        <div className="fw-7">Postal Code</div>
-                                        <span className="mt-4 text-variant-1">{propertyData.location.postal_code}</span>
+                                        <div class="fw-7">FLL</div>
+                                        <span class="mt-4 text-variant-1">15 min</span>
                                     </li>
                                 </ul>
                             </div>
-                            
+
                             {/* Floor Plans - Only show for buildings */}
                             {!isPlot && (
                                 <div className="single-property-element single-property-floor">
@@ -462,7 +517,7 @@ const Properties = () => {
                                             {activeFloor === 0 && (
                                                 <div className="faq-body">
                                                     <div className="box-img">
-                                                        <img src="images/banner/banner-property-1.jpg" alt="img-floor" />
+                                                        <img src="https://artsmidnorthcoast.com/wp-content/uploads/2014/05/no-image-available-icon-6-300x188.png" alt="img-floor" />
                                                     </div>
                                                 </div>
                                             )}
@@ -470,7 +525,7 @@ const Properties = () => {
                                     </ul>
                                 </div>
                             )}
-                            
+
                             {/* Plot Layout - Only show for plots */}
                             {isPlot && propertyImages.some(img => img.image_type === 'floor_plan' || img.image_type === 'plot_layout') && (
                                 <div className="single-property-element single-property-floor">
@@ -480,7 +535,7 @@ const Properties = () => {
                                     </div>
                                 </div>
                             )}
-                            
+
                             {/* Attachments */}
                             <div className="single-property-element single-property-attachments">
                                 <div className="h7 title fw-7">File Attachments</div>
@@ -505,9 +560,9 @@ const Properties = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Explore - Only show for buildings */}
-                            {!isPlot && (
+                            {/* {!isPlot && (
                                 <div className="single-property-element single-property-explore">
                                     <div className="h7 title fw-7">Explore Property</div>
                                     <div className="box-img">
@@ -517,8 +572,8 @@ const Properties = () => {
                                         </div>
                                     </div>
                                 </div>
-                            )}
-                            
+                            )} */}
+
                             {/* Loan Calculator */}
                             <div className="single-property-element single-property-loan">
                                 <div className="h7 title fw-7">Loan Calculator</div>
@@ -550,7 +605,7 @@ const Properties = () => {
                                     </div>
                                 </form>
                             </div>
-                            
+
                             {/* Nearby */}
                             <div className="single-property-element single-property-nearby">
                                 <div className="h7 title fw-7">What's nearby?</div>
@@ -586,7 +641,7 @@ const Properties = () => {
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             {/* Reviews - Keeping this section as it was */}
                             <div className="single-property-element single-wrapper-review">
                                 <div className="box-title-review d-flex justify-content-between align-items-center flex-wrap gap-20">
@@ -597,10 +652,10 @@ const Properties = () => {
                                     <ul className="box-review">
                                         <li className="list-review-item">
                                             <div className="avatar avt-60 round">
-                                                <img src="images/avatar/avt-1.jpg" alt="avatar" />
+                                                <img src="https://themesflat.co/html/homzen/images/avatar/avt-3.jpg" alt="avatar" />
                                             </div>
                                             <div className="content">
-                                                <div className="name h7 fw-7 text-black">John Doe</div>
+                                                <div className="name h7 fw-7 text-black">Pooja</div>
                                                 <span className="mt-4 d-inline-block date body-3 text-variant-2">2 weeks ago</span>
                                                 <ul className="mt-8 list-star">
                                                     <li className="icon-star"></li>
@@ -611,8 +666,8 @@ const Properties = () => {
                                                 </ul>
                                                 <p className="mt-12 body-2 text-black">Great property with amazing amenities. The location is perfect and the views are stunning.</p>
                                                 <ul className="box-img-review">
-                                                    <li><a href="#" className="img-review"><img src="images/banner/banner-property-1.jpg" alt="img-review" /></a></li>
-                                                    <li><a href="#" className="img-review"><img src="images/banner/banner-property-2.jpg" alt="img-review" /></a></li>
+                                                    <li><a href="#" className="img-review"><img src="https://themesflat.co/html/homzen/images/blog/review1.jpg" alt="img-review" /></a></li>
+                                                    <li><a href="#" className="img-review"><img src="https://themesflat.co/html/homzen/images/blog/review1.jpg" alt="img-review" /></a></li>
                                                     <li><a href="#" className="img-review"><span className="fw-7">+5</span></a></li>
                                                 </ul>
                                                 <a href="#" className="view-question">
@@ -642,7 +697,7 @@ const Properties = () => {
                                                     </fieldset>
                                                 </div>
                                                 <fieldset className="form-wg d-flex align-items-center gap-8">
-                                                    <input type="checkbox" className="tf-checkbox" id="cb-ip" style={{accentColor:"#ED2027"}}/>
+                                                    <input type="checkbox" className="tf-checkbox" id="cb-ip" style={{ accentColor: "#ED2027" }} />
                                                     <label htmlFor="cb-ip" className="text-black text-checkbox">Save your name, email for the next time review </label>
                                                 </fieldset>
                                                 <fieldset className="form-wg">
@@ -659,7 +714,7 @@ const Properties = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         {/* Sidebar */}
                         <div className="col-lg-4">
                             <div className="widget-sidebar fixed-sidebar wrapper-sidebar-right">
@@ -668,7 +723,7 @@ const Properties = () => {
                                     <div className="h7 title fw-7">Contact Seller</div>
                                     <div className="box-avatar">
                                         <div className="avatar avt-100 round">
-                                            <img src="https://themesflat.co/html/homzen/images/avatar/avt-12.jpg" alt="avatar" />
+                                            <img src="https://static.vecteezy.com/system/resources/previews/044/245/684/non_2x/smiling-real-estate-agent-holding-a-house-shaped-keychain-png.png" alt="avatar" />
                                         </div>
                                         <div className="info">
                                             <div className="text-1 name">{contactSellerData.name}</div>
@@ -679,24 +734,24 @@ const Properties = () => {
                                     <form action="#" className="contact-form">
                                         <div className="ip-group">
                                             <label>Full Name:</label>
-                                            <input type="text" placeholder="Your Name" className="form-control" />
+                                            <input type="text" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} className="form-control" />
                                         </div>
                                         <div className="ip-group">
                                             <label>Phone Number:</label>
-                                            <input type="text" placeholder="ex 0123456789" className="form-control" />
+                                            <input type="text" placeholder="ex 0123456789" value={mobile} onChange={(e) => setMobile(e.target.value)} className="form-control" />
                                         </div>
                                         <div className="ip-group">
                                             <label>Email Address:</label>
-                                            <input type="text" placeholder="your@email.com" className="form-control" />
+                                            <input type="text" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="form-control" />
                                         </div>
                                         <div className="ip-group">
                                             <label>Your Message:</label>
-                                            <textarea name="message" rows="4" placeholder="Message" aria-required="true" className="form-control"></textarea>
+                                            <textarea name="message" rows="4" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message" aria-required="true" className="form-control"></textarea>
                                         </div>
                                         <button className="tf-btn primary w-100">Send Message</button>
                                     </form>
                                 </div>
-                                
+
                                 {/* Search Widget - Keeping this section as it was */}
                                 <div className="flat-tab flat-tab-form widget-filter-search widget-box bg-surface">
                                     <div className="h7 title fw-7">Search</div>
@@ -940,7 +995,7 @@ const Properties = () => {
                                                                 </a>
                                                             </div>
                                                             <div className="form-style">
-                                                                <button type="submit" className="tf-btn primary" href="#">Find Properties</button>
+                                                                <button className="tf-btn primary" onClick={() => navigate("/listing")}>Find Properties</button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -950,7 +1005,7 @@ const Properties = () => {
 
                                     </div>
                                 </div>
-                                
+
                                 {/* Why Choose Us */}
                                 <div className="widget-box single-property-whychoose bg-surface">
                                     <div className="h7 title fw-7">Why Choose Us?</div>
@@ -965,9 +1020,9 @@ const Properties = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         {/* Featured Properties Section */}
-                        <section className="flat-section pt-0 flat-latest-property">
+                        {/* <section className="flat-section pt-0 flat-latest-property">
                             <div className="container">
                                 <div className="box-title">
                                     <div className="text-subtitle text-primary">Featured properties</div>
@@ -1056,14 +1111,14 @@ const Properties = () => {
                                     ))}
                                 </Swiper>
                             </div>
-                        </section>
+                        </section> */}
 
                     </div>
                 </div>
             </section>
-            
+
             <Footer />
-            
+
             <div className="progress-wrap">
                 <svg className="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
                     <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" style={{ transition: 'stroke-dashoffset 10ms linear 0s', strokeDasharray: '307.919, 307.919', strokeDashoffset: '286.138' }}></path>

@@ -1,15 +1,21 @@
 
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
+import api from '../api/api';
+import "./Myproperties.css"
+
 
 const Myproperties = () => {
     const navigate = useNavigate();
+
+
     const [menuVisible, setMenuVisible] = useState(false);
     const [isMobileView, setIsMobileView] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
+ const [name, setName] = useState(localStorage.getItem("name"));
+    console.log(name);
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -95,6 +101,61 @@ const Myproperties = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [dropdownOpen]);
+
+
+
+
+
+
+    const [properties, setProperties] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);       // current page
+    const [limit] = useState(5);              // items per page
+    const [totalPages, setTotalPages] = useState(1);
+
+
+    const myPropertyList = async (pageNum = 1) => {
+        const fd = new FormData();
+        fd.append("programType", "myPropertyDetails");
+        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("page", pageNum);   // ✅ append page
+        fd.append("limit", limit);    // ✅ append limit
+
+        try {
+            setLoading(true);
+            const response = await api.post("/properties/property", fd);
+
+            if (response.data.success) {
+                setProperties(response.data.data["My Property"] || []);
+
+                // if API returns total count or total pages, set it here
+                if (response.data.data.totalPages) {
+                    setTotalPages(response.data.data.totalPages);
+                }
+            }
+        } catch (error) {
+            console.error("tax error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        myPropertyList(page);
+    }, [page]);
+
+
+
+    const handlePageChange = (newPage) => {
+        if (newPage > 0 && newPage <= totalPages) {
+            setPage(newPage);
+        }
+    };
+
+
+
+
+
     return (
         <div className={`body bg-surface ${menuVisible ? 'mobile-menu-visible' : ''}`}>
             <div id="wrapper">
@@ -170,9 +231,9 @@ const Myproperties = () => {
                                                     style={{ position: 'relative' }}
                                                 >
                                                     <div className="avatar avt-40 round">
-                                                        <img src="images/avatar/avt-2.jpg" alt="avt" />
+                                                        <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
                                                     </div>
-                                                    <p className="name" style={{ cursor: "pointer" }}>Tony Nguyen<span className="icon icon-arr-down"></span></p>
+                                                    <p className="name" style={{ cursor: "pointer" }}> {name}<span className="icon icon-arr-down"></span></p>
                                                     <div
                                                         className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`}
                                                         style={{
@@ -187,7 +248,12 @@ const Myproperties = () => {
                                                         <a className="dropdown-item" onClick={() => navigate('/myfavorites')}>My Favorites</a>
                                                         <a className="dropdown-item" onClick={() => navigate('/reviews')}>Reviews</a>
                                                         <a className="dropdown-item" onClick={() => navigate('/myprofile')}>My Profile</a>
-                                                        <a className="dropdown-item" onClick={() => navigate('/logout')}>Logout</a>
+                                                        <a className="dropdown-item" onClick={(e) => {
+                                            e.preventDefault();
+                                            localStorage.removeItem("authToken"); // clear token
+                                            navigate("/home"); // redirect after logout
+                                            window.location.reload(); // reload so header updates
+                                        }}>Logout</a>
 
                                                     </div>
                                                 </div>
@@ -298,7 +364,7 @@ const Myproperties = () => {
                                         <span className="icon icon-review"></span> Reviews
                                     </a>
                                 </li>
-                              
+
                                 <li className="nav-menu-item">
                                     <a
                                         className="nav-menu-link"
@@ -367,149 +433,125 @@ const Myproperties = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr className="file-delete">
-                                                        <td>
-                                                            <div className="listing-box">
-                                                                <div className="images">
-                                                                    <img src="images/home/house-1.jpg" alt="images" />
-                                                                </div>
-                                                                <div className="content">
-                                                                    <div className="title"><a href="property-details-v1.html" className="link">Gorgeous Apartment Building</a> </div>
-                                                                    <div className="text-date">12 Lowell Road, Port Washington</div>
-                                                                    <div className="text-1 fw-7">$5050,00</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>April 9, 2024</span>
-                                                        </td>
-                                                        <td>
-                                                            <div className="status-wrap">
-                                                                <a href="#" className="btn-status">Published</a>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>No</span>
-                                                        </td>
-                                                        <td>
-                                                            <ul className="list-action">
-                                                                <li><a className="item"><i className="icon icon-edit"></i>Edit</a></li>
-                                                                <li><a className="item"><i className="icon icon-sold"></i>Sold</a></li>
-                                                                <li><a className="remove-file item"><i className="icon icon-trash"></i>Delete</a></li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                    {/* <!-- col 2 --> */}
-                                                    <tr className="file-delete">
-                                                        <td>
-                                                            <div className="listing-box">
-                                                                <div className="images">
-                                                                    <img src="images/home/house-2.jpg" alt="images" />
-                                                                </div>
-                                                                <div className="content">
-                                                                    <div className="title"><a href="property-details-v1.html" className="link">Mountain Mist Retreat, Aspen</a> </div>
-                                                                    <div className="text-date">Brian Drive, Montvale, New Jersey</div>
-
-                                                                    <div className="text-1 fw-7">$5050,00</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>April 9, 2024</span>
-                                                        </td>
-                                                        <td>
-                                                            <div className="status-wrap">
-                                                                <a href="#" className="btn-status">Published</a>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>No</span>
-                                                        </td>
-                                                        <td>
-                                                            <ul className="list-action">
-                                                                <li><a className="item"><i className="icon icon-edit"></i>Edit</a></li>
-                                                                <li><a className="item"><i className="icon icon-sold"></i>Sold</a></li>
-                                                                <li><a className="remove-file item"><i className="icon icon-trash"></i>Delete</a></li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                    {/* <!-- col 3 --> */}
-                                                    <tr className="file-delete">
-                                                        <td>
-                                                            <div className="listing-box">
-                                                                <div className="images">
-                                                                    <img src="images/home/house-3.jpg" alt="images" />
-                                                                </div>
-                                                                <div className="content">
-                                                                    <div className="title"><a href="property-details-v1.html" className="link">Lakeview Haven, Lake Tahoe</a> </div>
-                                                                    <div className="text-date">12 Lowell Road, Port Washington</div>
-
-                                                                    <div className="text-1 fw-7">$5050,00</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>April 9, 2024</span>
-                                                        </td>
-                                                        <td>
-                                                            <div className="status-wrap">
-                                                                <a href="#" className="btn-status">Published</a>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>No</span>
-                                                        </td>
-                                                        <td>
-                                                            <ul className="list-action">
-                                                                <li><a className="item"><i className="icon icon-edit"></i>Edit</a></li>
-                                                                <li><a className="item"><i className="icon icon-sold"></i>Sold</a></li>
-                                                                <li><a className="remove-file item"><i className="icon icon-trash"></i>Delete</a></li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                    {/* <!-- col 4 --> */}
-                                                    <tr className="file-delete">
-                                                        <td>
-                                                            <div className="listing-box">
-                                                                <div className="images">
-                                                                    <img src="images/home/house-4.jpg" alt="images" />
-                                                                </div>
-                                                                <div className="content">
-                                                                    <div className="title"><a href="property-details-v1.html" className="link">Coastal Serenity Cottage</a> </div>
-                                                                    <div className="text-date">Brian Drive, Montvale, New Jersey</div>
-                                                                    <div className="text-1 fw-7">$5050,00</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>April 9, 2024</span>
-                                                        </td>
-                                                        <td>
-                                                            <div className="status-wrap">
-                                                                <a href="#" className="btn-status">Published</a>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span>No</span>
-                                                        </td>
-                                                        <td>
-                                                            <ul className="list-action">
-                                                                <li><a className="item"><i className="icon icon-edit"></i>Edit</a></li>
-                                                                <li><a className="item"><i className="icon icon-sold"></i>Sold</a></li>
-                                                                <li><a className="remove-file item"><i className="icon icon-trash"></i>Delete</a></li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
+                                                    {loading ? (
+                                                        // Show 3 skeleton rows while loading
+                                                        [...Array(3)].map((_, idx) => (
+                                                            <tr key={idx}>
+                                                                <td>
+                                                                    <div className="listing-box d-flex align-items-center">
+                                                                        <div className="images skeleton-box" style={{ width: "80px", height: "60px" }}></div>
+                                                                        <div className="content ms-2">
+                                                                            <div className="skeleton-line" style={{ width: "150px", height: "14px" }}></div>
+                                                                            <div className="skeleton-line mt-2" style={{ width: "100px", height: "12px" }}></div>
+                                                                            <div className="skeleton-line mt-2" style={{ width: "80px", height: "12px" }}></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td><div className="skeleton-line" style={{ width: "100px", height: "12px" }}></div></td>
+                                                                <td><div className="skeleton-line" style={{ width: "80px", height: "12px" }}></div></td>
+                                                                <td><div className="skeleton-line" style={{ width: "50px", height: "12px" }}></div></td>
+                                                                <td><div className="skeleton-line" style={{ width: "120px", height: "12px" }}></div></td>
+                                                            </tr>
+                                                        ))
+                                                    ) : properties.length > 0 ? (
+                                                        properties.map((property) => (
+                                                            <tr key={property.id} className="file-delete">
+                                                                <td>
+                                                                    <div className="listing-box">
+                                                                        <div className="images">
+                                                                            <img
+                                                                                src="https://themesflat.co/html/homzen/images/home/house-1.jpg"
+                                                                                alt={property.title}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="content">
+                                                                            <div className="title">
+                                                                                <a href={`/property-details/${property.slug}`} className="link">
+                                                                                    {property.title}
+                                                                                </a>
+                                                                            </div>
+                                                                            <div className="text-date">{property.location}</div>
+                                                                            <div className="text-1 fw-7">
+                                                                                {property.listing_type === "rent"
+                                                                                    ? `₹${property.expected_rent}`
+                                                                                    : `₹${property.expected_price}`}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <span>{new Date(property.created_at).toLocaleDateString()}</span>
+                                                                </td>
+                                                                <td>
+                                                                    <div className="status-wrap">
+                                                                        <a href="#" className="btn-status">
+                                                                            {property.status === "active" ? "Published" : "Pending"}
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                                <td><span>{property.featured ? "Yes" : "No"}</span></td>
+                                                                <td>
+                                                                    <ul className="list-action">
+                                                                        <li><a className="item"><i className="icon icon-edit"></i>Edit</a></li>
+                                                                        <li><a className="item"><i className="icon icon-sold"></i>Sold</a></li>
+                                                                        <li><a className="remove-file item"><i className="icon icon-trash"></i>Delete</a></li>
+                                                                    </ul>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan="5" style={{ textAlign: "center" }}>No properties found</td>
+                                                        </tr>
+                                                    )}
                                                 </tbody>
+
+
                                             </table>
                                         </div>
-
                                         <ul className="wd-navigation">
-                                            <li><a href="#" className="nav-item active">1</a></li>
-                                            <li><a href="#" className="nav-item">2</a></li>
-                                            <li><a href="#" className="nav-item">3</a></li>
-                                            <li><a href="#" className="nav-item"><i className="icon icon-arr-r"></i></a></li>
+                                            <li>
+                                                <a
+                                                    href="#"
+                                                    className="nav-item"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        handlePageChange(page - 1);
+                                                    }}
+                                                >
+                                                    <i className="icon icon-arr-l"></i>
+                                                </a>
+                                            </li>
+
+                                            {[...Array(totalPages)].map((_, index) => (
+                                                <li key={index}>
+                                                    <a
+                                                        href="#"
+                                                        className={`nav-item ${page === index + 1 ? "active" : ""}`}
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            handlePageChange(index + 1);
+                                                        }}
+                                                    >
+                                                        {index + 1}
+                                                    </a>
+                                                </li>
+                                            ))}
+
+                                            <li>
+                                                <a
+                                                    href="#"
+                                                    className="nav-item"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        handlePageChange(page + 1);
+                                                    }}
+                                                >
+                                                    <i className="icon icon-arr-r"></i>
+                                                </a>
+                                            </li>
                                         </ul>
+
                                     </div>
                                 </div>
 

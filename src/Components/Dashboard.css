@@ -1,0 +1,42 @@
+.skeleton {
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  display: inline-block;
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+.skeleton-text {
+  height: 14px;
+  margin-bottom: 8px;
+}
+
+.skeleton-text.title {
+  width: 120px;
+  height: 18px;
+}
+
+.skeleton-text.date {
+  width: 80px;
+}
+
+.skeleton-text.price {
+  width: 60px;
+}
+
+.skeleton-btn {
+  width: 70px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.skeleton-action {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}

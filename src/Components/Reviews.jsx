@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import { Link } from 'react-router-dom';
+import easy from "../assets/easy.png"
 
 
 
@@ -14,6 +15,10 @@ const Reviews = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const [name, setName] = useState(localStorage.getItem("name"));
+    console.log(name);
+
 
 
     const toggleDropdown = () => {
@@ -115,7 +120,7 @@ const Reviews = () => {
                                         <div className="inner-container d-flex justify-content-between align-items-center">
                                             {/* <!-- Logo Box --> */}
                                             <div className="logo-box d-flex">
-                                                <div className="logo"><Link to="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}><img src="images/logo/homeblack.png" alt="logo" width="174" height="44" /></Link></div>
+                                                <div className="logo"><Link to="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}><img src={easy} alt="logo" width="174" height="44" /></Link></div>
                                                 <div className="button-show-hide" onClick={toggleDashboard}>
                                                     <span className="icon icon-categories"></span>
                                                 </div>
@@ -175,9 +180,9 @@ const Reviews = () => {
                                                     style={{ position: 'relative' }}
                                                 >
                                                     <div className="avatar avt-40 round">
-                                                        <img src="images/avatar/avt-2.jpg" alt="avt" />
+                                                        <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
                                                     </div>
-                                                    <p className="name" style={{ cursor: "pointer" }}>Tony Nguyen<span className="icon icon-arr-down"></span></p>
+                                                    <p className="name" style={{ cursor: "pointer" }}>{name}<span className="icon icon-arr-down"></span></p>
                                                     <div
                                                         className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`}
                                                         style={{
@@ -192,7 +197,12 @@ const Reviews = () => {
                                                         <Link to className="dropdown-item" onClick={() => navigate('/myfavorites')}>My Favorites</Link>
                                                         <Link to className="dropdown-item" onClick={() => navigate('/reviews')}>Reviews</Link>
                                                         <Link to className="dropdown-item" onClick={() => navigate('/myprofile')}>My Profile</Link>
-                                                        <Link to className="dropdown-item" onClick={() => navigate('/logout')}>Logout</Link>
+                                                        <Link to className="dropdown-item" onClick={(e) => {
+                                                            e.preventDefault();
+                                                            localStorage.removeItem("authToken"); // clear token
+                                                            navigate("/home"); // redirect after logout
+                                                            window.location.reload(); // reload so header updates
+                                                        }}>Logout</Link>
 
                                                     </div>
                                                 </div>
@@ -214,7 +224,7 @@ const Reviews = () => {
                                 <nav className="menu-box">
                                     <div className="nav-logo">
                                         <Link to="" onClick={(e) => { e.preventDefault(); navigate('/home'); toggleMobileMenu(); }}>
-                                            <img src="images/logo/homeblack.png" alt="nav-logo" width="174" height="44" />
+                                            <img src={easy} alt="nav-logo" width="174" height="44" />
                                         </Link>
                                     </div>
                                     <div className="bottom-canvas">
@@ -344,7 +354,7 @@ const Reviews = () => {
 
                             </div>
                             <div className="footer-dashboard">
-                                <p className="text-variant-2">©2024 Homzen. All Rights Reserved.</p>
+                                <p className="text-variant-2">©2025 Eazy Acers. All Rights Reserved.</p>
                             </div>
 
                             <div className="overlay-dashboard"></div>

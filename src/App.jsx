@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css"
 
@@ -33,6 +33,8 @@ function App() {
 
   return (
     <Routes>
+
+       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route exact path="/header" element={<Header />} />
       <Route exact path="/home" element={<HomePAge />} />
       <Route exact path="/footer" element={<Footer />} />

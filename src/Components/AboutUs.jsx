@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Footer from './Footer'
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css'
@@ -7,6 +7,9 @@ import { Link } from 'react-router-dom';
 
 
 const AboutUs = () => {
+    const [name, setName] = useState(localStorage.getItem("name"));
+    const [mobile, setMobile] = useState(localStorage.getItem("mobile"));
+    const [email, setEmail] = useState(localStorage.getItem("email"));
     return (
         <div>
             <Header />
@@ -17,7 +20,7 @@ const AboutUs = () => {
                         <li>/ Pages</li>
                         <li>/ About Us</li>
                     </ul>
-                    <h2 className="text-center">About The Homzen</h2>
+                    <h2 className="text-center">About The Eazy Acers</h2>
                 </div>
             </section>
             {/* <!-- End Page Title --> */}
@@ -27,7 +30,7 @@ const AboutUs = () => {
                 <div className="container">
                     <div className="row">
                         <div className="col-md-5">
-                            <h3>Welcome To The <br /> Homzen</h3>
+                            <h3>Welcome To The <br /> Eazy Acers</h3>
                         </div>
                         <div className="col-md-7 hover-btn-view">
                             <p className="body-2 text-variant-1">Welcome to Homeya, where we turn houses into homes and dreams into reality. At Homeya, we understand that a home is more than just a physical space; it's a place where memories are created, families grow, and life unfolds. </p>
@@ -84,7 +87,7 @@ const AboutUs = () => {
                                         Local Area Knowledge
                                     </li>
                                 </ul>
-                                <a href="contact.html" className="btn-view"><span className="text">Contact Us</span> <span className="icon icon-arrow-right2"></span> </a>
+                                <a href="" className="btn-view"><span className="text">Contact Us</span> <span className="icon icon-arrow-right2"></span> </a>
                             </div>
 
                         </div>
@@ -152,7 +155,7 @@ const AboutUs = () => {
                                             <img src="images/avatar/avt-7.jpg" alt="avatar" />
                                         </div>
                                         <div className="info">
-                                            <div className="h7 fw-7">Liam Anderson</div>
+                                            <div className="h7 fw-7">Chetan</div>
                                             <p className="text-variant-1 mt-4">CEO Digital</p>
                                         </div>
                                     </div>
@@ -354,11 +357,11 @@ const AboutUs = () => {
                             <form action="#" className="box-contact-v2">
                                 <div className="box">
                                     <label for="name" className="label">Name:</label>
-                                    <input type="text" className="form-control" value="Tony Nguyen |" />
+                                    <input type="text" className="form-control" value={name} />
                                 </div>
                                 <div className="box">
                                     <label for="email" className="label">Email:</label>
-                                    <input type="text" className="form-control" value="hi.themesflat@mail.com" />
+                                    <input type="text" className="form-control" value={email} />
                                 </div>
                                 <div className="box">
                                     <label for="message" className="label">Message:</label>
@@ -384,6 +387,7 @@ const AboutUs = () => {
                         <h4 className="mt-4">Meet Our Agents</h4>
                     </div>
                     <div className="row">
+
                         <div className="box col-lg-4 col-sm-6">
                             <div className="box-agent style-1 hover-img">
                                 <div className="box-img img-style">
@@ -397,13 +401,14 @@ const AboutUs = () => {
                                 </div>
                                 <a href="#" className="content">
                                     <div className="info">
-                                        <h6 className="link">Jack Halow</h6>
+                                        <h6 className="link">Rohit Sharma</h6>
                                         <p className="mt-4 text-variant-1">CEO & Founder</p>
                                     </div>
                                     <span className="icon-phone"></span>
                                 </a>
                             </div>
                         </div>
+
                         <div className="box col-lg-4 col-sm-6">
                             <div className="box-agent style-1 hover-img">
                                 <div className="box-img img-style">
@@ -417,13 +422,14 @@ const AboutUs = () => {
                                 </div>
                                 <a href="#" className="content">
                                     <div className="info">
-                                        <h6 className="link">John Smith</h6>
+                                        <h6 className="link">Priya Singh</h6>
                                         <p className="mt-4 text-variant-1">Property Manager</p>
                                     </div>
                                     <span className="icon-phone"></span>
                                 </a>
                             </div>
                         </div>
+
                         <div className="box col-lg-4 col-sm-6">
                             <div className="box-agent style-1 hover-img">
                                 <div className="box-img img-style">
@@ -437,7 +443,7 @@ const AboutUs = () => {
                                 </div>
                                 <a href="#" className="content">
                                     <div className="info">
-                                        <h6 className="link">Chris Patt</h6>
+                                        <h6 className="link">Amit Verma</h6>
                                         <p className="mt-4 text-variant-1">Administrative Staff</p>
                                     </div>
                                     <span className="icon-phone"></span>
@@ -448,6 +454,7 @@ const AboutUs = () => {
                     </div>
                 </div>
             </section>
+
             {/* <!-- End Agents -->
             <!-- banner --> */}
             <section className="flat-section pt-0 flat-banner">
