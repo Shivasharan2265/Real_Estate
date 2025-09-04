@@ -81,11 +81,11 @@ const Footer = () => {
                             <div className="footer-cl-3">
                                 <div className="fw-7 text-white">Our Company</div>
                                 <ul className="mt-10 navigation-menu-footer">
-                                    <li> <a href="topmap-list.html" className="caption-1 text-variant-2">Property For Sale</a> </li>
+                                    <li> <a href="" className="caption-1 text-variant-2">Property For Sale</a> </li>
 
-                                    <li> <a href="topmap-grid.html" className="caption-1 text-variant-2">Property For Rent</a> </li>
-                                    <li> <a href="topmap-grid.html" className="caption-1 text-variant-2">Property For Buy</a> </li>
-                                    <li> <a href="topmap-grid.html" className="caption-1 text-variant-2">Our Agents</a> </li>
+                                    <li> <a href="" className="caption-1 text-variant-2">Property For Rent</a> </li>
+                                    <li> <a href="" className="caption-1 text-variant-2">Property For Buy</a> </li>
+                                    <li> <a href="" className="caption-1 text-variant-2">Our Agents</a> </li>
                                 </ul>
                             </div>
                         </div>
@@ -115,10 +115,10 @@ const Footer = () => {
                         <div className="copyright">©2025 Eazy Acers. All Rights Reserved.</div>
 
                         <ul className="menu-bottom">
-                            <li><a href="our-service.html">Terms Of Services</a> </li>
+                            <li><a href="">Terms Of Services</a> </li>
 
-                            <li><a href="pricing.html">Privacy Policy</a> </li>
-                            <li><a href="contact.html">Cookie Policy</a> </li>
+                            <li><a href="">Privacy Policy</a> </li>
+                            <li><a href="">Cookie Policy</a> </li>
 
                         </ul>
                     </div>

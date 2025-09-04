@@ -87,7 +87,7 @@ const AboutUs = () => {
                                         Local Area Knowledge
                                     </li>
                                 </ul>
-                                <a href="contact.html" className="btn-view"><span className="text">Contact Us</span> <span className="icon icon-arrow-right2"></span> </a>
+                                <a href="" className="btn-view"><span className="text">Contact Us</span> <span className="icon icon-arrow-right2"></span> </a>
                             </div>
 
                         </div>

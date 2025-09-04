@@ -326,7 +326,7 @@ const Dashboard = () => {
                                             </div>
                                         </div>
                                         <div className="button-mobi-sell">
-                                            <a className="tf-btn primary" href="add-property.html">Submit Property</a>
+                                            <a className="tf-btn primary" href="">Submit Property</a>
                                         </div>
                                         <div className="mobi-icon-box">
                                             <div className="box d-flex align-items-center">
@@ -516,7 +516,7 @@ const Dashboard = () => {
                                                                                     </div>
                                                                                     <div className="content">
                                                                                         <div className="title">
-                                                                                            <a href={`property-details-v1.html`} className="link">{property.title}</a>
+                                                                                            <a href={``} className="link">{property.title}</a>
                                                                                         </div>
                                                                                         <div className="text-date">
                                                                                             <p className="fw-5">
