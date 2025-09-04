@@ -3,7 +3,9 @@ import axios from "axios";
 
 // Create an axios instance with the default headers
 export const api = axios.create({
-  baseURL: "http://192.168.1.103/projects/easyAcers/admin/api",
+  // baseURL: "http://192.168.1.103/projects/easyAcers/admin/api",
+  baseURL: "http://172.20.10.2/projects/easyAcers/admin/api",
+
 
   // baseURL : "http://192.168.1.14/projects/real_estate",
 

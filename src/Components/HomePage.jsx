@@ -43,7 +43,7 @@ const HomePage = () => {
 
         try {
             const response = await api.post("/properties/property", fd);
-            console.log(response)
+            console.log("appart", response)
             const mapped = response.data.data.properties.map((item) => {
                 let priceValue = "N/A";
                 let priceUnit = "";
@@ -439,7 +439,7 @@ const HomePage = () => {
                                     </li>
                                 </ul>
                                 <div className="tab-content">
-                                   <div className="tab-pane fade active show" id="viewAll" role="tabpanel">
+                                    <div className="tab-pane fade active show" id="viewAll" role="tabpanel">
                                         <div className="row">
                                             {loading ? (
                                                 // Skeleton Loader
@@ -526,484 +526,190 @@ const HomePage = () => {
                             </div>
 
                         </div>
-                        <section className="flat-section-v3 flat-location bg-surface" style={{
-                            padding: "40px 0",
-                            width: "100%",
-                            overflow: "hidden"
-                        }}>
-                            <div className="container-full" style={{
+                        <section
+                            className="flat-section-v3 flat-location bg-surface p-0"
+                            style={{
+                                paddingTop: "20px",
+
                                 width: "100%",
-                                maxWidth: "100%",
-                                padding: "0 15px",
-                                margin: "0 auto"
-                            }}>
-                                <div className="box-title text-center wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
-                                    <div className="text-subtitle text-primary" style={{ fontSize: "16px" }}>Explore Cities</div>
-                                    <h4 className="mt-4" style={{
-                                        fontSize: "28px",
-                                        marginTop: "16px",
-                                        lineHeight: "1.3"
-                                    }}>Our Location For You</h4>
+                                overflow: "hidden"
+                            }}
+                        >
+                            <div
+                                className="container-full"
+                                style={{
+                                    width: "100%",
+                                    maxWidth: "100%",
+                                    padding: "0 15px",
+                                    margin: "0 auto"
+                                }}
+                            >
+                                {/* Section Title */}
+                                <div
+                                    className="box-title text-center wow fadeInUpSmall"
+                                    data-wow-delay=".2s"
+                                    data-wow-duration="2000ms"
+                                >
+                                    <div
+                                        className="text-subtitle text-primary"
+                                        style={{ fontSize: "16px", marginTop: "30px" }}
+                                    >
+                                        Explore Cities
+                                    </div>
+                                    <h4
+                                        className="mt-4"
+                                        style={{
+                                            fontSize: "28px",
+                                            marginTop: "16px",
+                                            lineHeight: "1.3"
+                                        }}
+                                    >
+                                        Our Location For You
+                                    </h4>
                                 </div>
 
-                                <div className="wow fadeInUpSmall" data-wow-delay=".4s" data-wow-duration="2000ms" style={{
-                                    position: "relative",
-                                    padding: "0 15px",
-                                    marginLeft: "35px"
-                                }}>
-                                    <Swiper
-                                        modules={[Navigation, Autoplay]}
-
-                                        spaceBetween={35}
-                                        loop={true}
-                                        centeredSlides={false}
-                                        autoplay={{
-                                            delay: 3000,
-                                            disableOnInteraction: false,
-                                            pauseOnMouseEnter: true,
-                                        }}
-                                        speed={1000}
-                                        slidesPerView={1.2}
-                                        breakpoints={{
-                                            400: { slidesPerView: 1.5, spaceBetween: 20 },
-                                            576: { slidesPerView: 2, spaceBetween: 20 },
-                                            768: { slidesPerView: 2.5, spaceBetween: 25 },
-                                            992: { slidesPerView: 3, spaceBetween: 25 },
-                                            1200: { slidesPerView: 4, spaceBetween: 30 },
-                                            1400: { slidesPerView: 4.1, spaceBetween: 30 }
-                                        }}
+                                {/* Location Cards */}
+                                <div
+                                    className="wow fadeInUpSmall"
+                                    data-wow-delay=".4s"
+                                    data-wow-duration="2000ms"
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        flexWrap: "wrap",
+                                        gap: "40px", // slightly larger spacing
+                                        padding: "20px 15px"
+                                    }}
+                                >
+                                    {/* Card 1 */}
+                                    <a
+                                        href="topmap-grid.html"
+                                        className="box-location"
                                         style={{
-                                            width: "100%",
-                                            padding: "10px 0"
+                                            display: "block",
+                                            width: "300px", // larger width
+                                            borderRadius: "12px",
+                                            overflow: "hidden",
+                                            boxShadow: "0 6px 16px rgba(0,0,0,0.15)", // slightly stronger shadow
+                                            position: "relative",
+                                            transition: "transform 0.3s ease",
+                                            cursor: "pointer"
                                         }}
-                                    // className="swiper tf-sw-location overlay"
                                     >
-                                        {/* Slides */}
-                                        <SwiperSlide style={{ height: "auto" }}>
-                                            <a href="topmap-grid.html" className="box-location" style={{
-                                                display: "block",
-                                                height: "100%",
-                                                borderRadius: "8px",
-                                                overflow: "hidden",
-                                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                                transition: "transform 0.3s ease",
-                                                position: "relative"
-                                            }}>
-                                                <div className="image" style={{
-                                                    position: "relative",
-                                                    paddingBottom: "70%",
-                                                    overflow: "hidden"
-                                                }}>
-                                                    <img
-                                                        src="images/location/location-3.jpg"
-                                                        alt="London, United Kingdom"
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            objectFit: "cover"
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="content" style={{
+                                        <div
+                                            className="image"
+                                            style={{
+                                                position: "relative",
+                                                paddingBottom: "70%",
+                                                overflow: "hidden"
+                                            }}
+                                        >
+                                            <img
+                                                src="https://www.dubaiwikia.com/wp-content/uploads/2017/08/Burj-al-Arab.jpg"
+                                                alt="London, United Kingdom"
+                                                style={{
                                                     position: "absolute",
-                                                    bottom: 0,
+                                                    top: 0,
                                                     left: 0,
-                                                    right: 0,
-                                                    padding: "15px",
-                                                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                                                    color: "#fff"
-                                                }}>
-                                                    <span className="sub-title" style={{
-                                                        display: "block",
-                                                        fontSize: "14px",
-                                                        marginBottom: "4px"
-                                                    }}>321 Property</span>
-                                                    <h6 className="title" style={{
-                                                        fontSize: "18px",
-                                                        margin: 0,
-                                                        fontWeight: "600"
-                                                    }}>London, United Kingdom</h6>
-                                                </div>
-                                            </a>
-                                        </SwiperSlide>
-                                        <SwiperSlide style={{ height: "auto", padding: "0 5px" }}>
-                                            <a href="topmap-grid.html" className="box-location" style={{
-                                                display: "block",
-                                                height: "100%",
-                                                borderRadius: "8px",
-                                                overflow: "hidden",
-                                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                                transition: "transform 0.3s ease",
-                                                position: "relative"
-                                            }}>
-                                                <div className="image" style={{
-                                                    position: "relative",
-                                                    paddingBottom: "70%",  // Aspect ratio (adjust as needed)
-                                                    overflow: "hidden"
-                                                }}>
-                                                    <img
-                                                        src="images/location/location-3.jpg"
-                                                        alt="London, United Kingdom"
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            objectFit: "cover",
-                                                            transition: "transform 0.3s ease"
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="content" style={{
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    objectFit: "cover",
+                                                    transition: "transform 0.3s ease"
+                                                }}
+                                            />
+                                        </div>
+                                        <div
+                                            className="content"
+                                            style={{
+                                                position: "absolute",
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                padding: "15px",
+                                                background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
+                                                color: "#fff"
+                                            }}
+                                        >
+                                            <span
+                                                className="sub-title"
+                                                style={{ display: "block", fontSize: "14px", marginBottom: "4px" }}
+                                            >
+                                                321 Property
+                                            </span>
+                                            <h6
+                                                className="title"
+                                                style={{ fontSize: "18px", margin: 0, fontWeight: "600" }}
+                                            >
+                                                Dubai, United Kingdom
+                                            </h6>
+                                        </div>
+                                    </a>
+
+                                    {/* Card 2 */}
+                                    <a
+                                        href="topmap-grid.html"
+                                        className="box-location"
+                                        style={{
+                                            display: "block",
+                                            width: "300px",
+                                            borderRadius: "12px",
+                                            overflow: "hidden",
+                                            boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+                                            position: "relative",
+                                            transition: "transform 0.3s ease",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        <div
+                                            className="image"
+                                            style={{
+                                                position: "relative",
+                                                paddingBottom: "70%",
+                                                overflow: "hidden"
+                                            }}
+                                        >
+                                            <img
+                                                src="https://s7ap1.scene7.com/is/image/incredibleindia/india-gate-delhi-2-attr-hero?qlt=82&ts=1742164655647"
+                                                alt="London, United Kingdom"
+                                                style={{
                                                     position: "absolute",
-                                                    bottom: 0,
+                                                    top: 0,
                                                     left: 0,
-                                                    right: 0,
-                                                    padding: "12px 15px",
-                                                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                                                    color: "#fff"
-                                                }}>
-                                                    <span className="sub-title" style={{
-                                                        display: "block",
-                                                        fontSize: "12px",
-                                                        marginBottom: "2px",
-                                                        fontWeight: "500"
-                                                    }}>321 Property</span>
-                                                    <h6 className="title" style={{
-                                                        fontSize: "16px",
-                                                        margin: 0,
-                                                        fontWeight: "600",
-                                                        lineHeight: "1.3"
-                                                    }}>London, United Kingdom</h6>
-                                                </div>
-                                            </a>
-                                        </SwiperSlide>
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    objectFit: "cover",
+                                                    transition: "transform 0.3s ease"
+                                                }}
+                                            />
+                                        </div>
+                                        <div
+                                            className="content"
+                                            style={{
+                                                position: "absolute",
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                padding: "15px",
+                                                background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
+                                                color: "#fff"
+                                            }}
+                                        >
+                                            <span
+                                                className="sub-title"
+                                                style={{ display: "block", fontSize: "14px", marginBottom: "4px" }}
+                                            >
+                                                321 Property
+                                            </span>
+                                            <h6
+                                                className="title"
+                                                style={{ fontSize: "18px", margin: 0, fontWeight: "600" }}
+                                            >
+                                                India
+                                            </h6>
+                                        </div>
+                                    </a>
 
-                                        <SwiperSlide style={{ height: "auto", padding: "0 5px" }}>
-                                            <a href="topmap-grid.html" className="box-location" style={{
-                                                display: "block",
-                                                height: "100%",
-                                                borderRadius: "8px",
-                                                overflow: "hidden",
-                                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                                transition: "transform 0.3s ease",
-                                                position: "relative"
-                                            }}>
-                                                <div className="image" style={{
-                                                    position: "relative",
-                                                    paddingBottom: "70%",
-                                                    overflow: "hidden"
-                                                }}>
-                                                    <img
-                                                        src="images/location/location-4.jpg"
-                                                        alt="Cape Town, South Africa"
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            objectFit: "cover",
-                                                            transition: "transform 0.3s ease"
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="content" style={{
-                                                    position: "absolute",
-                                                    bottom: 0,
-                                                    left: 0,
-                                                    right: 0,
-                                                    padding: "12px 15px",
-                                                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                                                    color: "#fff"
-                                                }}>
-                                                    <span className="sub-title" style={{
-                                                        display: "block",
-                                                        fontSize: "12px",
-                                                        marginBottom: "2px",
-                                                        fontWeight: "500"
-                                                    }}>221 Property</span>
-                                                    <h6 className="title" style={{
-                                                        fontSize: "16px",
-                                                        margin: 0,
-                                                        fontWeight: "600",
-                                                        lineHeight: "1.3"
-                                                    }}>Cape Town, South Africa</h6>
-                                                </div>
-                                            </a>
-                                        </SwiperSlide>
-
-                                        <SwiperSlide style={{ height: "auto", padding: "0 5px" }}>
-                                            <a href="topmap-grid.html" className="box-location" style={{
-                                                display: "block",
-                                                height: "100%",
-                                                borderRadius: "8px",
-                                                overflow: "hidden",
-                                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                                transition: "transform 0.3s ease",
-                                                position: "relative"
-                                            }}>
-                                                <div className="image" style={{
-                                                    position: "relative",
-                                                    paddingBottom: "70%",
-                                                    overflow: "hidden"
-                                                }}>
-                                                    <img
-                                                        src="images/location/location-5.jpg"
-                                                        alt="Seoul, South Korea"
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            objectFit: "cover",
-                                                            transition: "transform 0.3s ease"
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="content" style={{
-                                                    position: "absolute",
-                                                    bottom: 0,
-                                                    left: 0,
-                                                    right: 0,
-                                                    padding: "12px 15px",
-                                                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                                                    color: "#fff"
-                                                }}>
-                                                    <span className="sub-title" style={{
-                                                        display: "block",
-                                                        fontSize: "12px",
-                                                        marginBottom: "2px",
-                                                        fontWeight: "500"
-                                                    }}>128 Property</span>
-                                                    <h6 className="title" style={{
-                                                        fontSize: "16px",
-                                                        margin: 0,
-                                                        fontWeight: "600",
-                                                        lineHeight: "1.3"
-                                                    }}>Seoul, South Korea</h6>
-                                                </div>
-                                            </a>
-                                        </SwiperSlide>
-
-                                        <SwiperSlide style={{ height: "auto", padding: "0 5px" }}>
-                                            <a href="topmap-grid.html" className="box-location" style={{
-                                                display: "block",
-                                                height: "100%",
-                                                borderRadius: "8px",
-                                                overflow: "hidden",
-                                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                                transition: "transform 0.3s ease",
-                                                position: "relative"
-                                            }}>
-                                                <div className="image" style={{
-                                                    position: "relative",
-                                                    paddingBottom: "70%",
-                                                    overflow: "hidden"
-                                                }}>
-                                                    <img
-                                                        src="images/location/location-3.jpg"
-                                                        alt="London, United Kingdom"
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            objectFit: "cover",
-                                                            transition: "transform 0.3s ease"
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="content" style={{
-                                                    position: "absolute",
-                                                    bottom: 0,
-                                                    left: 0,
-                                                    right: 0,
-                                                    padding: "12px 15px",
-                                                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                                                    color: "#fff"
-                                                }}>
-                                                    <span className="sub-title" style={{
-                                                        display: "block",
-                                                        fontSize: "12px",
-                                                        marginBottom: "2px",
-                                                        fontWeight: "500"
-                                                    }}>321 Property</span>
-                                                    <h6 className="title" style={{
-                                                        fontSize: "16px",
-                                                        margin: 0,
-                                                        fontWeight: "600",
-                                                        lineHeight: "1.3"
-                                                    }}>London, United Kingdom</h6>
-                                                </div>
-                                            </a>
-                                        </SwiperSlide>
-
-                                        <SwiperSlide style={{ height: "auto", padding: "0 5px" }}>
-                                            <a href="topmap-grid.html" className="box-location" style={{
-                                                display: "block",
-                                                height: "100%",
-                                                borderRadius: "8px",
-                                                overflow: "hidden",
-                                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                                transition: "transform 0.3s ease",
-                                                position: "relative"
-                                            }}>
-                                                <div className="image" style={{
-                                                    position: "relative",
-                                                    paddingBottom: "70%",
-                                                    overflow: "hidden"
-                                                }}>
-                                                    <img
-                                                        src="images/location/location-1.jpg"
-                                                        alt="Sydney, Australia"
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            objectFit: "cover",
-                                                            transition: "transform 0.3s ease"
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="content" style={{
-                                                    position: "absolute",
-                                                    bottom: 0,
-                                                    left: 0,
-                                                    right: 0,
-                                                    padding: "12px 15px",
-                                                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                                                    color: "#fff"
-                                                }}>
-                                                    <span className="sub-title" style={{
-                                                        display: "block",
-                                                        fontSize: "12px",
-                                                        marginBottom: "2px",
-                                                        fontWeight: "500"
-                                                    }}>231 Property</span>
-                                                    <h6 className="title" style={{
-                                                        fontSize: "16px",
-                                                        margin: 0,
-                                                        fontWeight: "600",
-                                                        lineHeight: "1.3"
-                                                    }}>Sydney, Australia</h6>
-                                                </div>
-                                            </a>
-                                        </SwiperSlide>
-
-                                        <SwiperSlide style={{ height: "auto" }}>
-                                            <a href="topmap-grid.html" className="box-location" style={{
-                                                display: "block",
-                                                height: "100%",
-                                                borderRadius: "8px",
-                                                overflow: "hidden",
-                                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                                transition: "transform 0.3s ease",
-                                                position: "relative"
-                                            }}>
-                                                <div className="image" style={{
-                                                    position: "relative",
-                                                    paddingBottom: "70%",
-                                                    overflow: "hidden"
-                                                }}>
-                                                    <img
-                                                        src="images/location/location-4.jpg"
-                                                        alt="Cape Town, South Africa"
-                                                        style={{
-                                                            position: "absolute",
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: "100%",
-                                                            height: "100%",
-                                                            objectFit: "cover"
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className="content" style={{
-                                                    position: "absolute",
-                                                    bottom: 0,
-                                                    left: 0,
-                                                    right: 0,
-                                                    padding: "15px",
-                                                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                                                    color: "#fff"
-                                                }}>
-                                                    <span className="sub-title" style={{
-                                                        display: "block",
-                                                        fontSize: "14px",
-                                                        marginBottom: "4px"
-                                                    }}>221 Property</span>
-                                                    <h6 className="title" style={{
-                                                        fontSize: "18px",
-                                                        margin: 0,
-                                                        fontWeight: "600"
-                                                    }}>Cape Town, South Africa</h6>
-                                                </div>
-                                            </a>
-                                        </SwiperSlide>
-
-                                        {/* Add other slides with the same structure */}
-                                    </Swiper>
-
-                                    {/* <div className="box-navigation" style={{
-                                                            display: "flex",
-                                                            justifyContent: "center",
-                                                            gap: "15px",
-                                                            marginTop: "20px"
-                                                        }}>
-                                                            <div className="navigation swiper-nav-next nav-next-location  " style={{
-                                                                width: "40px",
-                                                                height: "40px",
-                                                                borderRadius: "50%",
-                                                                background: "#fff",
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                justifyContent: "center",
-                                                                cursor: "pointer",
-                                                                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                                                transition: "all 0.3s ease"
-                                                            }}>
-                                                                <span className="" style={{
-                                                                    display: "inline-block",
-                                                                    width: "16px",
-                                                                    height: "16px",
-                                                                    borderLeft: "2px solid #333",
-                                                                    borderBottom: "2px solid #333",
-                                                                    transform: "rotate(45deg)",
-                                                                    marginRight: "2px"
-                                                                }}></span>
-                                                            </div>
-                                                            <div className="   navigation swiper-nav-prev nav-prev-location" style={{
-                                                                width: "40px",
-                                                                height: "40px",
-                                                                borderRadius: "50%",
-                                                                background: "#fff",
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                justifyContent: "center",
-                                                                cursor: "pointer",
-                                                                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                                                transition: "all 0.3s ease"
-                                                            }}>
-                                                                <span className="" style={{
-                                                                    display: "inline-block",
-                                                                    width: "16px",
-                                                                    height: "16px",
-                                                                    borderRight: "2px solid #333",
-                                                                    borderTop: "2px solid #333",
-                                                                    transform: "rotate(45deg)",
-                                                                    marginLeft: "2px"
-                                                                }}></span>
-                                                            </div>
-                                                        </div> */}
+                                    {/* Add more cards as needed */}
                                 </div>
                             </div>
                         </section>
@@ -1541,18 +1247,15 @@ const HomePage = () => {
                                                     <li className="icon icon-star"></li>
                                                 </ul>
                                                 <p className="note body-1">
-                                                    "I truly appreciate the professionalism and in-depth knowledge of the
-                                                    brokerage team. They not only helped me find the perfect home but also
-                                                    assisted with legal and financial aspects, making me feel confident and
-                                                    secure in my decision."
+                                                    "I truly appreciate the professionalism and in-depth knowledge of the brokerage team. They not only helped me find the perfect home but also assisted with legal and financial aspects, making me feel confident and secure in my decision."
                                                 </p>
                                                 <div className="box-avt d-flex align-items-center gap-12">
                                                     <div className="avatar avt-60 round">
                                                         <img src="images/avatar/avt-7.jpg" alt="avatar" />
                                                     </div>
                                                     <div className="info">
-                                                        <div className="h7 fw-7">Liam Anderson</div>
-                                                        <p className="text-variant-1 mt-4">CEO Digital</p>
+                                                        <div className="h7 fw-7">Rohit Sharma</div>
+                                                        <p className="text-variant-1 mt-4">CEO Realty</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1568,18 +1271,15 @@ const HomePage = () => {
                                                     <li className="icon icon-star"></li>
                                                 </ul>
                                                 <p className="note body-1">
-                                                    "My experience with property management services has exceeded
-                                                    expectations. They efficiently manage properties with a professional and
-                                                    attentive approach in every situation. I feel reassured that any issue
-                                                    will be resolved promptly and effectively."
+                                                    "My experience with property management services has exceeded expectations. They efficiently manage properties with a professional and attentive approach in every situation. I feel reassured that any issue will be resolved promptly and effectively."
                                                 </p>
                                                 <div className="box-avt d-flex align-items-center gap-12">
                                                     <div className="avatar avt-60 round">
                                                         <img src="images/avatar/avt-5.jpg" alt="avatar" />
                                                     </div>
                                                     <div className="info">
-                                                        <div className="h7 fw-7">Adam Will</div>
-                                                        <p className="text-variant-1 mt-4">CEO Agency</p>
+                                                        <div className="h7 fw-7">Priya Singh</div>
+                                                        <p className="text-variant-1 mt-4">Founder, HomeSpace</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1595,18 +1295,15 @@ const HomePage = () => {
                                                     <li className="icon icon-star"></li>
                                                 </ul>
                                                 <p className="note body-1">
-                                                    "My experience with property management services has exceeded
-                                                    expectations. They efficiently manage properties with a professional and
-                                                    attentive approach in every situation. I feel reassured that any issue
-                                                    will be resolved promptly and effectively."
+                                                    "Excellent service! The team helped me with every step and made the process smooth and transparent. Highly recommended."
                                                 </p>
                                                 <div className="box-avt d-flex align-items-center gap-12">
                                                     <div className="avatar avt-60 round">
-                                                        <img src="images/avatar/avt-5.jpg" alt="avatar" />
+                                                        <img src="images/avatar/avt-6.jpg" alt="avatar" />
                                                     </div>
                                                     <div className="info">
-                                                        <div className="h7 fw-7">Adam Will</div>
-                                                        <p className="text-variant-1 mt-4">CEO Agency</p>
+                                                        <div className="h7 fw-7">Amit Verma</div>
+                                                        <p className="text-variant-1 mt-4">Managing Director, PropMart</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1622,22 +1319,20 @@ const HomePage = () => {
                                                     <li className="icon icon-star"></li>
                                                 </ul>
                                                 <p className="note body-1">
-                                                    "I truly appreciate the professionalism and in-depth knowledge of the
-                                                    brokerage team. They not only helped me find the perfect home but also
-                                                    assisted with legal and financial aspects, making me feel confident and
-                                                    secure in my decision."
+                                                    "Very professional and transparent team. I felt supported throughout my home buying journey. Exceptional experience!"
                                                 </p>
                                                 <div className="box-avt d-flex align-items-center gap-12">
                                                     <div className="avatar avt-60 round">
-                                                        <img src="images/avatar/avt-7.jpg" alt="avatar" />
+                                                        <img src="images/avatar/avt-8.jpg" alt="avatar" />
                                                     </div>
                                                     <div className="info">
-                                                        <div className="h7 fw-7">Liam Anderson</div>
-                                                        <p className="text-variant-1 mt-4">CEO Digital</p>
+                                                        <div className="h7 fw-7">Sneha Reddy</div>
+                                                        <p className="text-variant-1 mt-4">CEO DreamHomes</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </SwiperSlide>
+
                                     </Swiper>
                                 </div>
                             </div>
@@ -1692,7 +1387,7 @@ const HomePage = () => {
                         </div>
                     </section>
                     {/* BLOGS */}
-                    <section className="flat-section-v3 flat-latest-new bg-surface">
+                    {/* <section className="flat-section-v3 flat-latest-new bg-surface">
                         <div className="container">
                             <div className="box-title text-center wow fadeIn" data-wow-delay=".2s" data-wow-duration="2000ms">
                                 <div className="text-subtitle text-primary">Latest New</div>
@@ -1719,10 +1414,10 @@ const HomePage = () => {
                                 ))}
                             </div>
                         </div>
-                    </section>
+                    </section> */}
 
                     {/* <!-- partner -->  */}
-                    <section className="flat-section-v4 flat-partner">
+                    {/* <section className="flat-section-v4 flat-partner">
                         <div className="container">
                             <div className="wow fadeInUpSmall" data-wow-delay=".4s" data-wow-duration="2000ms">
                                 <Swiper
@@ -1740,19 +1435,19 @@ const HomePage = () => {
                                         pauseOnMouseEnter: false,
                                     }}
                                     speed={3000}
-                                    slidesPerView={2} // Default for mobile
+                                    slidesPerView={2} 
                                     breakpoints={{
-                                        // When window width is >= 480px
+                                     
                                         480: {
                                             slidesPerView: 3,
                                             spaceBetween: 20
                                         },
-                                        // When window width is >= 768px
+                                      
                                         768: {
                                             slidesPerView: 4,
                                             spaceBetween: 25
                                         },
-                                        // When window width is >= 1024px
+                                        
                                         1024: {
                                             slidesPerView: 5,
                                             spaceBetween: 30
@@ -1760,7 +1455,7 @@ const HomePage = () => {
                                     }}
                                     className="swiper tf-sw-partner"
                                 >
-                                    {/* === START SLIDES === */}
+                                  
                                     <SwiperSlide>
                                         <div className="partner-item">
                                             <svg width="182" height="35" viewBox="0 0 182 35" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2030,7 +1725,7 @@ const HomePage = () => {
                             </div>
                         </div>
 
-                    </section>
+                    </section> */}
                     <Footer />
 
                     <div className="progress-wrap">

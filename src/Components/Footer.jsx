@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import easy from "../assets/easy.png"
 
 const Footer = () => {
     const naviagte =useNavigate()
@@ -10,7 +11,7 @@ const Footer = () => {
                 <div className="container">
                     <div className="content-footer-top">
                         <div className="footer-logo">
-                            <img src="images/logo/homelogo.png" alt="logo-footer" width="174" height="44" />
+                            <img src={easy} alt="logo-footer" width="174" height="44" />
                         </div>
                         <div className="wd-social">
                             <span>Follow Us:</span>
@@ -47,15 +48,15 @@ const Footer = () => {
                                 <ul className="mt-12">
                                     <li className="mt-12 d-flex align-items-center gap-8">
                                         <i className="icon icon-mapPinLine fs-20 text-variant-2"></i>
-                                        <p className="text-white">101 E 129th St, East Chicago, IN 46312, US</p>
+                                        <p className="text-white">#22, Bhatia Homes, Aiwan Shahi Road, Kalaburagi</p>
                                     </li>
                                     <li className="mt-12 d-flex align-items-center gap-8">
                                         <i className="icon icon-phone2 fs-20 text-variant-2"></i>
-                                        <a href="tel:1-333-345-6868" className="text-white caption-1">1-333-345-6868</a>
+                                        <a href="tel:1-333-345-6868" className="text-white caption-1">+91-7411043895</a>
                                     </li>
                                     <li className="mt-12 d-flex align-items-center gap-8">
                                         <i className="icon icon-mail fs-20 text-variant-2"></i>
-                                        <p className="text-white">themesflat@gmail.com</p>
+                                        <p className="text-white">onezo@beingmash.com</p>
                                     </li>
                                 </ul>
 
@@ -65,9 +66,9 @@ const Footer = () => {
                             <div className="footer-cl-2">
                                 <div className="fw-7 text-white">Categories</div>
                                 <ul className="mt-10 navigation-menu-footer">
-                                    <li> <a href="pricing.html" className="caption-1 text-variant-2">Pricing Plans</a> </li>
+                                    <li> <a href="l" className="caption-1 text-variant-2">Pricing Plans</a> </li>
 
-                                    <li> <a href=""  className="caption-1 text-variant-2">Our Service s</a> </li>
+                                    <li> <a href=""  className="caption-1 text-variant-2">Our Services</a> </li>
 
                                     <li> <a href="" onClick={() => naviagte('/aboutus')} className="caption-1 text-variant-2">About Us</a> </li>
 
@@ -111,7 +112,7 @@ const Footer = () => {
             <div className="bottom-footer">
                 <div className="container">
                     <div className="content-footer-bottom">
-                        <div className="copyright">©2024 Homzen. All Rights Reserved.</div>
+                        <div className="copyright">©2025 Eazy Acers. All Rights Reserved.</div>
 
                         <ul className="menu-bottom">
                             <li><a href="our-service.html">Terms Of Services</a> </li>

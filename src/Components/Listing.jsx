@@ -3,7 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { Link } from 'react-router-dom';
 import api from '../api/api';
-
+import "./Listing.css"
 
 
 
@@ -105,32 +105,21 @@ const Listing = () => {
     };
 
     // Skeleton component
-    const SkeletonCard = () => (
-        <div className="col-md-12">
-            <div className="homeya-box list-style-1 list-style-2">
-                <div className="images-group">
-                    <div
-                        className="images-style"
-                        style={{ background: "#eee", height: "200px" }}
-                    ></div>
-                </div>
-                <div className="content p-3">
-                    <div
-                        className="skeleton mb-2"
-                        style={{ background: "#eee", height: "20px", width: "60%" }}
-                    ></div>
-                    <div
-                        className="skeleton mb-2"
-                        style={{ background: "#eee", height: "15px", width: "40%" }}
-                    ></div>
-                    <div
-                        className="skeleton"
-                        style={{ background: "#eee", height: "15px", width: "80%" }}
-                    ></div>
-                </div>
-            </div>
-        </div>
-    );
+const SkeletonCard = () => (
+  <div className="col-md-12">
+    <div className="homeya-box list-style-1 list-style-2">
+      <div className="images-group">
+        <div className="images-style skeleton" style={{ height: "200px" }}></div>
+      </div>
+      <div className="content p-3">
+        <div className="skeleton mb-2" style={{ height: "20px", width: "60%" }}></div>
+        <div className="skeleton mb-2" style={{ height: "15px", width: "40%" }}></div>
+        <div className="skeleton" style={{ height: "15px", width: "80%" }}></div>
+      </div>
+    </div>
+  </div>
+);
+
 
     return (
 

@@ -2,15 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Header.css';
 import api from '../api/api';
-
+import easy from "../assets/easy.png"
 
 
 const Header = () => {
-  const[otpSent, setOtpSent] = useState("");
+  const [otpSent, setOtpSent] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isMobileView, setIsMobileView] = useState(false);
   const navigate = useNavigate();
+  const [loadingButton, setLoadingButton] = useState({
+    continue: false,
+    verifyOtp: false,
+    addProperty: false,
+  });
+
 
   const toggleMobileMenu = () => {
     setMenuVisible(prev => !prev);
@@ -21,9 +27,6 @@ const Header = () => {
       setActiveDropdown(prev => (prev === index ? null : index));
     }
   };
-
-
-
 
 
 
@@ -50,7 +53,7 @@ const Header = () => {
   const menuItems = [
     { label: 'Home', className: 'home', onClick: () => navigate('/home') },
     { label: 'Properties', className: 'listing', onClick: () => navigate('/listing') },
-   
+
     {
       label: 'Pages', className: 'dropdown2',
       submenu: [
@@ -60,7 +63,7 @@ const Header = () => {
         { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
       ]
     },
-    { label: 'My Profile', className: 'myprofile', onClick: () => navigate('/myprofile') }
+    // { label: 'My Profile', className: 'myprofile', onClick: () => navigate('/myprofile') }
   ];
 
   // ---------------- Register Form States ----------------
@@ -76,7 +79,7 @@ const Header = () => {
   const [canResend, setCanResend] = useState(false);
 
 
-  
+
   useEffect(() => {
     let interval;
     if (showOtpModal) {
@@ -123,7 +126,7 @@ const Header = () => {
     try {
       const response = await api.post("/customers/customer", fd);
       console.log("OTP Sent:", response);
-    setOtpSent(response.data.data.otp);
+      setOtpSent(response.data.data.otp);
       setShowOtpModal(true);
     } catch (error) {
       console.error("Error sending OTP:", error);
@@ -139,6 +142,8 @@ const Header = () => {
       return;
     }
 
+    setLoadingButton(prev => ({ ...prev, verifyOtp: true }));
+
     const fd = new FormData();
     fd.append("programType", "verifyOTP");
     fd.append("username", countryCode + phoneNumber);
@@ -152,8 +157,15 @@ const Header = () => {
 
       if (response.data.success) {
         alert("OTP verified successfully!");
-      
+
         localStorage.setItem("authToken", response.data.data.authToken);
+
+
+        localStorage.setItem("mobile", response.data.data.mobile);
+        localStorage.setItem("name", response.data.data.firstName);
+        localStorage.setItem("email", response.data.data.email);
+        localStorage.setItem("photo", response.data.data.profile);
+
         setIsLoggedIn(true);   // ✅ mark user logged in
         setShowOtpModal(false);
         setShowRegister(false);
@@ -162,6 +174,8 @@ const Header = () => {
     } catch (error) {
       console.error("Error verifying OTP:", error);
       alert("Failed to verify OTP. Please try again.");
+    } finally {
+      setLoadingButton(prev => ({ ...prev, verifyOtp: false }));
     }
   };
 
@@ -192,7 +206,7 @@ const Header = () => {
 
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!agreedToTerms) {
       alert("Please agree to Terms and Conditions");
@@ -202,8 +216,16 @@ const Header = () => {
       alert("Phone number is required");
       return;
     }
-    sendOtp();
+
+    setLoadingButton(prev => ({ ...prev, continue: true }));
+
+    try {
+      await sendOtp();
+    } finally {
+      setLoadingButton(prev => ({ ...prev, continue: false }));
+    }
   };
+
 
   // const handleVerify = () => {
   //   verifyOtp();
@@ -211,32 +233,32 @@ const Header = () => {
 
 
   const handleVerify = async () => {
-  const enteredOtp = otp.join(""); // combine the 4 digits
+    const enteredOtp = otp.join(""); // combine the 4 digits
 
-  if (enteredOtp.length < 4) {
-    alert("Please enter complete OTP");
-    return;
-  }
-
-  setLoading(true); // show "Verifying OTP..."
-
-  try {
-    // Assuming verifyOtp returns a promise and resolves if OTP is correct
-    const result = await verifyOtp(enteredOtp);
-
-    if (result.success) { // Adjust based on your API response
-      setLoading(false);
-      setShowOtpModal(false);
-      navigate("/home"); // ✅ redirect to home
-    } else {
-      setLoading(false);
-      alert(result.message || "Invalid OTP, try again");
+    if (enteredOtp.length < 4) {
+      alert("Please enter complete OTP");
+      return;
     }
-  } catch (err) {
-    setLoading(false);
-    alert("Something went wrong. Please try again.");
-  }
-};
+
+    setLoading(true); // show "Verifying OTP..."
+
+    try {
+      // Assuming verifyOtp returns a promise and resolves if OTP is correct
+      const result = await verifyOtp(enteredOtp);
+
+      if (result.success) { // Adjust based on your API response
+        setLoading(false);
+        setShowOtpModal(false);
+        navigate("/home"); // ✅ redirect to home
+      } else {
+        setLoading(false);
+        alert(result.message || "Invalid OTP, try again");
+      }
+    } catch (err) {
+      setLoading(false);
+      alert("Something went wrong. Please try again.");
+    }
+  };
 
 
 
@@ -278,19 +300,6 @@ const Header = () => {
     setOtp(["", "", "", ""]);
     setShowOtpModal(false);
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -347,7 +356,7 @@ const Header = () => {
                 <div className="logo-box">
                   <div className="logo">
                     <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}>
-                      <img src="images/logo/homeblack.png" style={{ color: 'black' }} alt="logo" width="174" height="44" />
+                      <img src={easy} style={{ color: 'black' }} alt="logo" width="174" height="44" />
                     </a>
                   </div>
                 </div>
@@ -406,30 +415,74 @@ const Header = () => {
                   </nav>
                 </div>
 
+                {/* login/register */}
                 <div className="header-account">
-                  {!localStorage.getItem("authToken") && (
-                    <div className="register">
+                  {!localStorage.getItem("authToken") ? (
+                    <>
+                      <div className="register">
+                        <ul className="d-flex">
+                          <li><a href="#modalLogin" data-bs-toggle="modal">Login</a></li>
+                          <li>/</li>
+                          <li>
+                            <a
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setShowRegister(true);
+                              }}
+                            >
+                              Register
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="flat-bt-top">
+                        <a
+                          className="tf-btn primary"
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Open login modal if not logged in
+                            setShowRegister(true);
+                          }}
+                        >
+                          Add property
+                        </a>
+                      </div>
+                    </>
+                  ) : (
+                    <>
                       <ul className="d-flex">
-                        <li><a href="#modalLogin" data-bs-toggle="modal">Login</a></li>
-                        <li>/</li>
                         <li>
                           <a
                             href="#"
                             onClick={(e) => {
                               e.preventDefault();
-                              setShowRegister(true);
+                              navigate("/myprofile");
                             }}
                           >
-                            Register
+                            My Profile
                           </a>
                         </li>
                       </ul>
-                    </div>
+                      <div className="flat-bt-top">
+                        <a
+                          className="tf-btn primary"
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Navigate to add property if logged in
+                            navigate("/addproperty");
+                          }}
+                        >
+                          Add property
+                        </a>
+                      </div>
+                    </>
                   )}
-                  <div className="flat-bt-top">
-                    <a className="tf-btn primary" onClick={() => navigate('/addproperty')}>Add property</a>
-                  </div>
                 </div>
+
 
 
                 <div className="mobile-nav-toggler mobile-button" onClick={toggleMobileMenu}>
@@ -443,13 +496,13 @@ const Header = () => {
         <div className="close-btn" onClick={toggleMobileMenu}>
           <span className="icon flaticon-cancel-1"></span>
         </div>
-
+        {/* login/register mobile */}
         <div className="mobile-menu" style={{ display: menuVisible ? 'block' : 'none' }}>
           <div className="menu-backdrop" onClick={toggleMobileMenu}></div>
           <nav className="menu-box">
             <div className="nav-logo">
               <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); toggleMobileMenu(); }}>
-                <img src="images/logo/homeblack.png" alt="nav-logo" width="174" height="44" />
+                <img src={easy} alt="nav-logo" width="174" height="44" />
               </a>
             </div>
             <div className="bottom-canvas">
@@ -532,63 +585,6 @@ const Header = () => {
           </nav>
         </div>
       </header>
-
-      {/* Modal components remain the same */}
-      <div className="modal fade" id="modalLogin">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="flat-account bg-surface">
-              <h3 className="title text-center">Log In</h3>
-              <span className="close-modal icon-close2" data-bs-dismiss="modal"></span>
-              <form action="#">
-                <fieldset className="box-fieldset">
-                  <label for="name">User Name<span>*</span>:</label>
-                  <input type="text" className="form-contact style-1" placeholder='UserName/Email' />
-                </fieldset>
-                <fieldset className="box-fieldset">
-                  <label for="pass">Password<span>*</span>:</label>
-                  <div className="box-password">
-                    <input type="password" className="form-contact style-1 password-field" placeholder="Password" />
-                    <span className="show-pass">
-                      <i className="icon-pass icon-eye"></i>
-                      <i className="icon-pass icon-eye-off"></i>
-                    </span>
-                  </div>
-                </fieldset>
-                <div className="d-flex justify-content-between flex-wrap gap-12">
-                  <fieldset className="d-flex align-items-center gap-6">
-                    <input type="checkbox" className="tf-checkbox style-2" id="cb1" />
-                    <label for="cb1" className="caption-1 text-variant-1">Remember me</label>
-                  </fieldset>
-                  <a href="#" className="caption-1 text-primary">Forgot password?</a>
-                </div>
-                <div className="text-variant-1 auth-line">or sign up with</div>
-                <div className="login-social">
-                  <a href="#" className="btn-login-social">
-                    <img src="images/logo/fb.jpg" alt="img" />
-                    Continue with Facebook
-                  </a>
-                  <a href="#" className="btn-login-social">
-                    <img src="images/logo/google.jpg" alt="img" />
-                    Continue with Google
-                  </a>
-                  <a href="#" className="btn-login-social">
-                    <img src="images/logo/tw.jpg" alt="img" />
-                    Continue with Twitter
-                  </a>
-                </div>
-                <button type="submit" className="tf-btn primary w-100">Login</button>
-                <div className="mt-12 text-variant-1 text-center noti">Not registered yet?<a href="#modalRegister" data-bs-toggle="modal" className="text-black fw-5">Sign Up</a> </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-
-
-
 
 
       {/* Register form  */}
@@ -706,13 +702,15 @@ const Header = () => {
                 Agree to Terms and Conditions
               </label>
 
-              <button type="submit" style={buttonStyle}>Continue</button>
+              <button type="submit" style={buttonStyle} disabled={loadingButton.continue}>
+                {loadingButton.continue ? "Sending OTP..." : "Continue"}
+              </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* OTP Modal */}
+
       {/* OTP Modal */}
       {showOtpModal && (
         <div
@@ -834,9 +832,13 @@ const Header = () => {
             </p>
 
 
-             <button onClick={verifyOtp}  style={buttonStyle}disabled={loading}>
-            {loading ? "Verifying OTP..." : "Verify & Continue"}
-          </button>
+            <button
+              onClick={verifyOtp}
+              style={buttonStyle}
+              disabled={loadingButton.verifyOtp}
+            >
+              {loadingButton.verifyOtp ? "Verifying OTP..." : "Verify & Continue"}
+            </button>
           </div>
         </div>
       )}

@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import api from '../api/api';
+import easy from "../assets/easy.png"
+import Header from './Header';
 
 
 const MyProfile = () => {
@@ -10,6 +12,11 @@ const MyProfile = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [loading, setLoading] = useState(true); // 👈 loader state
+
+    const [name, setName] = useState(localStorage.getItem("name"));
+    console.log(name);
+
     const [customer, setCustomer] = useState({
         firstName: "",
         lastName: "",
@@ -91,12 +98,9 @@ const MyProfile = () => {
                 { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
             ]
         },
-        {
-            label: 'My Profile',
-            className: 'myprofile',
-            onClick: () => navigate('/myprofile')
-        }
+
     ];
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownOpen && !event.target.closest('.box-avatar')) {
@@ -113,22 +117,25 @@ const MyProfile = () => {
 
 
     // Fetch customer details on mount
+    // Fetch customer details on mount
     const getCustomerDetails = async () => {
         const fd = new FormData();
         fd.append("programType", "getPersonalDetailsOfCustomer");
         fd.append("authToken", localStorage.getItem("authToken"));
 
         try {
+            setLoading(true); // start loader
             const response = await api.post("customers/customerProfile", fd);
-            console.log("Profile response:", response.data);
             if (response.data?.success) {
                 setCustomer((prev) => ({
                     ...prev,
-                    ...response.data.data, // spread response into state
+                    ...response.data.data,
                 }));
             }
         } catch (error) {
             console.error("customer error:", error);
+        } finally {
+            setLoading(false); // stop loader
         }
     };
 
@@ -180,10 +187,63 @@ const MyProfile = () => {
     };
 
 
+    // ✅ Show loader if loading
+    if (loading) {
+        return (
+            <>
+                <Header />
+                <div
+                    style={{
+                        minHeight: "80vh",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "column",
+                    }}
+                >
+                    <div className="bouncing-cubes">
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
+                    </div>
+                    <p className="mt-3">Loading Profile details...</p>
+                </div>
 
-
-
-
+                <style>{`
+                .bouncing-cubes {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    height: 50px;
+                }
+                
+                .cube {
+                    width: 20px;
+                    height: 20px;
+                    animation: bounce 1.5s infinite ease-in-out;
+                }
+                
+                .cube:nth-child(2) {
+                    animation-delay: 0.2s;
+                }
+                
+                .cube:nth-child(3) {
+                    animation-delay: 0.4s;
+                }
+                
+                @keyframes bounce {
+                    0%, 100% {
+                        transform: translateY(0);
+                    }
+                    50% {
+                        transform: translateY(-20px);
+                    }
+                }
+            `}</style>
+            </>
+        );
+    }
 
 
     return (
@@ -200,7 +260,7 @@ const MyProfile = () => {
                                         <div className="inner-container d-flex justify-content-between align-items-center">
                                             {/* <!-- Logo Box --> */}
                                             <div className="logo-box d-flex">
-                                                <div className="logo"><a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}><img src="images/logo/homeblack.png" alt="logo" width="174" height="44" /></a></div>
+                                                <div className="logo"><a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}><img src={easy} alt="logo" width="174" height="44" /></a></div>
                                                 <div className="button-show-hide" onClick={toggleDashboard}>
                                                     <span className="icon icon-categories"></span>
                                                 </div>
@@ -247,9 +307,7 @@ const MyProfile = () => {
                                                                     <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/Privacy-Policy'); }}>Privacy Policy</a></li>
                                                                 </ul>
                                                             </li>
-                                                            <li className="myprofile">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>Myprofile</a>
-                                                            </li>
+
                                                         </ul>
                                                     </div>
                                                 </nav>
@@ -288,22 +346,22 @@ const MyProfile = () => {
 
 
                                                     <div
-                                                        // style={{ position: "relative", display: "inline-block" }}
-                                                        // onMouseEnter={() => setDropdownOpen(true)}
-                                                        // onMouseLeave={() => setDropdownOpen(false)}
+                                                    // style={{ position: "relative", display: "inline-block" }}
+                                                    // onMouseEnter={() => setDropdownOpen(true)}
+                                                    // onMouseLeave={() => setDropdownOpen(false)}
                                                     >
                                                         {/* Avatar + Name */}
                                                         <div
                                                             className="avatar avt-40 round"
                                                             style={{ display: "inline-block", verticalAlign: "middle" }}
                                                         >
-                                                            <img src="images/avatar/avt-2.jpg" alt="avt" />
+                                                            <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
                                                         </div>
                                                         <p
                                                             className="name"
                                                             style={{ cursor: "pointer", display: "inline-block", marginLeft: "8px" }}
                                                         >
-                                                            Tony Nguyen <span className="icon icon-arr-down"></span>
+                                                            {name} <span className="icon icon-arr-down"></span>
                                                         </p>
 
                                                         {/* Dropdown */}
@@ -332,9 +390,7 @@ const MyProfile = () => {
                                                             <a className="dropdown-item" onClick={() => navigate("/reviews")}>
                                                                 Reviews
                                                             </a>
-                                                            <a className="dropdown-item" onClick={() => navigate("/myprofile")}>
-                                                                My Profile
-                                                            </a>
+
                                                             <a className="dropdown-item" onClick={() => navigate("/logout")}>
                                                                 Logout
                                                             </a>
@@ -358,7 +414,7 @@ const MyProfile = () => {
                                 <nav className="menu-box">
                                     <div className="nav-logo">
                                         <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); toggleMobileMenu(); }}>
-                                            <img src="images/logo/homeblack.png" alt="nav-logo" width="174" height="44" />
+                                            <img src={easy} alt="nav-logo" width="174" height="44" />
                                         </a>
                                     </div>
                                     <div className="bottom-canvas">

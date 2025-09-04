@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Footer from './Footer'
 import Header from './Header'
 import { Link } from 'react-router-dom';
 
 
 const ContactUs = () => {
+        const [name, setName] = useState(localStorage.getItem("name"));
+        const [mobile, setMobile] = useState(localStorage.getItem("mobile"));
+        const [email, setEmail] = useState(localStorage.getItem("email"));
   return (
     <div>
         < Header />
@@ -30,22 +33,19 @@ const ContactUs = () => {
                                     <div className="box grid-2">
                                         <fieldset>
                                             <label for="name">Full Name:</label>
-                                            <input type="text" className="form-control style-1" placeholder="Name" name="name" id="name" required/>
+                                            <input type="text" className="form-control style-1" value={name} placeholder="Name" name="name" id="name" required/>
                                         </fieldset>
                                         <fieldset>
                                             <label for="email">Email Address:</label>
-                                            <input type="text" className="form-control style-1" placeholder="Email" name="email" id="email" required/>
+                                            <input type="text" className="form-control style-1" value={email} placeholder="Email" name="email" id="email" required/>
                                         </fieldset>
                                     </div>
                                     <div className="box grid-2">
                                         <fieldset>
-                                            <label for="phone">Phone Numbers:</label>
-                                            <input type="text" className="form-control style-1" placeholder="ex 012345678" name="phone" id="phone" required/>
+                                            <label for="phone">Phone Number:</label>
+                                            <input type="text" className="form-control style-1" value={mobile} placeholder="ex 012345678" name="phone" id="phone" required/>
                                         </fieldset>
-                                        <fieldset>
-                                            <label for="subject">Subject:</label>
-                                            <input type="text" className="form-control style-1" placeholder="Enter Keyword" name="subject" id="subject"/>
-                                        </fieldset>
+                                       
                                     </div>
                                     <fieldset className="box">
                                         <label for="message">Your Message:</label>
@@ -63,18 +63,14 @@ const ContactUs = () => {
                                 <ul>
                                     <li className="box">
                                         <div className="text-1 title">Address:</div>
-                                        <p className="p-16 text-variant-1">101 E 129th St, East Chicago, IN 46312
-                                          <br/>  United States</p>
+                                        <p className="p-16 text-variant-1">#2, Bhatia Homes, Near Aiwan Shahi
+                                          <br/> Kalaburagi, Karnataka</p>
                                     </li>
                                     <li className="box">
                                         <div className="text-1 title">Infomation:</div>
-                                        <p className="p-16 text-variant-1">1-333-345-6868 <br/> hi.themesflat@gmail.com</p>
+                                        <p className="p-16 text-variant-1">+91-7411043895 <br/> onezo@beingmash.com</p>
                                     </li>
-                                    <li className="box">
-                                        <div className="text-1 title">Opentime:</div>
-                                        <p className="p-16 text-variant-1">Monay - Friday: 08:00 - 20:00 <br/> Saturday - Sunday: 10:00 - 18:00</p>
-
-                                    </li>
+                                  
                                     <li className="box">
                                         <div className="text-1 title">Follow Us:</div>
                                          <ul className="box-social">
