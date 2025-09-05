@@ -18,7 +18,12 @@ import MyFavorites from "./Components/MyFavorites";
 import Reviews from "./Components/Reviews";
 import Addproperty from "./Components/Addproperty";
 import Adddetails from "./Components/Adddetails";
+<<<<<<< HEAD
 import { Toaster } from "react-hot-toast";
+=======
+import Blogs from "./Components/Blogs";
+import BlogOverview from "./Components/BlogOverview";
+>>>>>>> 37b0b4bdb109452ccafa18b1927a4c7651a02887
 
 
 // import SignInotp from "./Components/SignInotp";
@@ -34,6 +39,7 @@ function App() {
 
   return (
 
+<<<<<<< HEAD
     <>
 
     
@@ -60,6 +66,29 @@ function App() {
         {/* <Route exact path="/signinotp" element={<SignInotp />} /> */}
         <Route exact path="/add" element={<Adddetails />} />
 
+=======
+       <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route exact path="/header" element={<Header />} />
+      <Route exact path="/home" element={<HomePAge />} />
+      <Route exact path="/footer" element={<Footer />} />
+      <Route exact path="/listing" element={<Listing />} />
+      <Route exact path="/property/:id" element={<Properties />} />
+      <Route exact path="/myprofile" element={<MyProfile />} />
+      <Route exact path="/aboutus" element={<AboutUs />} />
+      <Route exact path="/contactus" element={<ContactUs />} />
+      <Route exact path="/FAQ" element={<FAQ />} />
+      <Route exact path="/Privacy-Policy" element={<PrivacyPolicy />} />
+      <Route exact path="/dashboard" element={<Dashboard />} />
+      <Route exact path="/myproperties" element={<Myproperties />} />
+      <Route exact path="/myfavorites" element={<MyFavorites />} />
+      <Route exact path="/reviews" element={<Reviews />} />
+      <Route exact path="/addproperty" element={<Addproperty />} />
+    {/* <Route exact path="/signinotp" element={<SignInotp />} /> */}
+    <Route exact path="/add" element={<Adddetails />} />
+      <Route exact path="/blogs" element={<Blogs />} />
+          <Route exact path="/blogoverview/:id" element={<BlogOverview />} />
+         
+>>>>>>> 37b0b4bdb109452ccafa18b1927a4c7651a02887
 
 
 
