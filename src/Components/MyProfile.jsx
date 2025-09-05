@@ -97,6 +97,14 @@ const MyProfile = () => {
                 { text: 'FAQs', onClick: () => navigate('/FAQ') },
                 { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
             ]
+        }, {
+            label: 'Options', className: 'dropdown3',
+            submenu: [
+                { text: 'Dashboard', onClick: () => navigate('/dashboard') },
+                { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
+                { text: 'My Properties', onClick: () => navigate('/myproperties') },
+                { text: 'Reviews', onClick: () => navigate('/reviews') },
+            ]
         },
 
     ];
@@ -357,12 +365,16 @@ const MyProfile = () => {
                                                         >
                                                             <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
                                                         </div>
-                                                        <p
-                                                            className="name"
-                                                            style={{ cursor: "pointer", display: "inline-block", marginLeft: "8px" }}
-                                                        >
-                                                            {name} <span className="icon icon-arr-down"></span>
-                                                        </p>
+
+                                                        {!isMobileView && (
+                                                            <p
+                                                                className="name"
+                                                                style={{ cursor: "pointer", display: "inline-block", marginLeft: "8px" }}
+                                                            >
+                                                                {name} <span className="icon icon-arr-down"></span>
+                                                            </p>
+                                                        )}
+
 
                                                         {/* Dropdown */}
                                                         <div
@@ -391,14 +403,23 @@ const MyProfile = () => {
                                                                 Reviews
                                                             </a>
 
-                                                            <a className="dropdown-item" onClick={() => navigate("/logout")}>
+                                                            <a className="dropdown-item" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                localStorage.removeItem("authToken"); // clear token
+                                                                navigate("/home"); // redirect after logout
+                                                                window.location.reload(); // reload so header updates
+                                                            }}>
                                                                 Logout
                                                             </a>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="flat-bt-top">
-                                                    <a className="tf-btn primary" href="add-property.html">Submit Property</a>
+                                                    <a className="tf-btn primary" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        // Navigate to add property if logged in
+                                                        navigate("/addproperty");
+                                                    }}>Add Property</a>
                                                 </div>
                                             </div>
 
@@ -464,12 +485,15 @@ const MyProfile = () => {
                                             </div>
                                         </div>
                                         <div className="button-mobi-sell">
-                                            <a className="tf-btn primary" href="add-property.html">Submit Property</a>
-                                        </div>
+                                            <a className="tf-btn primary" onClick={(e) => {
+                                                e.preventDefault();
+                                                // Navigate to add property if logged in
+                                                navigate("/addproperty");
+                                            }}>Add Property</a>                                        </div>
                                         <div className="mobi-icon-box">
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-phone2"></span>
-                                                <div>1-333-345-6868</div>
+                                                <div>91-7411043895</div>
                                             </div>
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-mail"></span>

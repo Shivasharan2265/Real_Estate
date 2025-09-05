@@ -7236,7 +7236,7 @@ label {
   color: #5c6368;
 }
 .header-property-detail .content-bottom .icon-box .item:hover {
-  background-color: #ED2027;
+  background-color: #fff;
 }
 .header-property-detail .content-bottom .icon-box .item:hover .icon {
   animation: 0.3s link-icon2 linear;

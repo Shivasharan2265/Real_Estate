@@ -142,3 +142,18 @@
     transform: translate(100%, 100%);
   }
 }
+
+.heart-icon {
+  font-size: 20px;
+  color: red;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.heart-icon:hover {
+  color: red;
+}
+
+ .item-box .item:hover {
+background-color: #fff !important;
+}

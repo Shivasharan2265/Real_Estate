@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, use } from 'react';
 import api from '../api/api';
 import "./Myproperties.css"
+import easy from "../assets/easy.png"
 
 
 const Myproperties = () => {
@@ -83,6 +84,15 @@ const Myproperties = () => {
                 { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
             ]
         },
+          {
+      label: 'Options', className: 'dropdown3',
+      submenu: [
+        { text: 'Dashboard', onClick: () => navigate('/dashboard') },
+        { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
+        { text: 'My Properties', onClick: () => navigate('/myproperties') },
+        { text: 'Reviews', onClick: () => navigate('/reviews') },
+      ]
+    },
         {
             label: 'My Profile',
             className: 'myprofile',
@@ -170,7 +180,7 @@ const Myproperties = () => {
                                         <div className="inner-container d-flex justify-content-between align-items-center">
                                             {/* <!-- Logo Box --> */}
                                             <div className="logo-box d-flex">
-                                                <div className="logo"><a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}><img src="images/logo/homeblack.png" alt="logo" width="174" height="44" /></a></div>
+                                                <div className="logo"><a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}><img src={easy} alt="logo" width="174" height="44" /></a></div>
                                                 <div className="button-show-hide" onClick={toggleDashboard}>
                                                     <span className="icon icon-categories"></span>
                                                 </div>
@@ -258,8 +268,11 @@ const Myproperties = () => {
                                                     </div>
                                                 </div>
                                                 <div className="flat-bt-top">
-                                                    <a className="tf-btn primary" href="add-property.html">Submit Property</a>
-                                                </div>
+                                                    <a className="tf-btn primary" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        // Navigate to add property if logged in
+                                                        navigate("/addproperty");
+                                                    }}>Add Property</a>                                                </div>
                                             </div>
 
                                             <div className="mobile-nav-toggler mobile-button" onClick={toggleMobileMenu}><span></span></div>
@@ -275,7 +288,7 @@ const Myproperties = () => {
                                 <nav className="menu-box">
                                     <div className="nav-logo">
                                         <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); toggleMobileMenu(); }}>
-                                            <img src="images/logo/homeblack.png" alt="nav-logo" width="174" height="44" />
+                                            <img src={easy} alt="nav-logo" width="174" height="44" />
                                         </a>
                                     </div>
                                     <div className="bottom-canvas">
@@ -325,12 +338,15 @@ const Myproperties = () => {
                                             </div>
                                         </div>
                                         <div className="button-mobi-sell">
-                                            <a className="tf-btn primary" href="add-property.html">Submit Property</a>
-                                        </div>
+                                                    <a className="tf-btn primary" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        // Navigate to add property if logged in
+                                                        navigate("/addproperty");
+                                                    }}>Add Property</a>                                        </div>
                                         <div className="mobi-icon-box">
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-phone2"></span>
-                                                <div>1-333-345-6868</div>
+                                                <div>91-7411043895</div>
                                             </div>
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-mail"></span>
@@ -389,9 +405,9 @@ const Myproperties = () => {
 
                         <div className="main-content">
                             <div className="main-content-inner wrap-dashboard-content-2">
-                                <div className="button-show-hide show-mb" onClick={toggleDashboard}>
+                                {/* <div className="button-show-hide show-mb" onClick={toggleDashboard}>
                                     <span className="body-1">Show Dashboard</span>
-                                </div>
+                                </div> */}
                                 <div className="row">
                                     <div className="col-md-3">
                                         <fieldset className="box-fieldset">
@@ -418,7 +434,7 @@ const Myproperties = () => {
                                         </fieldset>
                                     </div>
                                 </div>
-                                <div className="widget-box-2 wd-listing">
+                                <div className="widget-box-2 wd-listing mt-3">
                                     <h6 className="title">My Properties</h6>
                                     <div className="wrap-table">
                                         <div className="table-responsive">

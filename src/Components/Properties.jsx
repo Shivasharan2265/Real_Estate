@@ -7,6 +7,7 @@ import "swiper/css/navigation";
 import Header from "./Header";
 import Footer from "./Footer";
 import api from "../api/api";
+import toast from "react-hot-toast";
 
 const Properties = () => {
     const { id } = useParams();
@@ -24,8 +25,79 @@ const Properties = () => {
     const [email, setEmail] = useState(localStorage.getItem("email"));
     const [message, setMessage] = useState("I am Intersted!");
 
+    // inside Properties component
+    const [liked, setLiked] = useState(false);
+    const [hover, setHover] = useState(false);
 
+    const [favoriteId, setFavoriteId] = useState(null);
 
+    useEffect(() => {
+        if (propertyData?.isFavourite) {
+            setFavoriteId(propertyData.isFavourite); // store the id directly
+        } else {
+            setFavoriteId(null);
+        }
+    }, [propertyData]);
+
+    // useEffect(() => {
+    //     if (propertyData?.isFavourite === 1) {
+    //         setLiked(true);
+    //     }
+    // }, [propertyData]);
+
+    const handleFavorite = async () => {
+        const fd = new FormData();
+        fd.append("programType", "addFavorites");
+        fd.append("property_id", id);
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("/properties/property", fd);
+            console.log("Wishlist:", response);
+
+            if (response.data.success) {
+                // API should return new favoriteId
+                setFavoriteId(response.data.favoriteId || true);
+                toast.success(response.data.message);
+            }
+        } catch (error) {
+            console.error("Error adding favorite:", error);
+            setError("Error adding to favorites");
+        }
+    };
+
+    const handleRemove = async () => {
+        if (!favoriteId) return; // nothing to remove
+
+        const fd = new FormData();
+        fd.append("programType", "removeFavorites");
+        fd.append("favoriteId", favoriteId); // use favoriteId, not property id
+        fd.append("property_id", id); // use favoriteId, not property id
+
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("/properties/property", fd);
+            console.log("Remove:", response);
+
+            if (response.data.success) {
+                setFavoriteId(null);
+                toast.success(response.data.message);
+            }
+        } catch (error) {
+            console.error("Error removing favorite:", error);
+            setError("Error removing from favorites");
+        }
+    };
+
+    const toggleFavorite = (e) => {
+        e.preventDefault();
+        if (favoriteId) {
+            handleRemove();
+        } else {
+            handleFavorite();
+        }
+    };
 
 
     const handleToggleFloor = (index) => {
@@ -228,11 +300,14 @@ const Properties = () => {
         },
         {
             category: "Additional Features",
-            items: propertyData.features.additional_features.map(feature => ({
-                icon: "icon-check",
-                label: feature.replace(/_/g, ' ')
-            }))
+            items: Array.isArray(propertyData?.features?.additional_features)
+                ? propertyData.features.additional_features.map(feature => ({
+                    icon: "icon-check",
+                    label: feature.replace(/_/g, ' ')
+                }))
+                : [] // fallback empty array if it's not an array
         }
+
     ];
 
     // Add construction features for plots
@@ -285,6 +360,7 @@ const Properties = () => {
         { icon: "icon-map-pin", label: "Prime Location" }
     ];
 
+
     return (
         <div>
             <Header />
@@ -335,7 +411,7 @@ const Properties = () => {
                         <span className="icon icon-map-trifold"></span>
                     </Link>
                     <Link
-                        to={images1[0] || "#"}
+
                         className="item active"
                         data-fancybox="gallery"
                     >
@@ -357,11 +433,19 @@ const Properties = () => {
                                 {isPlot && <span className="badge bg-secondary ms-2">Plot</span>}
                             </div>
                             <div className="box-price d-flex align-items-center">
-                                <h4>{formatCurrency(propertyData.pricing.sale_price || propertyData.pricing.expected_price)}</h4>
-                                {propertyData.pricing.expected_rent && (
-                                    <span className="body-1 text-variant-1">/month</span>
+                                {propertyData.property.listing_type === "sale" ? (
+                                    <>
+                                        <h4>{formatCurrency(propertyData.pricing.expected_price)}</h4>
+                                        <span className="body-1 text-variant-1"></span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h4>{formatCurrency(propertyData.pricing.expected_rent)}</h4>
+                                        <span className="body-1 text-variant-1">/month</span>
+                                    </>
                                 )}
                             </div>
+
                         </div>
                         <div className="content-bottom">
                             <div className="info-box">
@@ -381,10 +465,38 @@ const Properties = () => {
                                     {propertyData.location.address}, {propertyData.location.location}
                                 </p>
                             </div>
-                            <ul className="icon-box">
-                                <li><a href="#" className="item"><span className="icon icon-heart"></span></a></li>
-                                <li><a href="#" className="item"><span className="icon icon-share-network"></span></a></li>
-                                <li><a href="#" className="item"><span className="icon icon-printer"></span></a></li>
+                            <ul className="icon-box" >
+                                <li>
+                                    <a href="#" className="item" onClick={toggleFavorite}>
+                                        <span
+                                            className={favoriteId ? "fa-solid fa-heart" : "fa-regular fa-heart"}
+                                            style={{
+                                                fontSize: "20px",
+                                                color: favoriteId ? "red" : "#555", // red if liked, grey otherwise
+                                                cursor: "pointer",
+                                                transition: "color 0.3s ease",
+                                            }}
+                                            onMouseEnter={() => setHover(true)}
+                                            onMouseLeave={() => setHover(false)}
+                                        ></span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a href="#" className="item">
+                                        <span className="fa-solid fa-share-from-square" style={{
+                                            fontSize: "20px",
+                                            color: "black",
+                                            cursor: "pointer",
+                                            transition: "color 0.3s ease",
+                                        }}></span>
+                                    </a>
+                                </li>
+                                {/* <li>
+                                    <a href="#" className="item">
+                                        <span className="icon icon-printer"></span>
+                                    </a>
+                                </li> */}
                             </ul>
                         </div>
                     </div>
@@ -600,7 +712,7 @@ const Properties = () => {
                                         <button className="tf-btn primary">Calculator</button>
                                         <div className="d-flex gap-4">
                                             <span className="h7 fw-7">Monthly Payment:</span>
-                                            <span className="result h7 fw-7">$1,976</span>
+                                            <span className="result h7 fw-7">₹11,976</span>
                                         </div>
                                     </div>
                                 </form>

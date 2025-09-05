@@ -87,6 +87,15 @@ const Reviews = () => {
                 { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
             ]
         },
+          {
+      label: 'Options', className: 'dropdown3',
+      submenu: [
+        { text: 'Dashboard', onClick: () => navigate('/dashboard') },
+        { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
+        { text: 'My Properties', onClick: () => navigate('/myproperties') },
+        { text: 'Reviews', onClick: () => navigate('/reviews') },
+      ]
+    },
         {
             label: 'My Profile',
             className: 'myprofile',
@@ -207,8 +216,11 @@ const Reviews = () => {
                                                     </div>
                                                 </div>
                                                 <div className="flat-bt-top">
-                                                    <Link to className="tf-btn primary" href="add-property.html">Submit Property</Link>
-                                                </div>
+                                                    <a className="tf-btn primary" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        // Navigate to add property if logged in
+                                                        navigate("/addproperty");
+                                                    }}>Add Property</a>                                                </div>
                                             </div>
 
                                             <div className="mobile-nav-toggler mobile-button" onClick={toggleMobileMenu}><span></span></div>
@@ -274,12 +286,15 @@ const Reviews = () => {
                                             </div>
                                         </div>
                                         <div className="button-mobi-sell">
-                                            <Link to className="tf-btn primary" href="add-property.html">Submit Property</Link>
-                                        </div>
+                                                    <a className="tf-btn primary" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        // Navigate to add property if logged in
+                                                        navigate("/addproperty");
+                                                    }}>Add Property</a>                                        </div>
                                         <div className="mobi-icon-box">
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-phone2"></span>
-                                                <div>1-333-345-6868</div>
+                                                <div>91-7411043895</div>
                                             </div>
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-mail"></span>
@@ -343,9 +358,9 @@ const Reviews = () => {
 
                         <div className="main-content">
                             <div className="main-content-inner wrap-dashboard-content-2">
-                                <div className="button-show-hide show-mb" onClick={toggleDashboard}>
+                                {/* <div className="button-show-hide show-mb" onClick={toggleDashboard}>
                                     <span className="body-1">Show Dashboard</span>
-                                </div>
+                                </div> */}
                                 <div className="widget-box-3 mess-box">
                                     <h6>Messages</h6>
                                     <span className="text-variant-1">No message</span>

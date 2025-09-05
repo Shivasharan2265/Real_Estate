@@ -48,15 +48,15 @@ const Footer = () => {
                                 <ul className="mt-12">
                                     <li className="mt-12 d-flex align-items-center gap-8">
                                         <i className="icon icon-mapPinLine fs-20 text-variant-2"></i>
-                                        <p className="text-white">#22, Bhatia Homes, Aiwan Shahi Road, Kalaburagi</p>
+                                        <p className="text-white">#22, Aiwan Shahi Road, Kalaburagi</p>
                                     </li>
                                     <li className="mt-12 d-flex align-items-center gap-8">
                                         <i className="icon icon-phone2 fs-20 text-variant-2"></i>
-                                        <a href="tel:1-333-345-6868" className="text-white caption-1">+91-7411043895</a>
+                                        <a href="tel:91-7411043895" className="text-white caption-1">+91-7411043895</a>
                                     </li>
                                     <li className="mt-12 d-flex align-items-center gap-8">
                                         <i className="icon icon-mail fs-20 text-variant-2"></i>
-                                        <p className="text-white">onezo@beingmash.com</p>
+                                        <p className="text-white">info@eazy_acers.com</p>
                                     </li>
                                 </ul>
 
