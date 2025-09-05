@@ -18,6 +18,8 @@ import MyFavorites from "./Components/MyFavorites";
 import Reviews from "./Components/Reviews";
 import Addproperty from "./Components/Addproperty";
 import Adddetails from "./Components/Adddetails";
+import Blogs from "./Components/Blogs";
+import BlogOverview from "./Components/BlogOverview";
 
 
 // import SignInotp from "./Components/SignInotp";
@@ -52,8 +54,9 @@ function App() {
       <Route exact path="/addproperty" element={<Addproperty />} />
     {/* <Route exact path="/signinotp" element={<SignInotp />} /> */}
     <Route exact path="/add" element={<Adddetails />} />
-    
-
+      <Route exact path="/blogs" element={<Blogs />} />
+          <Route exact path="/blogoverview/:id" element={<BlogOverview />} />
+         
 
 
 

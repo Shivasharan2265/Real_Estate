@@ -61,6 +61,7 @@ const Header = () => {
         { text: 'Contact Us', onClick: () => navigate('/contactus') },
         { text: 'FAQs', onClick: () => navigate('/FAQ') },
         { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
+         { text: 'Blogs', onClick: () => navigate('/blogs') },
       ]
     },
     // { label: 'My Profile', className: 'myprofile', onClick: () => navigate('/myprofile') }
@@ -421,8 +422,7 @@ const Header = () => {
                     <>
                       <div className="register">
                         <ul className="d-flex">
-                          <li><a href="#modalLogin" data-bs-toggle="modal">Login</a></li>
-                          <li>/</li>
+                        
                           <li>
                             <a
                               href="#"
@@ -431,7 +431,7 @@ const Header = () => {
                                 setShowRegister(true);
                               }}
                             >
-                              Register
+                              Login/Register
                             </a>
                           </li>
                         </ul>
