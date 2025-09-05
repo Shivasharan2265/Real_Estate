@@ -34,7 +34,32 @@ function App() {
 
 
   return (
-    <Routes>
+
+    <>
+
+    
+ <Toaster />
+
+      <Routes>
+
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route exact path="/header" element={<Header />} />
+        <Route exact path="/home" element={<HomePAge />} />
+        <Route exact path="/footer" element={<Footer />} />
+        <Route exact path="/listing" element={<Listing />} />
+        <Route exact path="/property/:id" element={<Properties />} />
+        <Route exact path="/myprofile" element={<MyProfile />} />
+        <Route exact path="/aboutus" element={<AboutUs />} />
+        <Route exact path="/contactus" element={<ContactUs />} />
+        <Route exact path="/FAQ" element={<FAQ />} />
+        <Route exact path="/Privacy-Policy" element={<PrivacyPolicy />} />
+        <Route exact path="/dashboard" element={<Dashboard />} />
+        <Route exact path="/myproperties" element={<Myproperties />} />
+        <Route exact path="/myfavorites" element={<MyFavorites />} />
+        <Route exact path="/reviews" element={<Reviews />} />
+        <Route exact path="/addproperty" element={<Addproperty />} />
+        {/* <Route exact path="/signinotp" element={<SignInotp />} /> */}
+        <Route exact path="/add" element={<Adddetails />} />
 
        <Route path="/" element={<Navigate to="/home" replace />} />
       <Route exact path="/header" element={<Header />} />
@@ -60,8 +85,8 @@ function App() {
 
 
 
-
-    </Routes>
+      </Routes>
+    </>
   );
 }
 

@@ -808,7 +808,7 @@ const Properties = () => {
                                         </div>
                                         <div className="info">
                                             <div className="text-1 name">Shara Conner</div>
-                                            <span>1-333-345-6868 themesflat@gmail.com</span>
+                                            <span>91-7411043895 themesflat@gmail.com</span>
                                         </div>
                                     </div>
                                     <form action="#" className="contact-form">

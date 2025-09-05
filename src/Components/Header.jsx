@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Header.css';
 import api from '../api/api';
 import easy from "../assets/easy.png"
+import toast from 'react-hot-toast';
 
 
 const Header = () => {
@@ -62,6 +63,16 @@ const Header = () => {
         { text: 'FAQs', onClick: () => navigate('/FAQ') },
         { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
          { text: 'Blogs', onClick: () => navigate('/blogs') },
+      ]
+    },
+
+    {
+      label: 'Options', className: 'dropdown3',
+      submenu: [
+        { text: 'Dashboard', onClick: () => navigate('/dashboard') },
+        { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
+        { text: 'My Properties', onClick: () => navigate('/myproperties') },
+        { text: 'Reviews', onClick: () => navigate('/reviews') },
       ]
     },
     // { label: 'My Profile', className: 'myprofile', onClick: () => navigate('/myprofile') }
@@ -127,8 +138,14 @@ const Header = () => {
     try {
       const response = await api.post("/customers/customer", fd);
       console.log("OTP Sent:", response);
-      setOtpSent(response.data.data.otp);
-      setShowOtpModal(true);
+      if (response.data.success) {
+        toast.success(response.data.message)
+        setOtpSent(response.data.data.otp);
+        setShowOtpModal(true);
+      } else {
+        toast.error(response.data.message)
+      }
+
     } catch (error) {
       console.error("Error sending OTP:", error);
       alert("Failed to send OTP. Please try again.");
@@ -157,7 +174,7 @@ const Header = () => {
 
 
       if (response.data.success) {
-        alert("OTP verified successfully!");
+         toast.success(response.data.message)
 
         localStorage.setItem("authToken", response.data.data.authToken);
 
@@ -366,52 +383,58 @@ const Header = () => {
                   <nav className="main-menu show navbar-expand-md">
                     <div className="navbar-collapse collapse clearfix" id="navbarSupportedContent">
                       <ul className="navigation clearfix">
-                        {menuItems.map((item, index) => (
-                          <li
-                            key={index}
-                            className={`${item.className || ''} ${activeDropdown === index ? 'open' : ''}`}
-                            onClick={(e) => {
-                              if (item.submenu) {
-                                e.preventDefault();
-                                handleDropdownClick(index);
-                              } else if (item.onClick) {
-                                item.onClick();
-                              }
-                            }}
-                            onMouseEnter={() => {
-                              if (!isMobileView && item.submenu) {
-                                setActiveDropdown(index);
-                              }
-                            }}
-                            onMouseLeave={() => {
-                              if (!isMobileView && item.submenu) {
-                                setActiveDropdown(null);
-                              }
-                            }}
-                          >
-                            <a href="#" onClick={(e) => e.preventDefault()}>
-                              {item.label}
-                            </a>
-                            {item.submenu && (
-                              <ul style={{ display: activeDropdown === index ? 'block' : 'none' }}>
-                                {item.submenu.map((sub, i) => (
-                                  <li key={i}>
-                                    <a
-                                      href="#"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        if (sub.onClick) sub.onClick();
-                                      }}
-                                    >
-                                      {sub.text}
-                                    </a>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </li>
-                        ))}
+                        {menuItems.map((item, index) => {
+                          // hide "Options" in desktop
+                          if (item.label === 'Options' && !isMobileView) return null;
+
+                          return (
+                            <li
+                              key={index}
+                              className={`${item.className || ''} ${activeDropdown === index ? 'open' : ''}`}
+                              onClick={(e) => {
+                                if (item.submenu) {
+                                  e.preventDefault();
+                                  handleDropdownClick(index);
+                                } else if (item.onClick) {
+                                  item.onClick();
+                                }
+                              }}
+                              onMouseEnter={() => {
+                                if (!isMobileView && item.submenu) {
+                                  setActiveDropdown(index);
+                                }
+                              }}
+                              onMouseLeave={() => {
+                                if (!isMobileView && item.submenu) {
+                                  setActiveDropdown(null);
+                                }
+                              }}
+                            >
+                              <a href="#" onClick={(e) => e.preventDefault()}>
+                                {item.label}
+                              </a>
+                              {item.submenu && (
+                                <ul style={{ display: activeDropdown === index ? 'block' : 'none' }}>
+                                  {item.submenu.map((sub, i) => (
+                                    <li key={i}>
+                                      <a
+                                        href="#"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          if (sub.onClick) sub.onClick();
+                                        }}
+                                      >
+                                        {sub.text}
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
+
                     </div>
                   </nav>
                 </div>
@@ -454,17 +477,20 @@ const Header = () => {
                   ) : (
                     <>
                       <ul className="d-flex">
-                        <li>
-                          <a
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              navigate("/myprofile");
-                            }}
-                          >
-                            My Profile
-                          </a>
-                        </li>
+
+                        {!isMobileView && ( // <-- hide on mobile
+                          <li>
+                            <a
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                navigate("/myprofile");
+                              }}
+                            >
+                              My Profile
+                            </a>
+                          </li>
+                        )}
                       </ul>
                       <div className="flat-bt-top">
                         <a
@@ -507,19 +533,33 @@ const Header = () => {
             </div>
             <div className="bottom-canvas">
               <div className="login-box flex align-items-center">
-                <a href="#modalLogin" data-bs-toggle="modal">Login</a>
-                <span>/</span>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowRegister(true);
-                    toggleMobileMenu();
-                  }}
-                >
-                  Register
-                </a>
-
+                {isLoggedIn ? (
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate("/myprofile");
+                      toggleMobileMenu();
+                    }}
+                  >
+                    My Profile
+                  </a>
+                ) : (
+                  <>
+                    <a href="#modalLogin" data-bs-toggle="modal" onClick={toggleMobileMenu}>Login</a>
+                    <span>/</span>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowRegister(true);
+                        toggleMobileMenu();
+                      }}
+                    >
+                      Register
+                    </a>
+                  </>
+                )}
               </div>
 
               <div className="menu-outer">
@@ -568,17 +608,32 @@ const Header = () => {
               </div>
 
               <div className="button-mobi-sell">
-                <a className="tf-btn primary" onClick={() => navigate('/addproperty')}>Add Property</a>
+                <div className="button-mobi-sell">
+                  <a
+                    className="tf-btn primary"
+                    onClick={() => {
+                      if (isLoggedIn) {
+                        navigate("/addproperty");
+                      } else {
+                        setShowRegister(true);
+                      }
+                      toggleMobileMenu();
+                    }}
+                  >
+                    Add Property
+                  </a>
+                </div>
+
               </div>
 
               <div className="mobi-icon-box">
                 <div className="box d-flex align-items-center">
                   <span className="icon icon-phone2"></span>
-                  <div>1-333-345-6868</div>
+                  <div>+91-7411043895</div>
                 </div>
                 <div className="box d-flex align-items-center">
                   <span className="icon icon-mail"></span>
-                  <div>themesflat@gmail.com</div>
+                  <div>info@eazy_acers.com</div>
                 </div>
               </div>
             </div>

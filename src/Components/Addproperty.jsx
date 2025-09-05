@@ -3,6 +3,7 @@ import Header from "./Header";
 import "./Addproperty.css"; // Import styles
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import api from "../api/api";
 
 const AddProperty = () => {
 
@@ -129,6 +130,9 @@ const AddProperty = () => {
 
 
   // Location step states
+  const [title, setTitle] = useState("");
+  const [keyword, setKeyword] = useState("");
+
   const [city, setCity] = useState("");
   const [location, setLocation] = useState("");
   const [subLocality, setSubLocality] = useState("");
@@ -455,6 +459,8 @@ const AddProperty = () => {
       propertyType,
       subPropertyType,
       subPropertyQuestionOption,
+      title,
+      keyword,
       city,
       selectedOwnership,
       location,
@@ -508,6 +514,8 @@ const AddProperty = () => {
     subPropertyType,
     subPropertyQuestionOption,
     city,
+    title,
+    keyword,
     selectedOwnership,
     location,
     subLocality,
@@ -562,6 +570,9 @@ const AddProperty = () => {
       setSubPropertyType(parsed.subPropertyType || "");
       setSubPropertyQuestionOption(parsed.subPropertyQuestionOption || "");
       setCity(parsed.city || "");
+      setTitle(parsed.title || "");
+      setKeyword(parsed.keyword || "");
+
       setSelectedOwnership(parsed.selectedOwnership || "");
       setLocation(parsed.location || "");
       setSubLocality(parsed.subLocality || "");
@@ -611,11 +622,8 @@ const AddProperty = () => {
     const fd = new FormData();
 
 
-
-
-    // Simple field values
-
     fd.append('title', title);
+
     fd.append('keyword', keyword);
     fd.append('description', description);
     fd.append('listingType', listingType);
@@ -798,14 +806,25 @@ const AddProperty = () => {
 
     // Images/files
     files.forEach((file) => {
-      fd.append("files", file);
+      fd.append("files[]", file);
     });
+
+    fd.append("authToken", localStorage.getItem("authToken"));
+    fd.append("programType", "addPropertyMain");
 
     fd.forEach((value, key) => {
       console.log(key, value);
 
 
     });
+
+    try {
+      const response = await api.post("properties/prop1", fd);
+      console.log(response)
+    }
+    catch (err) {
+      console.log(err)
+    }
 
   }
 
@@ -1133,8 +1152,7 @@ const AddProperty = () => {
 
 
             {/* Step 1 - Basic Details */}
-            {/* ----------------------- STEP 1 ----------------------- */}
-            {/* ----------------------- STEP 1 ----------------------- */}
+
             {currentStep === 1 && (
               <>
                 <div
@@ -1147,6 +1165,45 @@ const AddProperty = () => {
                     Fill out basic deatils
                   </h6>
                 </div>
+
+                {/* TITLE INPUT */}
+                <h4 className="step-heading" style={{ color: "#161E2D" }}>
+                  Property Title
+                </h4>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Enter property title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginBottom: "20px",
+                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                  }}
+                />
+
+                {/* Keywords */}
+                <h4 className="step-heading" style={{ color: "#161E2D" }}>
+                  Keyword
+                </h4>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Enter keyword"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginBottom: "20px",
+                    border: "1px solid #ccc",
+                    borderRadius: "6px",
+                  }}
+                />
+
 
                 {/* LISTING TYPE */}
                 <h4 className="step-heading" style={{ color: "#161E2D" }}>
@@ -1538,8 +1595,9 @@ const AddProperty = () => {
 
 
 
+
             {/* Step 2 - Location Details */}
-            {/* Step 2 - Location Details */}
+
             {currentStep === 2 && (
               <div>
                 <h4 className="step-heading">Where is your property Located?</h4>
@@ -1634,6 +1692,7 @@ const AddProperty = () => {
             )}
 
             {/* Steps 3 Placeholder */}
+
             {currentStep === 3 && (
               <div className="step3-container">
                 {/* Property Profile Header */}
@@ -3471,10 +3530,10 @@ const AddProperty = () => {
                           onChange={(e) => setPlotAreaUnit(e.target.value)}
                           className="step3-unit-select"
                         >
-                          <option value="Sq.ft">Sq.ft</option>
-                          <option value="Sq.yards">Sq.yards</option>
-                          <option value="Sq.m">Sq.m</option>
-                          <option value="Acres">Acres</option>
+                          <option value="sqft">Sq.ft</option>
+                          <option value="sqyards">Sq.yards</option>
+                          <option value="sqm">Sq.m</option>
+                          <option value="acres">Acres</option>
                           <option value="Marla">Marla</option>
                           <option value="Cents">Cents</option>
                         </select>
@@ -7458,12 +7517,12 @@ const AddProperty = () => {
                             onChange={(e) => setPlotAreaUnit(e.target.value)}
                             className="step3-unit-select"
                           >
-                            <option value="Sq.ft">Sq.ft</option>
-                            <option value="Sq.yards">Sq.yards</option>
-                            <option value="Sq.m">Sq.m</option>
-                            <option value="Acres">Acres</option>
-                            <option value="Marla">Marla</option>
-                            <option value="Cents">Cents</option>
+                            <option value="sqft">Sq.ft</option>
+                            <option value="sqyards">Sq.yards</option>
+                            <option value="sqm">Sq.m</option>
+                            <option value="acres">Acres</option>
+                            {/* <option value="Marla">Marla</option>
+                            <option value="Cents">Cents</option> */}
                           </select>
                         </div>
                       </div>
@@ -8811,6 +8870,7 @@ const AddProperty = () => {
             )}
 
             {/* Step 4 - Photos, Videos & Voice-over */}
+
             {currentStep === 4 && (
               <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
                 <h4 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>Upload Photos, Videos & Voice-over</h4>

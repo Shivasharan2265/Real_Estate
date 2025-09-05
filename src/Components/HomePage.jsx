@@ -14,6 +14,7 @@ const HomePage = () => {
     const [offset, setOffset] = useState(307.919); // full length (hidden)
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState("View All"); // keep track of which tab is clicked
     const navigate = useNavigate()
     useEffect(() => {
         // Trigger animation after component mounts
@@ -31,19 +32,28 @@ const HomePage = () => {
         blogs: []
     });
 
-    useEffect(() => {
-        fetchList()
-    }, []);
 
-    const fetchList = async () => {
+    // 👇 runs whenever activeTab changes
+    useEffect(() => {
+        fetchList(activeTab);
+    }, [activeTab]);
+
+    const fetchList = async (tab) => {
         setLoading(true);
+
         const fd = new FormData();
         fd.append("programType", "getProperties");
         fd.append("authToken", localStorage.getItem("authToken"));
 
+        // send filter if not "View All"
+        if (tab && tab !== "View All") {
+            fd.append("propertyType", tab.toLowerCase());
+            // adjust key ("propertyType") depending on your backend
+        }
+
         try {
             const response = await api.post("/properties/property", fd);
-            console.log("appart", response)
+
             const mapped = response.data.data.properties.map((item) => {
                 let priceValue = "N/A";
                 let priceUnit = "";
@@ -55,7 +65,6 @@ const HomePage = () => {
                     priceValue = item.expected_price && item.expected_price !== "0.00" ? item.expected_price : "N/A";
                 }
 
-                // Dynamic meta fields
                 let meta = [];
                 if (item.sub_property_type_id?.toLowerCase().includes("plot")) {
                     meta.push({ icon: "icon-ruler", label: `${item.carpet_area} ${item.carpet_area_unit || ""}` });
@@ -81,7 +90,7 @@ const HomePage = () => {
                     agentName: item.customerName || "Agent",
                     priceValue,
                     priceUnit,
-                    meta, // 👈 dynamic meta array
+                    meta,
                 };
             });
 
@@ -92,6 +101,7 @@ const HomePage = () => {
             setLoading(false);
         }
     };
+
 
     return (
         <div className='body bg-surface '>
@@ -418,28 +428,25 @@ const HomePage = () => {
                                 <h4 className="mt-4">Recommended For You</h4>
                             </div>
                             <div className="flat-tab-recommended wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
-                                <ul className="nav-tab-recommended justify-content-center" role="tablist">
-                                    <li className="nav-tab-item" role="presentation">
-                                        <a href="#viewAll" className="nav-link-item active" data-bs-toggle="tab">View All</a>
-                                    </li>
-                                    <li className="nav-tab-item" role="presentation">
-                                        <a href="#apartment" className="nav-link-item  " data-bs-toggle="tab">Apartment</a>
-                                    </li>
-                                    <li className="nav-tab-item" role="presentation">
-                                        <a href="#villa" className="nav-link-item" data-bs-toggle="tab">Villa</a>
-                                    </li>
-                                    <li className="nav-tab-item" role="presentation">
-                                        <a href="#studio" className="nav-link-item" data-bs-toggle="tab">Studio</a>
-                                    </li>
-                                    <li className="nav-tab-item" role="presentation">
-                                        <a href="#house" className="nav-link-item" data-bs-toggle="tab">House</a>
-                                    </li>
-                                    <li className="nav-tab-item" role="presentation">
-                                        <a href="#office" className="nav-link-item" data-bs-toggle="tab">Office</a>
-                                    </li>
+                                <ul className="nav-tab-recommended justify-content-center">
+                                    {["View All", "Apartment", "Villa", "Studio", "House", "Office"].map((label, i) => (
+                                        <li key={i} className="nav-tab-item">
+                                            <a
+                                                href="#"
+                                                className={`nav-link-item ${activeTab === label ? "active" : ""}`}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setActiveTab(label); // sets the clicked tab
+                                                }}
+                                            >
+                                                {label}
+                                            </a>
+                                        </li>
+                                    ))}
                                 </ul>
+
                                 <div className="tab-content">
-                                    <div className="tab-pane fade active show" id="viewAll" role="tabpanel">
+                                    <div className="tab-pane fade active show" role="tabpanel">
                                         <div className="row">
                                             {loading ? (
                                                 // Skeleton Loader
@@ -447,6 +454,7 @@ const HomePage = () => {
                                                     <div key={i} className="col-xl-4 col-lg-6 col-md-6 mb-4">
                                                         <div className="homeya-box p-3">
                                                             <div className="skeleton skeleton-img mb-3"></div>
+                                                            <br />
                                                             <div className="skeleton skeleton-text w-75 mb-2"></div>
                                                             <div className="skeleton skeleton-text w-50 mb-2"></div>
                                                             <div className="skeleton skeleton-text w-100 mb-2"></div>
@@ -479,11 +487,42 @@ const HomePage = () => {
                                                                     </div>
                                                                 </a>
                                                                 <div className="content">
-                                                                    <div className="h7 text-capitalize fw-7">
-                                                                        <a onClick={() => navigate(`/property/${item.id}`)} className="link">
+                                                                    <div
+                                                                        className="h7 text-capitalize fw-7"
+                                                                        style={{
+                                                                            position: 'relative',
+                                                                            display: 'block',
+                                                                            maxWidth: '100%',
+                                                                        }}
+                                                                    >
+                                                                        <a
+                                                                            onClick={() => navigate(`/property/${item.id}`)}
+                                                                            style={{
+                                                                                display: 'block',
+                                                                                whiteSpace: window.innerWidth <= 991 ? 'normal' : 'nowrap', // full name on mobile
+                                                                                overflow: window.innerWidth <= 991 ? 'visible' : 'hidden',
+                                                                                textOverflow: 'ellipsis',
+                                                                                cursor: 'pointer',
+                                                                                transition: 'all 0.3s ease',
+                                                                            }}
+                                                                            onMouseEnter={(e) => {
+                                                                                if (window.innerWidth > 991) {
+                                                                                    e.currentTarget.style.whiteSpace = 'normal';
+                                                                                    e.currentTarget.style.overflow = 'visible';
+                                                                                }
+                                                                            }}
+                                                                            onMouseLeave={(e) => {
+                                                                                if (window.innerWidth > 991) {
+                                                                                    e.currentTarget.style.whiteSpace = 'nowrap';
+                                                                                    e.currentTarget.style.overflow = 'hidden';
+                                                                                }
+                                                                            }}
+                                                                        >
                                                                             {item.name}
                                                                         </a>
                                                                     </div>
+
+
                                                                     <div className="desc">
                                                                         <i className="fs-16 icon icon-mapPin"></i>
                                                                         <p>{item.location}</p>
@@ -834,13 +873,13 @@ const HomePage = () => {
 
                     <section className="flat-section flat-property">
                         <div className="container">
-                            <div className="box-title style-1 wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
+                            {/* <div className="box-title style-1 wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
                                 <div className="box-left">
                                     <div className="text-subtitle text-primary">Top Properties</div>
                                     <h4 className="mt-4">Best Property Value</h4>
                                 </div>
                                 <a href="#" className="tf-btn primary size-1">View All</a>
-                            </div>
+                            </div> */}
                             <div className="wrap-property">
                                 <div className="box-left  wow fadeInLeftSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
                                     {/* Property main card */}
@@ -946,7 +985,7 @@ const HomePage = () => {
 
 
 
-                    
+
                     {/* TESTIMONIALS */}
                     <section className="flat-section-v3 bg-surface flat-testimonial">
                         <div className="cus-layout-1">
@@ -1083,7 +1122,7 @@ const HomePage = () => {
                         </div>
                     </section>
                     {/* AGENTS */}
-                    <section className="flat-section flat-agents">
+                    {/* <section className="flat-section flat-agents">
                         <div className="container">
                             <div className="box-title text-center wow fadeIn" data-wow-delay=".2s" data-wow-duration="2000ms">
                                 <div className="text-subtitle text-primary">Our Teams</div>
@@ -1129,10 +1168,10 @@ const HomePage = () => {
                                 ))}
                             </div>
                         </div>
-                    </section>
-                  
+                    </section> */}
 
-                 
+
+
                     <Footer />
 
                     <div className="progress-wrap">

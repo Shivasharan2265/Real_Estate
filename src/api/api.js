@@ -4,6 +4,10 @@ import axios from "axios";
 // Create an axios instance with the default headers
 export const api = axios.create({
   baseURL: "http://192.168.1.103/projects/easyAcers/admin/api",
+<<<<<<< HEAD
+=======
+  // baseURL: "http://172.20.10.3/projects/easyAcers/admin/api",
+>>>>>>> 361020a77e1f9bee1a1fa47731a9ca74f6bbb76d
 
 
   imageUrl: "http://192.168.1.103/projects/easyAcers/admin/",
