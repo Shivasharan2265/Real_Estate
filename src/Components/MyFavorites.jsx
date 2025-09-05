@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/api';
 import "./MyFavorites.css"
+import easy from "../assets/easy.png"
 
 
 
@@ -14,9 +15,9 @@ const MyFavorites = () => {
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-       const [name, setName] = useState(localStorage.getItem("name"));
-            console.log(name);
-    
+    const [name, setName] = useState(localStorage.getItem("name"));
+    console.log(name);
+
 
 
     const toggleDropdown = () => {
@@ -86,6 +87,15 @@ const MyFavorites = () => {
             ]
         },
         {
+            label: 'Options', className: 'dropdown3',
+            submenu: [
+                { text: 'Dashboard', onClick: () => navigate('/dashboard') },
+                { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
+                { text: 'My Properties', onClick: () => navigate('/myproperties') },
+                { text: 'Reviews', onClick: () => navigate('/reviews') },
+            ]
+        },
+        {
             label: 'My Profile',
             className: 'myprofile',
             onClick: () => navigate('/myprofile')
@@ -138,27 +148,27 @@ const MyFavorites = () => {
         myFavoritesList();
     }, []);
 
-        const remove = async (id) => {
-    
-            console.log("removing")
-            const fd = new FormData();
-            fd.append("programType", "removeFavorites");
-            fd.append("authToken", localStorage.getItem("authToken"));
-            fd.append("favoriteId", id)
-             console.log(id)
-    
-            try {
-    
-                const response = await api.post("/properties/property", fd);
-                console.log(response)
-                if (response.data.success) {
-                    setProperties([])
-                    myPropertyList()
-                }
-            } catch (error) {
-                console.error("Property fetch error:", error);
+    const remove = async (id) => {
+
+        console.log("removing")
+        const fd = new FormData();
+        fd.append("programType", "removeFavorites");
+        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("favoriteId", id)
+        console.log(id)
+
+        try {
+
+            const response = await api.post("/properties/property", fd);
+            console.log(response)
+            if (response.data.success) {
+                setProperties([])
+                myPropertyList()
             }
-        };
+        } catch (error) {
+            console.error("Property fetch error:", error);
+        }
+    };
 
 
     return (
@@ -175,7 +185,7 @@ const MyFavorites = () => {
                                         <div className="inner-container d-flex justify-content-between align-items-center">
                                             {/* <!-- Logo Box --> */}
                                             <div className="logo-box d-flex">
-                                                <div className="logo"><Link to="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}><img src="images/logo/homeblack.png" alt="logo" width="174" height="44" /></Link> </div>
+                                                <div className="logo"><Link to="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}><img src={easy} alt="logo" width="174" height="44" /></Link> </div>
                                                 <div className="button-show-hide">
                                                     <span className="icon icon-categories"></span>
                                                 </div>
@@ -253,16 +263,20 @@ const MyFavorites = () => {
                                                         <Link className="dropdown-item" to="/reviews">Reviews</Link>
                                                         <Link className="dropdown-item" to="/myprofile">My Profile</Link>
                                                         <Link className="dropdown-item" onClick={(e) => {
-                                            e.preventDefault();
-                                            localStorage.removeItem("authToken"); // clear token
-                                            navigate("/home"); // redirect after logout
-                                            window.location.reload(); // reload so header updates
-                                        }}>Logout</Link>
+                                                            e.preventDefault();
+                                                            localStorage.removeItem("authToken"); // clear token
+                                                            navigate("/home"); // redirect after logout
+                                                            window.location.reload(); // reload so header updates
+                                                        }}>Logout</Link>
 
                                                     </div>
                                                 </div>
                                                 <div className="flat-bt-top">
-                                                    <Link className="tf-btn primary" >Submit Property</Link>
+                                                    <a className="tf-btn primary" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        // Navigate to add property if logged in
+                                                        navigate("/addproperty");
+                                                    }}>Add Property</a>
                                                 </div>
                                             </div>
 
@@ -279,7 +293,7 @@ const MyFavorites = () => {
                                 <nav className="menu-box">
                                     <div className="nav-logo">
                                         <Link to="" onClick={(e) => { e.preventDefault(); navigate('/home'); toggleMobileMenu(); }}>
-                                            <img src="images/logo/homeblack.png" alt="nav-logo" width="174" height="44" />
+                                            <img src={easy} alt="nav-logo" width="174" height="44" />
                                         </Link>
                                     </div>
                                     <div className="bottom-canvas">
@@ -329,12 +343,16 @@ const MyFavorites = () => {
                                             </div>
                                         </div>
                                         <div className="button-mobi-sell">
-                                            <Link className="tf-btn primary" >Submit Property</Link>
+                                            <a className="tf-btn primary" onClick={(e) => {
+                                                e.preventDefault();
+                                                // Navigate to add property if logged in
+                                                navigate("/addproperty");
+                                            }}>Add Property</a>
                                         </div>
                                         <div className="mobi-icon-box">
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-phone2"></span>
-                                                <div>1-333-345-6868</div>
+                                                <div>91-7411043895</div>
                                             </div>
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-mail"></span>
@@ -452,7 +470,7 @@ const MyFavorites = () => {
                                                                 </td>
                                                                 <td>
                                                                     <ul className="list-action">
-                                                                      
+
                                                                         <li onClick={() => remove(property.id)}>
                                                                             <Link className="remove-file item">
                                                                                 <i className="icon icon-trash"></i>Remove
@@ -475,7 +493,7 @@ const MyFavorites = () => {
 
                                         <ul className="wd-navigation">
                                             <li><Link to="#" className="nav-item active">1</Link> </li>
-                                           
+
                                             <li><Link to="#" className="nav-item"><i className="icon icon-arr-r"></i></Link> </li>
                                         </ul>
                                     </div>

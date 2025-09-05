@@ -44,7 +44,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion-faq-one']}
                     >
                       Why should I use your services?
-                      <span className="icon-toggle">{activeAccordion['accordion-faq-one'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion-faq-one" 
@@ -63,7 +63,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion-faq-two']}
                     >
                       How do I get started with your services?
-                      <span className="icon-toggle">{activeAccordion['accordion-faq-two'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion-faq-two" 
@@ -82,7 +82,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion-faq-three']}
                     >
                       How secure are your services?
-                      <span className="icon-toggle">{activeAccordion['accordion-faq-three'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion-faq-three" 
@@ -101,7 +101,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion-faq-four']}
                     >
                       Is there customer support available?
-                      <span className="icon-toggle">{activeAccordion['accordion-faq-four'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion-faq-four" 
@@ -120,7 +120,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion-faq-five']}
                     >
                       How can I update my account information?
-                      <span className="icon-toggle">{activeAccordion['accordion-faq-five'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion-faq-five" 
@@ -145,7 +145,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion2-faq-one']}
                     >
                       How do you calculate fees?
-                      <span className="icon-toggle">{activeAccordion['accordion2-faq-one'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion2-faq-one" 
@@ -164,7 +164,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion2-faq-two']}
                     >
                       How do I pay my invoices?
-                      <span className="icon-toggle">{activeAccordion['accordion2-faq-two'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion2-faq-two" 
@@ -183,7 +183,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion2-faq-three']}
                     >
                       Are there opportunities for discounts or promotions?
-                      <span className="icon-toggle">{activeAccordion['accordion2-faq-three'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion2-faq-three" 
@@ -202,7 +202,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion2-faq-four']}
                     >
                       Are there any hidden fees not displayed in the pricing table?
-                      <span className="icon-toggle">{activeAccordion['accordion2-faq-four'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion2-faq-four" 
@@ -221,7 +221,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion2-faq-five']}
                     >
                       What is the refund procedure?
-                      <span className="icon-toggle">{activeAccordion['accordion2-faq-five'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion2-faq-five" 
@@ -246,14 +246,14 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion3-faq-one']}
                     >
                       What languages does your service support?
-                      <span className="icon-toggle">{activeAccordion['accordion3-faq-one'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion3-faq-one" 
                       className={`collapse ${activeAccordion['accordion3-faq-one'] ? 'show' : ''}`}
                     >
                       <p className="faq-body">
-                        Our platform is available in English, Spanish, French, German, and Japanese, with more languages coming soon.
+                        Our platform is available in English, with more languages coming soon.
                       </p>
                     </div>
                   </li>
@@ -265,7 +265,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion3-faq-two']}
                     >
                       How do I integrate your service into my system?
-                      <span className="icon-toggle">{activeAccordion['accordion3-faq-two'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion3-faq-two" 
@@ -284,7 +284,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion3-faq-three']}
                     >
                       What are the safety features of your system?
-                      <span className="icon-toggle">{activeAccordion['accordion3-faq-three'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion3-faq-three" 
@@ -303,7 +303,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion3-faq-four']}
                     >
                       How can I request new features?
-                      <span className="icon-toggle">{activeAccordion['accordion3-faq-four'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion3-faq-four" 
@@ -322,7 +322,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion3-faq-five']}
                     >
                       Is my data protected?
-                      <span className="icon-toggle">{activeAccordion['accordion3-faq-five'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion3-faq-five" 
@@ -347,7 +347,7 @@ const FAQ = () => {
                       aria-expanded={activeAccordion['accordion4-faq-one']}
                     >
                       What browsers do you support?
-                      <span className="icon-toggle">{activeAccordion['accordion4-faq-one'] ? '-' : '+'}</span>
+                      <span className="icon-toggle"></span>
                     </div>
                     <div 
                       id="accordion4-faq-one" 
@@ -359,24 +359,7 @@ const FAQ = () => {
                     </div>
                   </li>
 
-                  <li className="faq-item">
-                    <div 
-                      className={`faq-header ${activeAccordion['accordion4-faq-two'] ? '' : 'collapsed'}`}
-                      onClick={() => toggleAccordion('accordion4-faq-two')}
-                      aria-expanded={activeAccordion['accordion4-faq-two']}
-                    >
-                      Do you have a mobile app?
-                      <span className="icon-toggle">{activeAccordion['accordion4-faq-two'] ? '-' : '+'}</span>
-                    </div>
-                    <div 
-                      id="accordion4-faq-two" 
-                      className={`collapse ${activeAccordion['accordion4-faq-two'] ? 'show' : ''}`}
-                    >
-                      <p className="faq-body">
-                        Yes, we have native iOS and Android apps available in their respective app stores.
-                      </p>
-                    </div>
-                  </li>
+                 
                 </ul>
               </div>
             </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Header from './Header';
 import Footer from './Footer';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/api';
 import "./Listing.css"
 
@@ -11,7 +11,7 @@ const Listing = () => {
     const [properties, setProperties] = useState([]);
     const [latest, setLatest] = useState([]);
 
-
+    const navigate = useNavigate()
 
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
@@ -105,20 +105,20 @@ const Listing = () => {
     };
 
     // Skeleton component
-const SkeletonCard = () => (
-  <div className="col-md-12">
-    <div className="homeya-box list-style-1 list-style-2">
-      <div className="images-group">
-        <div className="images-style skeleton" style={{ height: "200px" }}></div>
-      </div>
-      <div className="content p-3">
-        <div className="skeleton mb-2" style={{ height: "20px", width: "60%" }}></div>
-        <div className="skeleton mb-2" style={{ height: "15px", width: "40%" }}></div>
-        <div className="skeleton" style={{ height: "15px", width: "80%" }}></div>
-      </div>
-    </div>
-  </div>
-);
+    const SkeletonCard = () => (
+        <div className="col-md-12">
+            <div className="homeya-box list-style-1 list-style-2">
+                <div className="images-group">
+                    <div className="images-style skeleton" style={{ height: "200px" }}></div>
+                </div>
+                <div className="content p-3">
+                    <div className="skeleton mb-2" style={{ height: "20px", width: "60%" }}></div>
+                    <div className="skeleton mb-2" style={{ height: "15px", width: "40%" }}></div>
+                    <div className="skeleton" style={{ height: "15px", width: "80%" }}></div>
+                </div>
+            </div>
+        </div>
+    );
 
 
     return (
@@ -250,11 +250,11 @@ const SkeletonCard = () => (
                                                                     </ul>
                                                                 </div>
                                                             </div>
-                                                            <div className="form-style widget-price">
+                                                            {/* <div className="form-style widget-price">
                                                                 <div className="box-title-price">
                                                                     <span className="title-price">Price Range</span>
                                                                     <div className="caption-price">
-                                                                        <span>from</span>
+                                                                        <span>fromx</span>
                                                                         <span id="slider-range-value1" className="fw-7"></span>
                                                                         <span>to</span>
                                                                         <span id="slider-range-value2" className="fw-7"></span>
@@ -265,8 +265,8 @@ const SkeletonCard = () => (
                                                                     <input type="hidden" name="min-value" value="" />
                                                                     <input type="hidden" name="max-value" value="" />
                                                                 </div>
-                                                            </div>
-                                                            <div className="form-style widget-price wd-price-2">
+                                                            </div> */}
+                                                            {/* <div className="form-style widget-price wd-price-2">
                                                                 <div className="box-title-price">
                                                                     <span className="title-price">Size Range</span>
                                                                     <div className="caption-price">
@@ -281,7 +281,7 @@ const SkeletonCard = () => (
                                                                     <input type="hidden" name="min-value2" value="" />
                                                                     <input type="hidden" name="max-value2" value="" />
                                                                 </div>
-                                                            </div>
+                                                            </div> */}
                                                             <div className="form-style btn-show-advanced">
                                                                 <a className="filter-advanced pull-right">
                                                                     <span className="icon icon-faders"></span>
@@ -409,18 +409,18 @@ const SkeletonCard = () => (
 
                                     </div>
                                 </div>
-                                <div className="widget-box bg-surface box-latest-property">
+                                {/* <div className="widget-box bg-surface box-latest-property">
                                     <div className="h7 fw-7 title">Latest Properties</div>
                                     <ul>
                                         {latest.map((property) => (
                                             <li key={property.id} className="latest-property-item">
-                                                <Link to="/Properties" className="images-style">
+                                                <Link to={`/property/${item.id}`} className="images-style">
                                                     <img src={property.image} alt="img" />
                                                 </Link>
 
                                                 <div className="content">
                                                     <div className="h7 text-capitalize fw-7">
-                                                        <a href="property-details-v1.html" className="link">
+                                                        <a className="link">
                                                             {property.name}
                                                         </a>
                                                     </div>
@@ -445,7 +445,7 @@ const SkeletonCard = () => (
                                             </li>
                                         ))}
                                     </ul>
-                                </div>
+                                </div> */}
 
                             </div>
 
@@ -961,7 +961,7 @@ const SkeletonCard = () => (
                                             : properties.map((property) => (
                                                 <div className="col-md-12" key={property.id}>
                                                     <div className="homeya-box list-style-1 list-style-2">
-                                                        <Link to={property.detailsUrl} className="images-group">
+                                                        <Link to={`/property/${property.id}`} className="images-group">
                                                             <div className="images-style">
                                                                 <img
                                                                     src="https://themesflat.co/html/homzen/images/home/house-6.jpg"
@@ -979,7 +979,7 @@ const SkeletonCard = () => (
                                                                 </span>
                                                             </div>
                                                         </Link>
-                                                        <div className="content">
+                                                        <div className="content" onClick={() => navigate(`/property/${property.id}`)}>
                                                             <div className="archive-top">
                                                                 <div className="h7 text-capitalize fw-7">
                                                                     {property.name}
