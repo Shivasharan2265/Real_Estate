@@ -74,6 +74,7 @@ const HomePage = () => {
 
         try {
             const response = await api.post("/properties/property", fd);
+            console.log("rr")
 
             const mapped = response.data.data.properties.map((item) => {
                 let priceValue = "N/A";
