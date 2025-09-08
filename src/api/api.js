@@ -2,15 +2,14 @@ import axios from "axios";
 // import { getToken } from "./authUtils";
 
 // Create an axios instance with the default headers
+
 export const api = axios.create({
   baseURL: "http://192.168.1.103/projects/easyAcers/admin/api",
-  // baseURL: "http://172.20.10.3/projects/easyAcers/admin/api",
+  imageUrl: "http://192.168.1.103/projects/easyAcers/admin/",
 
 
-  // baseURL : "http://192.168.1.14/projects/real_estate",
+});
 
-  // baseURL : "https://billing.onezo.in/api/"
-})
 
 // Add the Authorization header to each request
 api.interceptors.request.use(

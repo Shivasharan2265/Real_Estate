@@ -7,49 +7,51 @@ import { useParams, useNavigate } from "react-router-dom";
 const BlogOverview = () => {
     const { id } = useParams();
     const [blog, setBlog] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [blogs, setBlogs] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const BASE_URL = "http://192.168.1.103/projects/easyAcers/admin/";
 
-    // Fetch single blog details
-    const blogsview = async () => {
-        const fd = new FormData();
-        fd.append("programType", "getBlogOverview");
-        fd.append("authToken", localStorage.getItem("authToken"));
-        fd.append("blogId", id);
-
-        try {
-            const response = await api.post("/properties/preRequirements", fd);
-            if (response.data.success && response.data.data.length > 0) {
-                setBlog(response.data.data[0]);
-            }
-        } catch (error) {
-            console.error("blogview error:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Fetch related blogs
-    const bloglist = async () => {
-        const fd = new FormData();
-        fd.append("programType", "getBlogDetails");
-        fd.append("authToken", localStorage.getItem("authToken"));
-
-        try {
-            const response = await api.post("/properties/preRequirements", fd);
-            if (response.data.success) {
-                setBlogs(response.data.data);
-            }
-        } catch (error) {
-            console.error("blog error:", error);
-        }
-    };
-
     useEffect(() => {
-        blogsview();
-        bloglist();
+        const fetchBlogData = async () => {
+            setLoading(true); // Show loader whenever id changes
+
+            // Fetch single blog details
+            try {
+                const fd = new FormData();
+                fd.append("programType", "getBlogOverview");
+                fd.append("authToken", localStorage.getItem("authToken"));
+                fd.append("blogId", id);
+                const response = await api.post("/properties/preRequirements", fd);
+                if (response.data.success && response.data.data.length > 0) {
+                    setBlog(response.data.data[0]);
+                }
+            } catch (error) {
+                console.error("blogview error:", error);
+                setBlog(null);
+            }
+
+            // Fetch related blogs
+            try {
+                const fd = new FormData();
+                fd.append("programType", "getBlogDetails");
+                fd.append("authToken", localStorage.getItem("authToken"));
+                fd.append("relatedPost", id);
+                const response = await api.post("/properties/preRequirements", fd);
+                if (response.data.success) {
+                    setBlogs(response.data.data);
+                } else {
+                    setBlogs([]);
+                }
+            } catch (error) {
+                console.error("bloglist error:", error);
+                setBlogs([]);
+            }
+
+            setLoading(false); // Hide loader after both requests
+        };
+
+        fetchBlogData();
     }, [id]);
 
     if (loading) {
@@ -71,34 +73,31 @@ const BlogOverview = () => {
                         <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
                     </div>
                     <p className="mt-3" style={{ fontSize: "1.1rem", color: "#333" }}>
-                        Loading property details...
+                        Loading blog details...
                     </p>
                 </div>
 
                 <style>{`
-          .bouncing-cubes {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            height: 50px;
-          }
-          
-          .cube {
-            width: 22px;
-            height: 22px;
-            animation: bounce 1.5s infinite ease-in-out;
-            border-radius: 4px;
-          }
-          
-          .cube:nth-child(2) { animation-delay: 0.2s; }
-          .cube:nth-child(3) { animation-delay: 0.4s; }
-          
-          @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-          }
-        `}</style>
+                    .bouncing-cubes {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                        height: 50px;
+                    }
+                    .cube {
+                        width: 22px;
+                        height: 22px;
+                        animation: bounce 1.5s infinite ease-in-out;
+                        border-radius: 4px;
+                    }
+                    .cube:nth-child(2) { animation-delay: 0.2s; }
+                    .cube:nth-child(3) { animation-delay: 0.4s; }
+                    @keyframes bounce {
+                        0%, 100% { transform: translateY(0); }
+                        50% { transform: translateY(-20px); }
+                    }
+                `}</style>
             </div>
         );
     }
@@ -165,17 +164,7 @@ const BlogOverview = () => {
                                     marginBottom: "35px",
                                 }}
                             >
-                                <div style={{ width: "50px", height: "50px", borderRadius: "50%" }}>
-                                    <img
-                                        src="images/avatar/avt-1.jpg"
-                                        alt="avatar"
-                                        style={{ width: "100%", borderRadius: "50%" }}
-                                    />
-                                </div>
-                                <div style={{ fontSize: "0.9rem", color: "#666" }}>
-                                    <div style={{ fontWeight: "600", color: "#333" }}>{blog.createdBy}</div>
-                                    <div>{new Date(blog.created_at).toLocaleDateString()}</div>
-                                </div>
+                              
                             </div>
                             <div
                                 style={{ fontSize: "1.05rem", lineHeight: "1.8", color: "#444" }}
@@ -226,6 +215,7 @@ const BlogOverview = () => {
                     </div>
                 </div>
             </section>
+
 
             <Footer />
         </div>

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react"; 
 import Footer from "./Footer";
 import Header from "./Header";
@@ -59,7 +60,7 @@ const bloglist = async (currentPage) => {
   }
 };
 
-  const imageUrl = "http://192.168.1.31/projects/easyAcers/admin/";
+  const imageUrl = "http://192.168.1.103/projects/easyAcers/admin/";
 
   const renderSkeleton = () => {
     return Array(6)
@@ -105,7 +106,7 @@ const bloglist = async (currentPage) => {
                     >
                       <div className="img-style">
                         <img
-                          src={"http://192.168.1.103/projects/easyAcers/admin/" + blog.featured_image}
+                          src={{imageUrl} + blog.featured_image}
                           alt={blog.title}
                         />
                         <span className="date-post">
@@ -146,3 +147,8 @@ const bloglist = async (currentPage) => {
 };
 
 export default Blogs;
+
+
+
+
+
