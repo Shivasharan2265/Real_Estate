@@ -556,26 +556,64 @@ const Properties = () => {
                             </div>
 
                             {/* Amenities and Features */}
-                            <div className="single-property-element single-property-feature">
-                                <div className="h7 title fw-7">Amenities and features</div>
-                                <div className="wrap-feature">
-                                    {amenitiesData.map((cat, ci) => (
-                                        cat.items.length > 0 && (
-                                            <div className="box-feature" key={ci}>
-                                                <div className="fw-7">{cat.category}:</div>
-                                                <ul>
-                                                    {cat.items.map((f, fi) => (
-                                                        <li className="feature-item" key={fi}>
-                                                            <span className={`icon ${f.icon}`}></span>
-                                                            {f.label}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        )
-                                    ))}
+                            {/* Amenities and Features */}
+                            <div
+                                style={{
+                                    marginTop: "30px",
+                                    marginBottom: "30px",
+                                    padding: "20px",
+                                    border: "1px solid #eee",
+                                    borderRadius: "12px",
+                                    background: "#fafafa",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+                                }}
+                            >
+                                <h3 style={{ fontSize: "20px", fontWeight: "700", marginBottom: "20px", color: "#333" }}>
+                                    Amenities and Features
+                                </h3>
+
+                                <div
+                                    style={{
+                                        display: "grid",
+                                        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                                        gap: "20px",
+                                    }}
+                                >
+                                    {amenitiesData.map(
+                                        (cat, ci) =>
+                                            cat.items.length > 0 && (
+                                                <div key={ci}>
+                                                    <h4 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "12px", color: "#444" }}>
+                                                        {cat.category}
+                                                    </h4>
+                                                    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                                                        {cat.items.map((f, fi) => (
+                                                            <li
+                                                                key={fi}
+                                                                style={{
+                                                                    display: "flex",
+                                                                    alignItems: "center",
+                                                                    gap: "8px",
+                                                                    padding: "8px 0",
+                                                                    borderBottom: "1px dashed #e0e0e0",
+                                                                    fontSize: "14px",
+                                                                    color: "#555",
+                                                                }}
+                                                            >
+                                                                <span
+                                                                    className={`icon ${f.icon}`}
+                                                                    style={{ color: "#4a90e2", fontSize: "16px" }}
+                                                                ></span>
+                                                                {f.label}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )
+                                    )}
                                 </div>
                             </div>
+
 
                             {/* Map */}
                             <div class="single-property-element single-property-map">

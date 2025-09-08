@@ -4,6 +4,7 @@ import "./Addproperty.css"; // Import styles
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import api from "../api/api";
+import toast from "react-hot-toast";
 
 const AddProperty = () => {
 
@@ -83,6 +84,13 @@ const AddProperty = () => {
 
   const [previewList, setPreviewList] = useState([]);
   const fileInputRef = useRef(null);
+
+  const [address, setAddress] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+
+  const [parkingFacility, setParkingFacility] = useState("");
+
+
 
 
 
@@ -503,7 +511,10 @@ const AddProperty = () => {
       rental,
       uniqueProperty,
       apartmentType,
-      amenities
+      amenities,
+      address,
+      postalCode,
+      locatedNear,
     };
 
     localStorage.setItem("addPropertyForm", JSON.stringify(allData));
@@ -557,7 +568,11 @@ const AddProperty = () => {
     rental,
     uniqueProperty,
     apartmentType,
-    amenities
+    amenities,
+    address,
+    postalCode,
+
+    locatedNear
   ]);
   useEffect(() => {
     const savedData = localStorage.getItem("addPropertyForm");
@@ -572,6 +587,11 @@ const AddProperty = () => {
       setCity(parsed.city || "");
       setTitle(parsed.title || "");
       setKeyword(parsed.keyword || "");
+
+      setAddress(parsed.address || "");
+      setPostalCode(parsed.postalCode || "");
+      setLocatedNear(parsed.locatedNear || "");
+
 
       setSelectedOwnership(parsed.selectedOwnership || "");
       setLocation(parsed.location || "");
@@ -619,10 +639,70 @@ const AddProperty = () => {
   }, []);
 
   async function handleSubmitPropperty() {
+
+    const facingMap = {
+  "North": "north",
+  "South": "south",
+  "East": "east",
+  "West": "west",
+  "North-East": "north-east",
+  "North-West": "north-west",
+  "South-East": "south-east",
+  "South-West": "south-west",
+};
+
+
+    const willingMap = {
+      "Family": "family",
+      "Bachelors": "bachelors",
+      "Single women": "single_women",
+      "Company": "company",
+      "Anyone": "anyone",
+    };
+
+
+    const unitMap = {
+      "Sq.ft": "sqft",
+      "Sq.m": "sqm",
+      "Sq.yards": "sqyards",
+      "Acres": "acres",
+    };
+
+    const availabilityMap = {
+      "Ready to Move": "ready-to-move",
+      "Under Construction": "under-construction",
+      "Upcoming": "upcoming",
+    };
+
+    const parkingMap = {
+      "Covered": "covered",
+      "Open": "open",
+      "Both": "both",
+      "None": "none",
+    };
+    const acMap = {
+      "Central": "central",
+      "Individual": "individual",
+      "None": "none",
+    };
+
+
+
+    // inside handleSubmitPropperty before sending
+    let furnishingMapped = "";
+    if (furnishingType === "Furnished") furnishingMapped = "fully-furnished";
+    else if (furnishingType === "Semi-furnished") furnishingMapped = "semi-furnished";
+    else if (furnishingType === "Un-furnished") furnishingMapped = "unfurnished";
     const fd = new FormData();
 
 
     fd.append('title', title);
+
+    fd.append('address', address);
+    fd.append('postal_code', postalCode);
+    fd.append('sub_locality', subLocality);
+    fd.append('located_near', locatedNear);
+
 
     fd.append('keyword', keyword);
     fd.append('description', description);
@@ -630,7 +710,7 @@ const AddProperty = () => {
     fd.append('propertyType', propertyType);
     fd.append('subPropertyType', subPropertyType);
     fd.append('selectedOwnership', selectedOwnership);
-
+    fd.append('apartmentBhk', apartmentBhk);
     fd.append('bedrooms', bedrooms);
     fd.append('bathrooms', bathrooms);
     fd.append('balconies', balconies);
@@ -640,7 +720,11 @@ const AddProperty = () => {
     fd.append('propertyOnFloor', propertyOnFloor);
     fd.append('floorsAllowed', floorsAllowed);
     fd.append('apartmentType', apartmentType);
-    fd.append('apartmentBhk', apartmentBhk);
+
+    fd.append("parking_type", parkingMap[parkingFacility] || "");
+    fd.append("possessionBy", possessionBy);
+
+
     fd.append('city', city);
     fd.append('location', location);
     fd.append('subLocality', subLocality);
@@ -650,10 +734,9 @@ const AddProperty = () => {
     //pincode
     //latitude
     //longitude
-    fd.append('property_facing', propertyFacing);
+  fd.append('property_facing', facingMap[propertyFacing] || "");
     fd.append('road_width', roadWidth);
     fd.append('road_width_unit', roadUnit);
-    fd.append('located_near', locatedNear);
     fd.append('parking', parking);
     fd.append('parkingTypeRetail', parkingTypeRetail);
     fd.append('coveredParking', coveredParking);
@@ -677,7 +760,8 @@ const AddProperty = () => {
     //rent_period
     //currency
 
-    fd.append('airConditioning', airConditioning);
+    fd.append("air_conditioning", acMap[airConditioning] || "");
+
     fd.append('oxygen', oxygen);
     fd.append('ups', ups);
 
@@ -689,18 +773,26 @@ const AddProperty = () => {
     //additional_features
     //amenities
 
+    fd.append("carpetUnit", unitMap[carpetUnit] || carpetUnit);
+    fd.append("builtUpUnit", unitMap[builtUpUnit] || builtUpUnit);
+    fd.append("plotAreaUnit", unitMap[plotAreaUnit] || plotAreaUnit);
+    fd.append("areaUnit", unitMap[areaUnit] || areaUnit);
+
+
     fd.append('carpetArea', carpetArea);
-    fd.append('carpetUnit', carpetUnit);
+
     fd.append('builtUpArea', builtUpArea);
-    fd.append('builtUpUnit', builtUpUnit);
+
 
     fd.append('plotArea', plotArea);
-    fd.append('plotAreaUnit', plotAreaUnit);
+
     fd.append('plotLength', plotLength);
     fd.append('plotBreadth', plotBreadth);
-    fd.append('availabilityStatus', availabilityStatus);
+    fd.append("availabilityStatus", availabilityMap[availabilityStatus]);
     fd.append('availableFrom', availableFrom);
-    fd.append('willingTo', willingTo);
+    fd.append("willingTo", willingMap[willingTo]);
+    fd.append('imageType[]', "plan");
+
 
 
 
@@ -713,8 +805,6 @@ const AddProperty = () => {
 
 
     fd.append('areaType', areaType);
-    fd.append('areaUnit', areaUnit);
-
     fd.append('minSeats', minSeats);
     fd.append('maxSeats', maxSeats);
     fd.append('noOfCabins', noOfCabins);
@@ -723,11 +813,9 @@ const AddProperty = () => {
     fd.append('conferenceRoom', conferenceRoom);
     fd.append('receptionArea', receptionArea);
     fd.append('pantryType', pantryType);
-    fd.append('furnishing', furnishing);
+    // fd.append('furnishing', furnishing);
 
-
-
-
+    fd.append('furnishing', furnishingMapped);
     fd.append('wallStatus', wallStatus);
     fd.append('doorsConstructed', doorsConstructed);
     fd.append('washroomBare', washroomBare);
@@ -739,7 +827,8 @@ const AddProperty = () => {
     fd.append('retailWashroom', retailWashroom);
 
 
-
+    fd.append('road_width', roadWidth);
+    fd.append('road_width_unit', roadUnit);
 
     fd.append('hospitalityWash', hospitalityWash);
     fd.append('qualityRating', qualityRating);
@@ -753,7 +842,6 @@ const AddProperty = () => {
     fd.append('hasConstruction', hasConstruction);
 
 
-
     fd.append('elecWaterExcluded', elecWaterExcluded);
     fd.append('agreementType', agreementType);
     fd.append('allowBroker', allowBroker);
@@ -764,10 +852,6 @@ const AddProperty = () => {
 
 
     fd.append('uniqueProperty', uniqueProperty);
-
-
-
-
 
 
 
@@ -786,23 +870,27 @@ const AddProperty = () => {
 
     // Fire Safety (array of selected options)
     fireSafety.forEach((fs, index) => {
-      fd.append(`fireSafety[${index}]`, fs);
+      fd.append(`fire_safety_features[]`, fs);
     });
 
     // Business Types (array of selected)
     businessTypes.forEach((b, index) => {
-      fd.append(`businessTypes[${index}]`, b);
+      fd.append(`business_types[]`, b);
     });
 
     // Furnishing Checkboxes
-    Object.keys(furnishingCheckboxes).forEach(key => {
-      fd.append(`furnishingCheckboxes[${key}]`, furnishingCheckboxes[key]);
+    Object.keys(furnishingCheckboxes).forEach((key) => {
+      if (furnishingCheckboxes[key]) {
+        fd.append("furnishing_details[]", key);
+      }
     });
 
+
     // Additional pricing checkboxes
-    Object.keys(checkboxes).forEach(key => {
-      fd.append(`checkboxes[${key}]`, checkboxes[key]);
-    });
+    fd.append("allInclusive", allInclusive);
+    fd.append("taxGovt", taxGovt);
+    fd.append("priceNegotiable", priceNegotiable);
+
 
     // Images/files
     files.forEach((file) => {
@@ -821,6 +909,7 @@ const AddProperty = () => {
     try {
       const response = await api.post("properties/prop1", fd);
       console.log(response)
+      toast.success(response.data.message)
     }
     catch (err) {
       console.log(err)
@@ -834,6 +923,22 @@ const AddProperty = () => {
   }, [currentStep]);
 
 
+
+
+  // Handle BHK selection
+  const handleBhkSelect = (bhk) => {
+    setApartmentBhk(bhk);
+
+    if (bhk === "1 BHK") {
+      setBedrooms(1);
+    } else if (bhk === "2 BHK") {
+      setBedrooms(2);
+    } else if (bhk === "3 BHK") {
+      setBedrooms(3);
+    } else {
+      setBedrooms(null); // let user choose
+    }
+  };
 
 
 
@@ -1160,7 +1265,7 @@ const AddProperty = () => {
                   style={{ text: "semibold", color: "#161E2D", marginBottom: "20px" }}
                 >
                   <h6>
-                    Welcome Back Buddy
+                    Welcome Back,
                     <br className="title-break" />
                     Fill out basic deatils
                   </h6>
@@ -1175,7 +1280,12 @@ const AddProperty = () => {
                   className="input-field"
                   placeholder="Enter property title"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    console.log("Title:", e.target.value); // ✅ log input
+                  }}
+
+
                   style={{
                     width: "100%",
                     padding: "10px",
@@ -1194,7 +1304,10 @@ const AddProperty = () => {
                   className="input-field"
                   placeholder="Enter keyword"
                   value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
+                  onChange={(e) => {
+                    setKeyword(e.target.value);
+                    console.log("Keyword:", e.target.value); // ✅ log input
+                  }}
                   style={{
                     width: "100%",
                     padding: "10px",
@@ -1219,6 +1332,7 @@ const AddProperty = () => {
                         setSubPropertyType("");
                         setSubPropertyQuestionOption("");
                         setSubPropertyQuestionOptionLvl2("");
+                        console.log("Listing Type:", type); // ✅ log selection
                       }}
                       className={`button-option ${listingType === type ? "active" : ""}`}
                     >
@@ -1242,7 +1356,10 @@ const AddProperty = () => {
                         name="propertyType"
                         value={type}
                         checked={propertyType === type}
-                        onChange={() => handlePropertyTypeChange(type)}
+                        onChange={() => {
+                          handlePropertyTypeChange(type);
+                          console.log("Property Type:", type);
+                        }}
                       />
                       {type}
                     </label>
@@ -1289,6 +1406,7 @@ const AddProperty = () => {
                                 setSubPropertyType(subType);
                                 setSubPropertyQuestionOption("");
                                 setSubPropertyQuestionOptionLvl2("");
+                                console.log("Sub Property Type:", subType); // ✅ log selection
                               }}
                               className={`subproperty-option ${subPropertyType === subType ? "active" : ""
                                 }`}
@@ -1341,136 +1459,60 @@ const AddProperty = () => {
                 )}
 
                 {/* ===== Commercial follow-ups (ONLY for Sell/Rent, not Joint Venture) ===== */}
-                {listingType !== "Joint Venture" && (
+
+
+                {propertyType === "Commercial" && subPropertyType === "Office" && (
                   <>
-                    {propertyType === "Commercial" && subPropertyType === "Office" && (
-                      <>
-                        <h4 className="step-label" style={{ color: "#161E2D" }}>
-                          What type of office is it?
-                        </h4>
-                        <div className="button-group">
-                          {commercialOfficeOptions.map((opt) => (
-                            <div
-                              key={opt}
-                              onClick={() => setSubPropertyQuestionOption(opt)}
-                              className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
-                                }`}
-                            >
-                              {opt}
-                            </div>
-                          ))}
+                    <h4 className="step-label" style={{ color: "#161E2D" }}>
+                      What type of office is it?
+                    </h4>
+                    <div className="button-group">
+                      {commercialOfficeOptions.map((opt) => (
+                        <div
+                          key={opt}
+                          onClick={() => setSubPropertyQuestionOption(opt)}
+                          className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
+                            }`}
+                        >
+                          {opt}
                         </div>
-                      </>
-                    )}
+                      ))}
+                    </div>
+                  </>
+                )}
 
-                    {propertyType === "Commercial" && subPropertyType === "Retail" && (
-                      <>
-                        <h4 className="step-label" style={{ color: "#161E2D" }}>
-                          What type of retail space do you have?
-                        </h4>
-                        <div className="button-group">
-                          {commercialRetailOptions.map((opt) => (
-                            <div
-                              key={opt}
-                              onClick={() => {
-                                setSubPropertyQuestionOption(opt);
-                                setSubPropertyQuestionOptionLvl2("");
-                              }}
-                              className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
-                                }`}
-                            >
-                              {opt}
-                            </div>
-                          ))}
+                {propertyType === "Commercial" && subPropertyType === "Retail" && (
+                  <>
+                    <h4 className="step-label" style={{ color: "#161E2D" }}>
+                      What type of retail space do you have?
+                    </h4>
+                    <div className="button-group">
+                      {commercialRetailOptions.map((opt) => (
+                        <div
+                          key={opt}
+                          onClick={() => {
+                            setSubPropertyQuestionOption(opt);
+                            setSubPropertyQuestionOptionLvl2("");
+                          }}
+                          className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
+                            }`}
+                        >
+                          {opt}
                         </div>
+                      ))}
+                    </div>
 
-                        {subPropertyQuestionOption && (
-                          <>
-                            <p className="step-label" style={{ color: "#161E2D" }}>
-                              Your shop is located inside?
-                            </p>
-                            <div className="button-group">
-                              {commercialRetailLocationOptions.map((opt) => (
-                                <div
-                                  key={opt}
-                                  onClick={() => setSubPropertyQuestionOptionLvl2(opt)}
-                                  className={`subproperty-option ${subPropertyQuestionOptionLvl2 === opt ? "active" : ""
-                                    }`}
-                                >
-                                  {opt}
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </>
-                    )}
-
-                    {propertyType === "Commercial" && subPropertyType === "Plot" && (
-                      <>
-                        <p className="step-label">What kind of plot/land is it?</p>
-                        <div className="button-group">
-                          {commercialPlotOptions.map((opt) => (
-                            <div
-                              key={opt}
-                              onClick={() => setSubPropertyQuestionOption(opt)}
-                              className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
-                                }`}
-                            >
-                              {opt}
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-
-                    {propertyType === "Commercial" && subPropertyType === "Storage" && (
-                      <>
-                        <p className="step-label">What kind of storage is it?</p>
-                        <div className="button-group">
-                          {commercialStorageOptions.map((opt) => (
-                            <div
-                              key={opt}
-                              onClick={() => setSubPropertyQuestionOption(opt)}
-                              className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
-                                }`}
-                            >
-                              {opt}
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-
-                    {propertyType === "Commercial" && subPropertyType === "Industry" && (
-                      <>
-                        <p className="step-label">What kind of industry is it?</p>
-                        <div className="button-group">
-                          {commercialIndustryOptions.map((opt) => (
-                            <div
-                              key={opt}
-                              onClick={() => setSubPropertyQuestionOption(opt)}
-                              className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
-                                }`}
-                            >
-                              {opt}
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-
-                    {propertyType === "Commercial" && subPropertyType === "Hospitality" && (
+                    {subPropertyQuestionOption && (
                       <>
                         <p className="step-label" style={{ color: "#161E2D" }}>
-                          What kind of hospitality is it?
+                          Your shop is located inside?
                         </p>
                         <div className="button-group">
-                          {commercialHospitalityOptions.map((opt) => (
+                          {commercialRetailLocationOptions.map((opt) => (
                             <div
                               key={opt}
-                              onClick={() => setSubPropertyQuestionOption(opt)}
-                              className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
+                              onClick={() => setSubPropertyQuestionOptionLvl2(opt)}
+                              className={`subproperty-option ${subPropertyQuestionOptionLvl2 === opt ? "active" : ""
                                 }`}
                             >
                               {opt}
@@ -1481,6 +1523,82 @@ const AddProperty = () => {
                     )}
                   </>
                 )}
+
+                {propertyType === "Commercial" && subPropertyType === "Plot" && (
+                  <>
+                    <p className="step-label">What kind of plot/land is it?</p>
+                    <div className="button-group">
+                      {commercialPlotOptions.map((opt) => (
+                        <div
+                          key={opt}
+                          onClick={() => setSubPropertyQuestionOption(opt)}
+                          className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
+                            }`}
+                        >
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {propertyType === "Commercial" && subPropertyType === "Storage" && (
+                  <>
+                    <p className="step-label">What kind of storage is it?</p>
+                    <div className="button-group">
+                      {commercialStorageOptions.map((opt) => (
+                        <div
+                          key={opt}
+                          onClick={() => setSubPropertyQuestionOption(opt)}
+                          className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
+                            }`}
+                        >
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {propertyType === "Commercial" && subPropertyType === "Industry" && (
+                  <>
+                    <p className="step-label">What kind of industry is it?</p>
+                    <div className="button-group">
+                      {commercialIndustryOptions.map((opt) => (
+                        <div
+                          key={opt}
+                          onClick={() => setSubPropertyQuestionOption(opt)}
+                          className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
+                            }`}
+                        >
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {propertyType === "Commercial" && subPropertyType === "Hospitality" && (
+                  <>
+                    <p className="step-label" style={{ color: "#161E2D" }}>
+                      What kind of hospitality is it?
+                    </p>
+                    <div className="button-group">
+                      {commercialHospitalityOptions.map((opt) => (
+                        <div
+                          key={opt}
+                          onClick={() => setSubPropertyQuestionOption(opt)}
+                          className={`subproperty-option ${subPropertyQuestionOption === opt ? "active" : ""
+                            }`}
+                        >
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+
 
                 {/* CONTINUE BUTTON */}
                 {subPropertyType && propertyType !== "Layout/Land development" && (
@@ -1593,9 +1711,6 @@ const AddProperty = () => {
             )}
 
 
-
-
-
             {/* Step 2 - Location Details */}
 
             {currentStep === 2 && (
@@ -1609,6 +1724,7 @@ const AddProperty = () => {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="select-field"
+                    style={{ height: "55px" }}
                   >
                     <option value="">Select City</option>
                     <option value="Bangalore">Bangalore</option>
@@ -1660,6 +1776,7 @@ const AddProperty = () => {
                       value={apartment}
                       onChange={(e) => setApartment(e.target.value)}
                       className="select-field"
+                      style={{ height: "55px" }}
                     >
                       <option value="">Select Apartment</option>
                       <option value="Prestige Lakeside">Prestige Lakeside</option>
@@ -1670,8 +1787,113 @@ const AddProperty = () => {
                   </div>
                 )}
 
+
+                {/* Address */}
+                <div className="step2-section">
+                  <label className="step2-label">Full Address</label>
+                  <input
+                    type="text"
+                    className="step2-input"
+                    placeholder="Enter full address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                </div>
+
+                {/* Postal Code */}
+                <div className="step2-section mt-3">
+                  <label className="step2-label">Postal Code</label>
+                  <input
+                    type="text"
+                    className="step2-input"
+                    placeholder="Enter postal code"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                  />
+                </div>
+
+                {/* Sub Locality */}
+                <div className="step2-section mt-3">
+                  <label className="step2-label">Sub Locality</label>
+                  <input
+                    type="text"
+                    className="step2-input"
+                    placeholder="Enter sub locality"
+                    value={subLocality}
+                    onChange={(e) => setSubLocality(e.target.value)}
+                  />
+                </div>
+
+
+
+                {/* Located Near */}
+                <div className="step2-section mt-3">
+                  <label className="step2-label">Located Near</label>
+                  <input
+                    type="text"
+                    className="step2-input"
+                    placeholder="e.g. Near Metro Station, Near Park"
+                    value={locatedNear}
+                    onChange={(e) => setLocatedNear(e.target.value)}
+                  />
+                </div>
+
+                {/* Road Width Input + Unit Dropdown */}
+                <div className="form-group  " style={{ display: "flex", gap: "10px" }}>
+                  <div className="mt-3" style={{ flex: 2 }}>
+                    <label>Road Width</label>
+                    <input
+                      type="number"
+                      className="input-field"
+                      placeholder="Enter road width"
+                      value={roadWidth}
+                      onChange={(e) => setRoadWidth(e.target.value)}
+                    />
+                  </div>
+                  <div className="mt-3" style={{ flex: 1 }}>
+                    <label>Unit</label>
+                    <select
+                      className="select-field input-field p-2"
+                      value={roadUnit}
+                      onChange={(e) => setRoadUnit(e.target.value)}
+                      style={{ height: "55px" }}
+                    >
+                      <option value="">Select</option>
+                      <option value="feet">Feet</option>
+                      <option value="meters">Meters</option>
+                    </select>
+                  </div>
+                </div>
+
+
+                {/* Property facing */}
+                <div className="step3-section mt-3">
+                  <label className="step3-label">Property facing</label>
+                  <div className="button-group">
+                    {[
+                      "North",
+                      "South",
+                      "East",
+                      "West",
+                      "North-East",
+                      "North-West",
+                      "South-East",
+                      "South-West",
+                    ].map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`subproperty-option ${propertyFacing === opt ? "active" : ""}`}
+                        onClick={() => setPropertyFacing(opt)}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* House No. Input */}
-                <div className="house-no-group">
+                <div className="house-no-group mt-3">
                   <label>House No. (Optional)</label>
                   <input
                     type="text"
@@ -1683,7 +1905,7 @@ const AddProperty = () => {
                 </div>
 
                 {/* Continue button */}
-                {city && selectedOwnership && location && apartment && (
+                {city && selectedOwnership && location && (
                   <button onClick={handleLocationContinue} className="continue-btn">
                     Continue
                   </button>
@@ -1709,6 +1931,7 @@ const AddProperty = () => {
                     {listingType === "Rent" && propertyType === "Residential" && (
                       <>
                         {/* Apartment Type (BHK) */}
+                        {/* BHK Selection */}
                         <div className="step3-section">
                           <label className="step3-label">Your apartment is a</label>
                           <div className="step3-button-group">
@@ -1716,15 +1939,16 @@ const AddProperty = () => {
                               <button
                                 key={bhk}
                                 type="button"
-                                onClick={() => setApartmentBhk(bhk)}
-                                className={`step3-option-btn ${apartmentBhk === bhk ? "active" : ""
-                                  }`}
+                                onClick={() => handleBhkSelect(bhk)}
+                                className={`step3-option-btn ${apartmentBhk === bhk ? "active" : ""}`}
                               >
                                 {bhk}
                               </button>
                             ))}
                           </div>
                         </div>
+
+
 
                         {/* Room Details */}
                         <div className="step3-section">
@@ -1734,19 +1958,24 @@ const AddProperty = () => {
 
                           {/* Bedrooms */}
                           <div className="step3-subsection">
-                            <label className="step3-label">
-                              No. of Bedrooms
-                            </label>
+                            <label className="step3-label">No. of Bedrooms</label>
                             <div className="step3-button-group">
-                              {[1, 2, 3, 4, 5].map((num) => (
-                                <div
-                                  key={num}
-                                  onClick={() => setBedrooms(num)}
-                                  className={`step3-number-btn ${bedrooms === num ? 'active' : ''}`}
-                                >
-                                  {num}
-                                </div>
-                              ))}
+                              {[1, 2, 3, 4, 5].map((num) => {
+                                const isDisabled = apartmentBhk !== "Other"; // disable unless Other
+                                return (
+                                  <div
+                                    key={num}
+                                    onClick={() => !isDisabled && setBedrooms(num)}
+                                    className={`step3-number-btn ${bedrooms === num ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
+                                    style={{
+                                      opacity: isDisabled ? 0.5 : 1,
+                                      pointerEvents: isDisabled ? "none" : "auto",
+                                    }}
+                                  >
+                                    {num}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
 
@@ -1788,45 +2017,96 @@ const AddProperty = () => {
                         </div>
 
                         {/* Area Details */}
-                        <div className="step3-section">
-                          <div className="step3-section-header">
-                            <label className="step3-label">
+                        <div
+
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                               Add Area Details
                             </label>
-                            <span className="step3-info-icon">ⓘ</span>
+
                           </div>
-                          <p className="step3-mandatory-text">
-                            At least one area type mandatory
+
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
                           </p>
 
                           {/* Carpet Area */}
-                          {/* Carpet Area */}
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
                               placeholder="Carpet Area"
                               value={carpetArea}
                               onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
                               onClick={() => setShowCarpetUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
                             {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
                                       setCarpetUnit(u);
-                                      setBuiltUpUnit(u); // 🔹 Sync both units
+                                      setBuiltUpUnit(u); // sync
                                       setShowCarpetUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -1835,9 +2115,11 @@ const AddProperty = () => {
                             )}
                           </div>
 
-                          {/* Validation for Carpet Area */}
+                          {/* Validation */}
                           {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                            <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
                           {/* Built-up Area */}
@@ -1845,37 +2127,87 @@ const AddProperty = () => {
                             <button
                               type="button"
                               onClick={() => setShowBuiltUpArea(true)}
-                              className="step3-add-btn"
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
                             >
                               + Add Built-up Area
                             </button>
                           ) : (
-                            <div className="step3-input-group">
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
                                 onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
 
                               {showBuiltUpUnits && (
-                                <div className="step3-unit-dropdown">
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
+                                  }}
+                                >
                                   {UNIT_OPTIONS.map((u) => (
                                     <div
                                       key={u}
                                       onClick={() => {
                                         setBuiltUpUnit(u);
-                                        setCarpetUnit(u); // 🔹 Sync both units
+                                        setCarpetUnit(u); // sync
                                         setShowBuiltUpUnits(false);
                                       }}
-                                      className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
                                     >
                                       {u}
                                     </div>
@@ -1884,13 +2216,13 @@ const AddProperty = () => {
                               )}
                             </div>
                           )}
-
                         </div>
 
 
 
+
                         {/* Furnishing */}
-                        <div className="section">
+                        <div className="section mt-3">
                           <label className="section-label">Furnishing</label>
                           <div className="furnishing-options">
                             {["Furnished", "Semi-furnished", "Un-furnished"].map((type) => (
@@ -1915,30 +2247,7 @@ const AddProperty = () => {
 
 
                               <div className="furnishing-grid">
-                                {Object.keys(furnishings).map((item) => (
-                                  <div key={item} className="furnishing-item">
-                                    <button
-                                      onClick={() => handleFurnishingCount(item, -1)}
-                                      onMouseEnter={() => setHoveredButton(`${item}-minus`)}
-                                      onMouseLeave={() => setHoveredButton(null)}
-                                      className={`count-btn ${hoveredButton === `${item}-minus` ? "hovered" : ""
-                                        }`}
-                                    >
-                                      –
-                                    </button>
-                                    <span className="count-value">{furnishings[item]}</span>
-                                    <button
-                                      onClick={() => handleFurnishingCount(item, 1)}
-                                      onMouseEnter={() => setHoveredButton(`${item}-plus`)}
-                                      onMouseLeave={() => setHoveredButton(null)}
-                                      className={`count-btn ${hoveredButton === `${item}-plus` ? "hovered" : ""
-                                        }`}
-                                    >
-                                      +
-                                    </button>
-                                    <span className="furnishing-name">{item}</span>
-                                  </div>
-                                ))}
+
 
                                 {Object.keys(furnishingCheckboxes).map((item) => (
                                   <label key={item} className="furnishing-checkbox">
@@ -2021,6 +2330,23 @@ const AddProperty = () => {
                           </div>
                         </div>
 
+                        {/* Parking Facility */}
+                        <div className="step3-section">
+                          <label className="step3-label">Parking Facility</label>
+                          <div className="step3-button-group">
+                            {["Covered", "Open", "Both", "None"].map((option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setParkingFacility(option)}
+                                className={`step3-option-btn ${parkingFacility === option ? "active" : ""}`}
+                              >
+                                {option}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
                         {/* ------------------- RENT DETAILS ------------------- */}
                         {/* Available From */}
                         <div className="step3-section">
@@ -2051,151 +2377,7 @@ const AddProperty = () => {
                           </div>
                         </div>
 
-                        {/* Rent Details */}
-                        <div className="step3-section">
-                          <h6 className="step3-subheader">Rent Details</h6>
-                          <div className="step3-price-group">
-                            <input
-                              type="number"
-                              placeholder="₹ Expected Rent"
-                              value={expectedRent}
-                              onChange={(e) => setExpectedRent(e.target.value)}
-                              className={`step3-input ${!expectedRent ? "error-border" : ""}`}
-                            />
-                          </div>
-                          <small className="step3-subnote">₹ Price in words</small>
 
-                          {/* Checkboxes */}
-                          <div className="step3-checkbox-group">
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={elecWaterExcluded}
-                                onChange={(e) => setElecWaterExcluded(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Electricity & Water charges excluded
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={priceNegotiable}
-                                onChange={(e) => setPriceNegotiable(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Price Negotiable
-                            </label>
-                          </div>
-                        </div>
-                        {/* Additional Price Details */}
-                        <div className="step3-section">
-                          <button
-                            type="button"
-                            onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                            className="step3-toggle-btn"
-                          >
-                            {showAdditionalPricing
-                              ? "− Hide  more Rent Details"
-                              : "+ Add more Rent Details (Optional)"}
-                          </button>
-
-                          {showAdditionalPricing && (
-                            <div className="step3-additional-fields">
-                              {/* Maintenance + unit */}
-                              <div className="step3-input-group">
-                                <input
-                                  type="number"
-                                  placeholder="Maintenance"
-                                  value={maintenance}
-                                  onChange={(e) => setMaintenance(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <select
-                                  value={maintenanceUnit}
-                                  onChange={(e) => setMaintenanceUnit(e.target.value)}
-                                  className="step3-unit-select"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Monthly">Monthly</option>
-                                  <option value="Annually">Annually</option>
-                                  <option value="One Time">One Time</option>
-                                  <option value="Per Unit">Per Unit</option>
-                                </select>
-                              </div>
-
-                              {/* Booking Amount */}
-                              <input
-                                type="number"
-                                placeholder="Booking Amount"
-                                value={bookingAmount}
-                                onChange={(e) => setBookingAmount(e.target.value)}
-                                className="step3-input"
-                              />
-
-                              {/* Membership Charge */}
-                              <input
-                                type="number"
-                                placeholder="Membership Charge"
-                                value={membershipCharge}
-                                onChange={(e) => setMembershipCharge(e.target.value)}
-                                className="step3-input"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-
-                        {/* Preferred Agreement Type */}
-                        <div className="step3-section">
-                          <label className="step3-label">Preferred agreement type</label>
-                          <div className="step3-button-group">
-                            {["Company lease agreement", "Any"].map((type) => (
-                              <button
-                                key={type}
-                                type="button"
-                                onClick={() => setAgreementType(type)}
-                                className={`step3-option-btn ${agreementType === type ? "active" : ""
-                                  }`}
-                              >
-                                {type}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Broker contact permission */}
-                        <div className="step3-section">
-                          <label className="step3-label">
-                            Are you ok with brokers contacting you?
-                          </label>
-                          <div className="step3-button-group">
-                            {["Yes", "No"].map((opt) => (
-                              <button
-                                key={opt}
-                                type="button"
-                                onClick={() => setAllowBroker(opt)}
-                                className={`step3-option-btn ${allowBroker === opt ? "active" : ""
-                                  }`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Unique Property */}
-                        <div className="step3-section">
-                          <p className="step3-label">
-                            What makes your property unique?
-                          </p>
-                          <textarea
-                            placeholder="What makes your property unique?"
-                            value={uniqueProperty}
-                            onChange={(e) => setUniqueProperty(e.target.value)}
-                            rows={3}
-                            className="step3-textarea"
-                          />
-                        </div>
                         {/* ------------------- END OF RENT DETAILS ------------------- */}
 
 
@@ -2205,6 +2387,24 @@ const AddProperty = () => {
                     {/* Sell + Residential */}
                     {listingType === "Sell" && propertyType === "Residential" && (
                       <>
+
+                        <div className="step3-section">
+                          <label className="step3-label">Your apartment is a</label>
+                          <div className="step3-button-group">
+                            {["1 BHK", "2 BHK", "3 BHK", "Other"].map((bhk) => (
+                              <button
+                                key={bhk}
+                                type="button"
+                                onClick={() => handleBhkSelect(bhk)}
+                                className={`step3-option-btn ${apartmentBhk === bhk ? "active" : ""}`}
+                              >
+                                {bhk}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+
                         {/* Room Details */}
                         <div className="step3-section">
                           <h6 className="step3-subheader">
@@ -2213,19 +2413,24 @@ const AddProperty = () => {
 
                           {/* Bedrooms */}
                           <div className="step3-subsection">
-                            <label className="step3-label">
-                              No. of Bedrooms
-                            </label>
+                            <label className="step3-label">No. of Bedrooms</label>
                             <div className="step3-button-group">
-                              {[1, 2, 3, 4, 5].map((num) => (
-                                <div
-                                  key={num}
-                                  onClick={() => setBedrooms(num)}
-                                  className={`step3-number-btn ${bedrooms === num ? 'active' : ''}`}
-                                >
-                                  {num}
-                                </div>
-                              ))}
+                              {[1, 2, 3, 4, 5].map((num) => {
+                                const isDisabled = apartmentBhk !== "Other"; // disable unless Other
+                                return (
+                                  <div
+                                    key={num}
+                                    onClick={() => !isDisabled && setBedrooms(num)}
+                                    className={`step3-number-btn ${bedrooms === num ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
+                                    style={{
+                                      opacity: isDisabled ? 0.5 : 1,
+                                      pointerEvents: isDisabled ? "none" : "auto",
+                                    }}
+                                  >
+                                    {num}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
 
@@ -2267,45 +2472,96 @@ const AddProperty = () => {
                         </div>
 
                         {/* Area Details */}
-                        <div className="step3-section">
-                          <div className="step3-section-header">
-                            <label className="step3-label">
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                               Add Area Details
                             </label>
-                            <span className="step3-info-icon">ⓘ</span>
+
                           </div>
-                          <p className="step3-mandatory-text">
-                            At least one area type mandatory
+
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
                           </p>
 
                           {/* Carpet Area */}
-                          {/* Carpet Area */}
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
                               placeholder="Carpet Area"
                               value={carpetArea}
                               onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
                               onClick={() => setShowCarpetUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
                             {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
                                       setCarpetUnit(u);
-                                      setBuiltUpUnit(u); // 🔹 Sync both units
+                                      setBuiltUpUnit(u); // sync
                                       setShowCarpetUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -2314,9 +2570,11 @@ const AddProperty = () => {
                             )}
                           </div>
 
-                          {/* Validation for Carpet Area */}
+                          {/* Validation */}
                           {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                            <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
                           {/* Built-up Area */}
@@ -2324,37 +2582,87 @@ const AddProperty = () => {
                             <button
                               type="button"
                               onClick={() => setShowBuiltUpArea(true)}
-                              className="step3-add-btn"
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
                             >
                               + Add Built-up Area
                             </button>
                           ) : (
-                            <div className="step3-input-group">
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
                                 onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
 
                               {showBuiltUpUnits && (
-                                <div className="step3-unit-dropdown">
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
+                                  }}
+                                >
                                   {UNIT_OPTIONS.map((u) => (
                                     <div
                                       key={u}
                                       onClick={() => {
                                         setBuiltUpUnit(u);
-                                        setCarpetUnit(u); // 🔹 Sync both units
+                                        setCarpetUnit(u); // sync
                                         setShowBuiltUpUnits(false);
                                       }}
-                                      className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
                                     >
                                       {u}
                                     </div>
@@ -2363,7 +2671,50 @@ const AddProperty = () => {
                               )}
                             </div>
                           )}
+                        </div>
 
+
+                        {/* Furnishing */}
+                        <div className="section">
+                          <label className="section-label">Furnishing</label>
+                          <div className="furnishing-options">
+                            {["Furnished", "Semi-furnished", "Un-furnished"].map((type) => (
+                              <div
+                                key={type}
+                                onClick={() => setFurnishingType(type)}
+                                className={`furnishing-chip ${furnishingType === type ? "active" : ""
+                                  }`}
+                              >
+                                {type}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Show only when Furnished or Semi-furnished */}
+                          {(furnishingType === "Furnished" || furnishingType === "Semi-furnished") && (
+                            <>
+
+                              <p style={{ marginTop: "10px", fontFamily: '"Josefin Sans", sans-serif', fontWeight: "600" }}>
+                                At least three furnishings are mandatory for furnished
+                              </p>
+
+
+                              <div className="furnishing-grid">
+
+
+                                {Object.keys(furnishingCheckboxes).map((item) => (
+                                  <label key={item} className="furnishing-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={furnishingCheckboxes[item]}
+                                      onChange={() => toggleFurnishingCheckbox(item)}
+                                    />
+                                    {item}
+                                  </label>
+                                ))}
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         {/* Floor Details */}
@@ -2411,7 +2762,46 @@ const AddProperty = () => {
                           </div>
                         </div>
 
-                        {/* Availability Status */}
+                        {/* Air Conditioning */}
+                        <div className="step3-section">
+                          <label className="step3-label">Air Conditioning</label>
+                          <div className="step3-button-group">
+                            {["Central", "Individual", "None"].map((option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setAirConditioning(option)}
+                                className={`step3-option-btn ${airConditioning === option ? "active" : ""
+                                  }`}
+                              >
+                                {option}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+
+                        {/* Parking Facility */}
+                        <div className="step3-section">
+                          <label className="step3-label">Parking Facility</label>
+                          <div className="step3-button-group">
+                            {["Covered", "Open", "Both", "None"].map((option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setParkingFacility(option)}
+                                className={`step3-option-btn ${parkingFacility === option ? "active" : ""}`}
+                              >
+                                {option}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+
+
+
+
                         {/* Availability Status */}
                         <div className="step3-section">
                           <label className="step3-label">
@@ -2494,139 +2884,7 @@ const AddProperty = () => {
                           </div>
                         </div>
 
-                        <div className="step3-container">
-                          {/* Price Details */}
-                          <div className="step3-section">
-                            <h6 className="step3-subheader">
-                              Price Details
-                            </h6>
-                            <div className="step3-price-group">
-                              <input
-                                type="number"
-                                placeholder="Expected Price"
-                                value={expectedPrice}
-                                onChange={(e) => setExpectedPrice(e.target.value)}
-                                className="step3-input"
-                              />
-                              <input
-                                type="number"
-                                placeholder="Price per Sq.Ft"
-                                value={
-                                  expectedPrice && (carpetArea || builtUpArea)
-                                    ? (
-                                      parseFloat(expectedPrice) /
-                                      parseFloat(carpetArea || builtUpArea)
-                                    ).toFixed(2)
-                                    : ""
-                                }
-                                readOnly
-                                className="step3-input step3-readonly-input"
-                              />
-                            </div>
-                            <div className="step3-checkbox-group">
-                              <label className="step3-checkbox-label">
-                                <input
-                                  type="checkbox"
-                                  checked={allInclusive}
-                                  onChange={(e) => setAllInclusive(e.target.checked)}
-                                  className="step3-checkbox"
-                                />
-                                All Inclusive Price?
-                              </label>
-                              <label className="step3-checkbox-label">
-                                <input
-                                  type="checkbox"
-                                  checked={taxGovt}
-                                  onChange={(e) => setTaxGovt(e.target.checked)}
-                                  className="step3-checkbox"
-                                />
-                                Tax & Govt. Charges
-                              </label>
-                              <label className="step3-checkbox-label">
-                                <input
-                                  type="checkbox"
-                                  checked={priceNegotiable}
-                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
-                                  className="step3-checkbox"
-                                />
-                                Price Negotiable
-                              </label>
-                            </div>
-                          </div>
 
-                          {/* Additional Price Details */}
-                          <div className="step3-section">
-                            <button
-                              type="button"
-                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                              className="step3-toggle-btn"
-                            >
-                              {showAdditionalPricing
-                                ? "− Hide Additional Price Details"
-                                : "+ Add Additional Price Details (Optional)"}
-                            </button>
-
-                            {showAdditionalPricing && (
-                              <div className="step3-additional-fields">
-                                <div className="step3-input-group">
-                                  <input
-                                    type="number"
-                                    placeholder="Maintenance"
-                                    value={maintenance}
-                                    onChange={(e) => setMaintenance(e.target.value)}
-                                    className="step3-input"
-                                  />
-                                  <select
-                                    value={maintenanceUnit}
-                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
-                                    className="step3-unit-select"
-                                  >
-                                    <option value="">Select</option>
-                                    <option value="Monthly">Monthly</option>
-                                    <option value="Annually">Annually</option>
-                                    <option value="One Time">One Time</option>
-                                    <option value="Per Unit">Per Unit</option>
-                                  </select>
-                                </div>
-                                <input
-                                  type="number"
-                                  placeholder="Rental"
-                                  value={rental}
-                                  onChange={(e) => setRental(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <input
-                                  type="number"
-                                  placeholder="Booking Amount"
-                                  value={bookingAmount}
-                                  onChange={(e) => setBookingAmount(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <input
-                                  type="number"
-                                  placeholder="Annual Dues Payable Membership Charge"
-                                  value={annualDues}
-                                  onChange={(e) => setAnnualDues(e.target.value)}
-                                  className="step3-input"
-                                />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Unique Property */}
-                          <div className="step3-section">
-                            <p className="step3-label">
-                              What makes your property unique?
-                            </p>
-                            <textarea
-                              placeholder="What makes your property unique?"
-                              value={uniqueProperty}
-                              onChange={(e) => setUniqueProperty(e.target.value)}
-                              rows={3}
-                              className="step3-textarea"
-                            />
-                          </div>
-                        </div>
                       </>
                     )}
 
@@ -2639,6 +2897,22 @@ const AddProperty = () => {
                     {/* Sell + Residential */}
                     {listingType === "Sell" && propertyType === "Residential" && (
                       <>
+
+                        <div className="step3-section">
+                          <label className="step3-label">Your apartment is a</label>
+                          <div className="step3-button-group">
+                            {["1 BHK", "2 BHK", "3 BHK", "Other"].map((bhk) => (
+                              <button
+                                key={bhk}
+                                type="button"
+                                onClick={() => handleBhkSelect(bhk)}
+                                className={`step3-option-btn ${apartmentBhk === bhk ? "active" : ""}`}
+                              >
+                                {bhk}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                         <div className="step3-section">
                           <h6 className="step3-subheader">
                             Add Room Details
@@ -2646,19 +2920,24 @@ const AddProperty = () => {
 
                           {/* Bedrooms */}
                           <div className="step3-subsection">
-                            <label className="step3-label">
-                              No. of Bedrooms
-                            </label>
+                            <label className="step3-label">No. of Bedrooms</label>
                             <div className="step3-button-group">
-                              {[1, 2, 3, 4, 5].map((num) => (
-                                <div
-                                  key={num}
-                                  onClick={() => setBedrooms(num)}
-                                  className={`step3-number-btn ${bedrooms === num ? 'active' : ''}`}
-                                >
-                                  {num}
-                                </div>
-                              ))}
+                              {[1, 2, 3, 4, 5].map((num) => {
+                                const isDisabled = apartmentBhk !== "Other"; // disable unless Other
+                                return (
+                                  <div
+                                    key={num}
+                                    onClick={() => !isDisabled && setBedrooms(num)}
+                                    className={`step3-number-btn ${bedrooms === num ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
+                                    style={{
+                                      opacity: isDisabled ? 0.5 : 1,
+                                      pointerEvents: isDisabled ? "none" : "auto",
+                                    }}
+                                  >
+                                    {num}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
 
@@ -2703,106 +2982,247 @@ const AddProperty = () => {
 
 
                         {/* Area Details */}
-                        <div className="step3-section">
-                          <label className="step3-label">Add Area Details</label>
-                          <p className="step3-mandatory-text">Please enter the plot size</p>
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                              Add Area Details
+                            </label>
 
-                          {/* Plot Area */}
-                          <div className="step3-input-group">
-                            <input
-                              type="number"
-                              placeholder="Plot Area"
-                              value={plotArea}
-                              onChange={(e) => setPlotArea(e.target.value)}
-                              className="step3-input"
-                            />
-                            <select
-                              value={sharedUnit}
-                              onChange={(e) => setSharedUnit(e.target.value)}
-                              className="step3-unit-select"
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <option key={u} value={u}>{u}</option>
-                              ))}
-                            </select>
                           </div>
 
-                          {/* Before Clicking - Both buttons in 1 row */}
-                          {!showBuiltUpArea && !showCarpetArea && (
-                            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                              <button
-                                type="button"
-                                onClick={() => setShowBuiltUpArea(true)}
-                                className="step3-add-btn"
-                                style={{ flex: 1 }}
-                              >
-                                + Add Built-up Area
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setShowCarpetArea(true)}
-                                className="step3-add-btn"
-                                style={{ flex: 1 }}
-                              >
-                                + Add Carpet Area
-                              </button>
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
+                          </p>
+
+                          {/* Carpet Area */}
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
+                            <input
+                              type="number"
+                              placeholder="Carpet Area"
+                              value={carpetArea}
+                              onChange={(e) => setCarpetArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
+                            />
+                            <div
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowCarpetUnits((p) => !p)}
+                            >
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
+
+                            {showCarpetUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
+                                {UNIT_OPTIONS.map((u) => (
+                                  <div
+                                    key={u}
+                                    onClick={() => {
+                                      setCarpetUnit(u);
+                                      setBuiltUpUnit(u); // sync
+                                      setShowCarpetUnits(false);
+                                    }}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
+                                  >
+                                    {u}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Validation */}
+                          {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
-                          {/* Built-up Area Input (its own row) */}
-                          {showBuiltUpArea && (
-                            <div className="step3-input-group" style={{ marginTop: "10px" }}>
+                          {/* Built-up Area */}
+                          {!showBuiltUpArea ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowBuiltUpArea(true)}
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
+                            >
+                              + Add Built-up Area
+                            </button>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
-                                onClick={() => setShowUnitDropdown((p) => !p)}
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
+                                onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {sharedUnit} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
-                            </div>
-                          )}
 
-                          {/* Carpet Area Input (its own row) */}
-                          {showCarpetArea && (
-                            <div className="step3-input-group" style={{ marginTop: "10px" }}>
-                              <input
-                                type="number"
-                                placeholder="Carpet Area"
-                                value={carpetArea}
-                                onChange={(e) => setCarpetArea(e.target.value)}
-                                className="step3-input"
-                              />
-                              <div
-                                className="step3-unit-selector"
-                                onClick={() => setShowUnitDropdown((p) => !p)}
-                              >
-                                {sharedUnit} <span className="step3-dropdown-icon">▼</span>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Custom Dropdown (shared) */}
-                          {showUnitDropdown && (
-                            <div className="step3-unit-dropdown">
-                              {UNIT_OPTIONS.map((u) => (
+                              {showBuiltUpUnits && (
                                 <div
-                                  key={u}
-                                  onClick={() => {
-                                    setSharedUnit(u);
-                                    setShowUnitDropdown(false);
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
                                   }}
-                                  className={`step3-unit-option ${sharedUnit === u ? "selected" : ""}`}
                                 >
-                                  {u}
+                                  {UNIT_OPTIONS.map((u) => (
+                                    <div
+                                      key={u}
+                                      onClick={() => {
+                                        setBuiltUpUnit(u);
+                                        setCarpetUnit(u); // sync
+                                        setShowBuiltUpUnits(false);
+                                      }}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
+                                    >
+                                      {u}
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
+                              )}
                             </div>
+                          )}
+                        </div>
+
+                        {/* Furnishing */}
+                        <div className="section">
+                          <label className="section-label">Furnishing</label>
+                          <div className="furnishing-options">
+                            {["Furnished", "Semi-furnished", "Un-furnished"].map((type) => (
+                              <div
+                                key={type}
+                                onClick={() => setFurnishingType(type)}
+                                className={`furnishing-chip ${furnishingType === type ? "active" : ""
+                                  }`}
+                              >
+                                {type}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Show only when Furnished or Semi-furnished */}
+                          {(furnishingType === "Furnished" || furnishingType === "Semi-furnished") && (
+                            <>
+
+                              <p style={{ marginTop: "10px", fontFamily: '"Josefin Sans", sans-serif', fontWeight: "600" }}>
+                                At least three furnishings are mandatory for furnished
+                              </p>
+
+
+                              <div className="furnishing-grid">
+
+
+                                {Object.keys(furnishingCheckboxes).map((item) => (
+                                  <label key={item} className="furnishing-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={furnishingCheckboxes[item]}
+                                      onChange={() => toggleFurnishingCheckbox(item)}
+                                    />
+                                    {item}
+                                  </label>
+                                ))}
+                              </div>
+                            </>
                           )}
                         </div>
 
@@ -2828,6 +3248,41 @@ const AddProperty = () => {
                               className="step3-floor-input"
                             />
 
+                          </div>
+                        </div>
+
+                        {/* Air Conditioning */}
+                        <div className="step3-section">
+                          <label className="step3-label">Air Conditioning</label>
+                          <div className="step3-button-group">
+                            {["Central", "Individual", "None"].map((option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setAirConditioning(option)}
+                                className={`step3-option-btn ${airConditioning === option ? "active" : ""
+                                  }`}
+                              >
+                                {option}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Parking Facility */}
+                        <div className="step3-section">
+                          <label className="step3-label">Parking Facility</label>
+                          <div className="step3-button-group">
+                            {["Covered", "Open", "Both", "None"].map((option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setParkingFacility(option)}
+                                className={`step3-option-btn ${parkingFacility === option ? "active" : ""}`}
+                              >
+                                {option}
+                              </button>
+                            ))}
                           </div>
                         </div>
 
@@ -2913,164 +3368,54 @@ const AddProperty = () => {
                             ))}
                           </div>
                         </div>
-                        {/* Price Details */}
-                        <div className="step3-section">
-                          <h6 className="step3-subheader">
-                            Price Details
-                          </h6>
-                          <div className="step3-price-group">
-                            <input
-                              type="number"
-                              placeholder="Expected Price"
-                              value={expectedPrice}
-                              onChange={(e) => setExpectedPrice(e.target.value)}
-                              className="step3-input"
-                            />
-                            <input
-                              type="number"
-                              placeholder="Price per Sq.Ft"
-                              value={
-                                expectedPrice && (carpetArea || builtUpArea)
-                                  ? (
-                                    parseFloat(expectedPrice) /
-                                    parseFloat(carpetArea || builtUpArea)
-                                  ).toFixed(2)
-                                  : ""
-                              }
-                              readOnly
-                              className="step3-input step3-readonly-input"
-                            />
-                          </div>
-                          <div className="step3-checkbox-group">
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={allInclusive}
-                                onChange={(e) => setAllInclusive(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              All Inclusive Price?
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={taxGovt}
-                                onChange={(e) => setTaxGovt(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Tax & Govt. Charges
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={priceNegotiable}
-                                onChange={(e) => setPriceNegotiable(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Price Negotiable
-                            </label>
-                          </div>
-                        </div>
 
-                        {/* Additional Price Details */}
-                        <div className="step3-section">
-                          <button
-                            type="button"
-                            onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                            className="step3-toggle-btn"
-                          >
-                            {showAdditionalPricing
-                              ? "− Hide Additional Price Details"
-                              : "+ Add Additional Price Details (Optional)"}
-                          </button>
-
-                          {showAdditionalPricing && (
-                            <div className="step3-additional-fields">
-                              <div className="step3-input-group">
-                                <input
-                                  type="number"
-                                  placeholder="Maintenance"
-                                  value={maintenance}
-                                  onChange={(e) => setMaintenance(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <select
-                                  value={maintenanceUnit}
-                                  onChange={(e) => setMaintenanceUnit(e.target.value)}
-                                  className="step3-unit-select"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Monthly">Monthly</option>
-                                  <option value="Annually">Annually</option>
-                                  <option value="One Time">One Time</option>
-                                  <option value="Per Unit">Per Unit</option>
-                                </select>
-                              </div>
-                              <input
-                                type="number"
-                                placeholder="Rental"
-                                value={rental}
-                                onChange={(e) => setRental(e.target.value)}
-                                className="step3-input"
-                              />
-                              <input
-                                type="number"
-                                placeholder="Booking Amount"
-                                value={bookingAmount}
-                                onChange={(e) => setBookingAmount(e.target.value)}
-                                className="step3-input"
-                              />
-                              <input
-                                type="number"
-                                placeholder="Annual Dues Payable Membership Charge"
-                                value={annualDues}
-                                onChange={(e) => setAnnualDues(e.target.value)}
-                                className="step3-input"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Unique Property */}
-                        <div className="step3-section">
-                          <p className="step3-label">
-                            What makes your property unique?
-                          </p>
-                          <textarea
-                            placeholder="What makes your property unique?"
-                            value={uniqueProperty}
-                            onChange={(e) => setUniqueProperty(e.target.value)}
-                            rows={3}
-                            className="step3-textarea"
-                          />
-                        </div>
                       </>
                     )}
 
                     {/* Rent + Residential */}
                     {listingType === "Rent" && propertyType === "Residential" && (
                       <>
+
+                        <div className="step3-section">
+                          <label className="step3-label">Your apartment is a</label>
+                          <div className="step3-button-group">
+                            {["1 BHK", "2 BHK", "3 BHK", "Other"].map((bhk) => (
+                              <button
+                                key={bhk}
+                                type="button"
+                                onClick={() => handleBhkSelect(bhk)}
+                                className={`step3-option-btn ${apartmentBhk === bhk ? "active" : ""}`}
+                              >
+                                {bhk}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                         {/* Room Details */}
                         <div className="step3-section">
                           <h6 className="step3-subheader">
                             Add Room Details
                           </h6>
-
                           {/* Bedrooms */}
                           <div className="step3-subsection">
-                            <label className="step3-label">
-                              No. of Bedrooms
-                            </label>
+                            <label className="step3-label">No. of Bedrooms</label>
                             <div className="step3-button-group">
-                              {[1, 2, 3, 4, 5].map((num) => (
-                                <div
-                                  key={num}
-                                  onClick={() => setBedrooms(num)}
-                                  className={`step3-number-btn ${bedrooms === num ? 'active' : ''}`}
-                                >
-                                  {num}
-                                </div>
-                              ))}
+                              {[1, 2, 3, 4, 5].map((num) => {
+                                const isDisabled = apartmentBhk !== "Other"; // disable unless Other
+                                return (
+                                  <div
+                                    key={num}
+                                    onClick={() => !isDisabled && setBedrooms(num)}
+                                    className={`step3-number-btn ${bedrooms === num ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
+                                    style={{
+                                      opacity: isDisabled ? 0.5 : 1,
+                                      pointerEvents: isDisabled ? "none" : "auto",
+                                    }}
+                                  >
+                                    {num}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
 
@@ -3112,105 +3457,203 @@ const AddProperty = () => {
                         </div>
 
                         {/* Area Details */}
-                        <div className="step3-section">
-                          <label className="step3-label">Add Area Details</label>
-                          <p className="step3-mandatory-text">Please enter the plot size</p>
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                              Add Area Details
+                            </label>
 
-                          {/* Plot Area */}
-                          <div className="step3-input-group">
-                            <input
-                              type="number"
-                              placeholder="Plot Area"
-                              value={plotArea}
-                              onChange={(e) => setPlotArea(e.target.value)}
-                              className="step3-input"
-                            />
-                            <select
-                              value={sharedUnit}
-                              onChange={(e) => setSharedUnit(e.target.value)}
-                              className="step3-unit-select"
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <option key={u} value={u}>{u}</option>
-                              ))}
-                            </select>
                           </div>
 
-                          {/* Before Clicking - Both buttons in 1 row */}
-                          {!showBuiltUpArea && !showCarpetArea && (
-                            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                              <button
-                                type="button"
-                                onClick={() => setShowBuiltUpArea(true)}
-                                className="step3-add-btn"
-                                style={{ flex: 1 }}
-                              >
-                                + Add Built-up Area
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setShowCarpetArea(true)}
-                                className="step3-add-btn"
-                                style={{ flex: 1 }}
-                              >
-                                + Add Carpet Area
-                              </button>
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
+                          </p>
+
+                          {/* Carpet Area */}
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
+                            <input
+                              type="number"
+                              placeholder="Carpet Area"
+                              value={carpetArea}
+                              onChange={(e) => setCarpetArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
+                            />
+                            <div
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowCarpetUnits((p) => !p)}
+                            >
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
+
+                            {showCarpetUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
+                                {UNIT_OPTIONS.map((u) => (
+                                  <div
+                                    key={u}
+                                    onClick={() => {
+                                      setCarpetUnit(u);
+                                      setBuiltUpUnit(u); // sync
+                                      setShowCarpetUnits(false);
+                                    }}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
+                                  >
+                                    {u}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Validation */}
+                          {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
-                          {/* Built-up Area Input (its own row) */}
-                          {showBuiltUpArea && (
-                            <div className="step3-input-group" style={{ marginTop: "10px" }}>
+                          {/* Built-up Area */}
+                          {!showBuiltUpArea ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowBuiltUpArea(true)}
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
+                            >
+                              + Add Built-up Area
+                            </button>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
-                                onClick={() => setShowUnitDropdown((p) => !p)}
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
+                                onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {sharedUnit} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
-                            </div>
-                          )}
 
-                          {/* Carpet Area Input (its own row) */}
-                          {showCarpetArea && (
-                            <div className="step3-input-group" style={{ marginTop: "10px" }}>
-                              <input
-                                type="number"
-                                placeholder="Carpet Area"
-                                value={carpetArea}
-                                onChange={(e) => setCarpetArea(e.target.value)}
-                                className="step3-input"
-                              />
-                              <div
-                                className="step3-unit-selector"
-                                onClick={() => setShowUnitDropdown((p) => !p)}
-                              >
-                                {sharedUnit} <span className="step3-dropdown-icon">▼</span>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Custom Dropdown (shared) */}
-                          {showUnitDropdown && (
-                            <div className="step3-unit-dropdown">
-                              {UNIT_OPTIONS.map((u) => (
+                              {showBuiltUpUnits && (
                                 <div
-                                  key={u}
-                                  onClick={() => {
-                                    setSharedUnit(u);
-                                    setShowUnitDropdown(false);
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
                                   }}
-                                  className={`step3-unit-option ${sharedUnit === u ? "selected" : ""}`}
                                 >
-                                  {u}
+                                  {UNIT_OPTIONS.map((u) => (
+                                    <div
+                                      key={u}
+                                      onClick={() => {
+                                        setBuiltUpUnit(u);
+                                        setCarpetUnit(u); // sync
+                                        setShowBuiltUpUnits(false);
+                                      }}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
+                                    >
+                                      {u}
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
+                              )}
                             </div>
                           )}
                         </div>
@@ -3243,30 +3686,7 @@ const AddProperty = () => {
 
 
                               <div className="furnishing-grid">
-                                {Object.keys(furnishings).map((item) => (
-                                  <div key={item} className="furnishing-item">
-                                    <button
-                                      onClick={() => handleFurnishingCount(item, -1)}
-                                      onMouseEnter={() => setHoveredButton(`${item}-minus`)}
-                                      onMouseLeave={() => setHoveredButton(null)}
-                                      className={`count-btn ${hoveredButton === `${item}-minus` ? "hovered" : ""
-                                        }`}
-                                    >
-                                      –
-                                    </button>
-                                    <span className="count-value">{furnishings[item]}</span>
-                                    <button
-                                      onClick={() => handleFurnishingCount(item, 1)}
-                                      onMouseEnter={() => setHoveredButton(`${item}-plus`)}
-                                      onMouseLeave={() => setHoveredButton(null)}
-                                      className={`count-btn ${hoveredButton === `${item}-plus` ? "hovered" : ""
-                                        }`}
-                                    >
-                                      +
-                                    </button>
-                                    <span className="furnishing-name">{item}</span>
-                                  </div>
-                                ))}
+
 
                                 {Object.keys(furnishingCheckboxes).map((item) => (
                                   <label key={item} className="furnishing-checkbox">
@@ -3358,144 +3778,6 @@ const AddProperty = () => {
                           </div>
                         </div>
 
-                        {/* Rent Details */}
-                        <div className="step3-section">
-                          <h6 className="step3-subheader">Rent Details</h6>
-                          <div className="step3-price-group">
-                            <input
-                              type="number"
-                              placeholder="₹ Expected Rent"
-                              value={expectedRent}
-                              onChange={(e) => setExpectedRent(e.target.value)}
-                              className={`step3-input ${!expectedRent ? "error-border" : ""}`}
-                            />
-                          </div>
-                          <small className="step3-subnote">₹ Price in words</small>
-
-                          {/* Checkboxes */}
-                          <div className="step3-checkbox-group">
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={elecWaterExcluded}
-                                onChange={(e) => setElecWaterExcluded(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Electricity & Water charges excluded
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={priceNegotiable}
-                                onChange={(e) => setPriceNegotiable(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Price Negotiable
-                            </label>
-                          </div>
-                        </div>
-                        {/* Additional Price Details */}
-                        <div className="step3-section">
-                          <button
-                            type="button"
-                            onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                            className="step3-toggle-btn"
-                          >
-                            {showAdditionalPricing
-                              ? "− Hide  more Rent Details"
-                              : "+ Add more Rent Details (Optional)"}
-                          </button>
-
-                          {showAdditionalPricing && (
-                            <div className="step3-additional-fields">
-                              {/* Maintenance + unit */}
-                              <div className="step3-input-group">
-                                <input
-                                  type="number"
-                                  placeholder="Maintenance"
-                                  value={maintenance}
-                                  onChange={(e) => setMaintenance(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <select
-                                  value={maintenanceUnit}
-                                  onChange={(e) => setMaintenanceUnit(e.target.value)}
-                                  className="step3-unit-select"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Monthly">Monthly</option>
-                                  <option value="Annually">Annually</option>
-                                  <option value="One Time">One Time</option>
-                                  <option value="Per Unit">Per Unit</option>
-                                </select>
-                              </div>
-
-                              {/* Booking Amount */}
-                              <input
-                                type="number"
-                                placeholder="Booking Amount"
-                                value={bookingAmount}
-                                onChange={(e) => setBookingAmount(e.target.value)}
-                                className="step3-input"
-                              />
-
-
-                            </div>
-                          )}
-                        </div>
-
-
-                        {/* Preferred Agreement Type */}
-                        <div className="step3-section">
-                          <label className="step3-label">Preferred agreement type</label>
-                          <div className="step3-button-group">
-                            {["Company lease agreement", "Any"].map((type) => (
-                              <button
-                                key={type}
-                                type="button"
-                                onClick={() => setAgreementType(type)}
-                                className={`step3-option-btn ${agreementType === type ? "active" : ""
-                                  }`}
-                              >
-                                {type}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Broker contact permission */}
-                        <div className="step3-section">
-                          <label className="step3-label">
-                            Are you ok with brokers contacting you?
-                          </label>
-                          <div className="step3-button-group">
-                            {["Yes", "No"].map((opt) => (
-                              <button
-                                key={opt}
-                                type="button"
-                                onClick={() => setAllowBroker(opt)}
-                                className={`step3-option-btn ${allowBroker === opt ? "active" : ""
-                                  }`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Unique Property */}
-                        <div className="step3-section">
-                          <p className="step3-label">
-                            What makes your property unique?
-                          </p>
-                          <textarea
-                            placeholder="What makes your property unique?"
-                            value={uniqueProperty}
-                            onChange={(e) => setUniqueProperty(e.target.value)}
-                            rows={3}
-                            className="step3-textarea"
-                          />
-                        </div>
 
 
 
@@ -3509,26 +3791,79 @@ const AddProperty = () => {
 
                 {subPropertyType.includes("Plot / Land") && (
                   <>
-                    <div className="step3-section">
-                      <label className="step3-label">
+                    <div
+                      className="mb-3"
+
+                    >
+                      <label
+                        style={{
+                          display: "block",
+                          fontSize: "16px",
+                          fontWeight: 600,
+                          marginBottom: "6px",
+                          color: "#333",
+                        }}
+                      >
                         Add Area Details
                       </label>
-                      <p className="step3-mandatory-text">
+
+                      <p
+                        style={{
+                          fontSize: "13px",
+                          color: "#777",
+                          marginBottom: "14px",
+                        }}
+                      >
                         Please enter the plot size
                       </p>
 
-                      <div className="step3-input-group">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        {/* Input box */}
                         <input
                           type="number"
                           placeholder="Plot Area"
                           value={plotArea}
                           onChange={(e) => setPlotArea(e.target.value)}
-                          className="step3-input"
+                          style={{
+                            flex: 1,
+                            padding: "10px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            fontSize: "15px",
+                            color: "#333",
+                            outline: "none",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                            transition: "all 0.2s ease",
+                          }}
+                          onFocus={(e) => (e.target.style.border = "1px solid #4a90e2")}
+                          onBlur={(e) => (e.target.style.border = "1px solid #ccc")}
                         />
+
+                        {/* Select dropdown */}
                         <select
                           value={plotAreaUnit}
                           onChange={(e) => setPlotAreaUnit(e.target.value)}
-                          className="step3-unit-select"
+                          style={{
+                            padding: "10px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            fontSize: "15px",
+                            color: "#333",
+                            backgroundColor: "#fff",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                            outline: "none",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            height: "48px"
+                          }}
+                          onFocus={(e) => (e.target.style.border = "1px solid #4a90e2")}
+                          onBlur={(e) => (e.target.style.border = "1px solid #ccc")}
                         >
                           <option value="sqft">Sq.ft</option>
                           <option value="sqyards">Sq.yards</option>
@@ -3539,6 +3874,7 @@ const AddProperty = () => {
                         </select>
                       </div>
                     </div>
+
 
                     {/* Property Dimensions (Optional) */}
                     <div className="step3-section">
@@ -3711,137 +4047,7 @@ const AddProperty = () => {
                         ))}
                       </div>
                     </div>
-                    {/* Price Details */}
-                    <div className="step3-section">
-                      <h6 className="step3-subheader">
-                        Price Details
-                      </h6>
-                      <div className="step3-price-group">
-                        <input
-                          type="number"
-                          placeholder="Expected Price"
-                          value={expectedPrice}
-                          onChange={(e) => setExpectedPrice(e.target.value)}
-                          className="step3-input"
-                        />
-                        <input
-                          type="number"
-                          placeholder="Price per Sq.Ft"
-                          value={
-                            expectedPrice && (carpetArea || builtUpArea)
-                              ? (
-                                parseFloat(expectedPrice) /
-                                parseFloat(carpetArea || builtUpArea)
-                              ).toFixed(2)
-                              : ""
-                          }
-                          readOnly
-                          className="step3-input step3-readonly-input"
-                        />
-                      </div>
-                      <div className="step3-checkbox-group">
-                        <label className="step3-checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={allInclusive}
-                            onChange={(e) => setAllInclusive(e.target.checked)}
-                            className="step3-checkbox"
-                          />
-                          All Inclusive Price?
-                        </label>
-                        <label className="step3-checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={taxGovt}
-                            onChange={(e) => setTaxGovt(e.target.checked)}
-                            className="step3-checkbox"
-                          />
-                          Tax & Govt. Charges
-                        </label>
-                        <label className="step3-checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={priceNegotiable}
-                            onChange={(e) => setPriceNegotiable(e.target.checked)}
-                            className="step3-checkbox"
-                          />
-                          Price Negotiable
-                        </label>
-                      </div>
-                    </div>
 
-                    {/* Additional Price Details */}
-                    <div className="step3-section">
-                      <button
-                        type="button"
-                        onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                        className="step3-toggle-btn"
-                      >
-                        {showAdditionalPricing
-                          ? "− Hide Additional Price Details"
-                          : "+ Add Additional Price Details (Optional)"}
-                      </button>
-
-                      {showAdditionalPricing && (
-                        <div className="step3-additional-fields">
-                          <div className="step3-input-group">
-                            <input
-                              type="number"
-                              placeholder="Maintenance"
-                              value={maintenance}
-                              onChange={(e) => setMaintenance(e.target.value)}
-                              className="step3-input"
-                            />
-                            <select
-                              value={maintenanceUnit}
-                              onChange={(e) => setMaintenanceUnit(e.target.value)}
-                              className="step3-unit-select"
-                            >
-                              <option value="">Select</option>
-                              <option value="Monthly">Monthly</option>
-                              <option value="Annually">Annually</option>
-                              <option value="One Time">One Time</option>
-                              <option value="Per Unit">Per Unit</option>
-                            </select>
-                          </div>
-                          <input
-                            type="number"
-                            placeholder="Rental"
-                            value={rental}
-                            onChange={(e) => setRental(e.target.value)}
-                            className="step3-input"
-                          />
-                          <input
-                            type="number"
-                            placeholder="Booking Amount"
-                            value={bookingAmount}
-                            onChange={(e) => setBookingAmount(e.target.value)}
-                            className="step3-input"
-                          />
-                          <input
-                            type="number"
-                            placeholder="Annual Dues Payable Membership Charge"
-                            value={annualDues}
-                            onChange={(e) => setAnnualDues(e.target.value)}
-                            className="step3-input"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Unique Property */}
-                    <div className="step3-section">
-                      <p className="step3-label">
-                        What makes your property unique?
-                      </p>
-                      <textarea
-                        placeholder="What makes your property unique?"
-                        value={uniqueProperty}
-                        onChange={(e) => setUniqueProperty(e.target.value)}
-                        rows={3}
-                        className="step3-textarea"
-                      />
-                    </div>
 
                   </>
                 )}
@@ -3913,45 +4119,96 @@ const AddProperty = () => {
                         </div>
 
                         {/* Area Details */}
-                        <div className="step3-section">
-                          <div className="step3-section-header">
-                            <label className="step3-label">
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                               Add Area Details
                             </label>
-                            <span className="step3-info-icon">ⓘ</span>
+
                           </div>
-                          <p className="step3-mandatory-text">
-                            At least one area type mandatory
+
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
                           </p>
 
                           {/* Carpet Area */}
-                          {/* Carpet Area */}
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
                               placeholder="Carpet Area"
                               value={carpetArea}
                               onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
                               onClick={() => setShowCarpetUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
                             {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
                                       setCarpetUnit(u);
-                                      setBuiltUpUnit(u); // 🔹 Sync both units
+                                      setBuiltUpUnit(u); // sync
                                       setShowCarpetUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -3960,9 +4217,11 @@ const AddProperty = () => {
                             )}
                           </div>
 
-                          {/* Validation for Carpet Area */}
+                          {/* Validation */}
                           {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                            <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
                           {/* Built-up Area */}
@@ -3970,37 +4229,87 @@ const AddProperty = () => {
                             <button
                               type="button"
                               onClick={() => setShowBuiltUpArea(true)}
-                              className="step3-add-btn"
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
                             >
                               + Add Built-up Area
                             </button>
                           ) : (
-                            <div className="step3-input-group">
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
                                 onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
 
                               {showBuiltUpUnits && (
-                                <div className="step3-unit-dropdown">
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
+                                  }}
+                                >
                                   {UNIT_OPTIONS.map((u) => (
                                     <div
                                       key={u}
                                       onClick={() => {
                                         setBuiltUpUnit(u);
-                                        setCarpetUnit(u); // 🔹 Sync both units
+                                        setCarpetUnit(u); // sync
                                         setShowBuiltUpUnits(false);
                                       }}
-                                      className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
                                     >
                                       {u}
                                     </div>
@@ -4009,7 +4318,6 @@ const AddProperty = () => {
                               )}
                             </div>
                           )}
-
                         </div>
 
                         <div className="section">
@@ -4058,30 +4366,7 @@ const AddProperty = () => {
 
 
                               <div className="furnishing-grid">
-                                {Object.keys(furnishings).map((item) => (
-                                  <div key={item} className="furnishing-item">
-                                    <button
-                                      onClick={() => handleFurnishingCount(item, -1)}
-                                      onMouseEnter={() => setHoveredButton(`${item}-minus`)}
-                                      onMouseLeave={() => setHoveredButton(null)}
-                                      className={`count-btn ${hoveredButton === `${item}-minus` ? "hovered" : ""
-                                        }`}
-                                    >
-                                      –
-                                    </button>
-                                    <span className="count-value">{furnishings[item]}</span>
-                                    <button
-                                      onClick={() => handleFurnishingCount(item, 1)}
-                                      onMouseEnter={() => setHoveredButton(`${item}-plus`)}
-                                      onMouseLeave={() => setHoveredButton(null)}
-                                      className={`count-btn ${hoveredButton === `${item}-plus` ? "hovered" : ""
-                                        }`}
-                                    >
-                                      +
-                                    </button>
-                                    <span className="furnishing-name">{item}</span>
-                                  </div>
-                                ))}
+
 
                                 {Object.keys(furnishingCheckboxes).map((item) => (
                                   <label key={item} className="furnishing-checkbox">
@@ -4272,137 +4557,7 @@ const AddProperty = () => {
                           </div>
                         </div>
 
-                        {/* Price Details */}
-                        <div className="step3-section">
-                          <h6 className="step3-subheader">
-                            Price Details
-                          </h6>
-                          <div className="step3-price-group">
-                            <input
-                              type="number"
-                              placeholder="Expected Price"
-                              value={expectedPrice}
-                              onChange={(e) => setExpectedPrice(e.target.value)}
-                              className="step3-input"
-                            />
-                            <input
-                              type="number"
-                              placeholder="Price per Sq.Ft"
-                              value={
-                                expectedPrice && (carpetArea || builtUpArea)
-                                  ? (
-                                    parseFloat(expectedPrice) /
-                                    parseFloat(carpetArea || builtUpArea)
-                                  ).toFixed(2)
-                                  : ""
-                              }
-                              readOnly
-                              className="step3-input step3-readonly-input"
-                            />
-                          </div>
-                          <div className="step3-checkbox-group">
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={allInclusive}
-                                onChange={(e) => setAllInclusive(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              All Inclusive Price?
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={taxGovt}
-                                onChange={(e) => setTaxGovt(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Tax & Govt. Charges
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={priceNegotiable}
-                                onChange={(e) => setPriceNegotiable(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Price Negotiable
-                            </label>
-                          </div>
-                        </div>
 
-                        {/* Additional Price Details */}
-                        <div className="step3-section">
-                          <button
-                            type="button"
-                            onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                            className="step3-toggle-btn"
-                          >
-                            {showAdditionalPricing
-                              ? "− Hide Additional Price Details"
-                              : "+ Add Additional Price Details (Optional)"}
-                          </button>
-
-                          {showAdditionalPricing && (
-                            <div className="step3-additional-fields">
-                              <div className="step3-input-group">
-                                <input
-                                  type="number"
-                                  placeholder="Maintenance"
-                                  value={maintenance}
-                                  onChange={(e) => setMaintenance(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <select
-                                  value={maintenanceUnit}
-                                  onChange={(e) => setMaintenanceUnit(e.target.value)}
-                                  className="step3-unit-select"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Monthly">Monthly</option>
-                                  <option value="Annually">Annually</option>
-                                  <option value="One Time">One Time</option>
-                                  <option value="Per Unit">Per Unit</option>
-                                </select>
-                              </div>
-                              <input
-                                type="number"
-                                placeholder="Rental"
-                                value={rental}
-                                onChange={(e) => setRental(e.target.value)}
-                                className="step3-input"
-                              />
-                              <input
-                                type="number"
-                                placeholder="Booking Amount"
-                                value={bookingAmount}
-                                onChange={(e) => setBookingAmount(e.target.value)}
-                                className="step3-input"
-                              />
-                              <input
-                                type="number"
-                                placeholder="Annual Dues Payable Membership Charge"
-                                value={annualDues}
-                                onChange={(e) => setAnnualDues(e.target.value)}
-                                className="step3-input"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Unique Property */}
-                        <div className="step3-section">
-                          <p className="step3-label">
-                            What makes your property unique?
-                          </p>
-                          <textarea
-                            placeholder="What makes your property unique?"
-                            value={uniqueProperty}
-                            onChange={(e) => setUniqueProperty(e.target.value)}
-                            rows={3}
-                            className="step3-textarea"
-                          />
-                        </div>
                       </>
                     )}
                     {/* Rent + Residential */}
@@ -4471,45 +4626,96 @@ const AddProperty = () => {
                         </div>
 
                         {/* Area Details */}
-                        <div className="step3-section">
-                          <div className="step3-section-header">
-                            <label className="step3-label">
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                               Add Area Details
                             </label>
-                            <span className="step3-info-icon">ⓘ</span>
+
                           </div>
-                          <p className="step3-mandatory-text">
-                            At least one area type mandatory
+
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
                           </p>
 
                           {/* Carpet Area */}
-                          {/* Carpet Area */}
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
                               placeholder="Carpet Area"
                               value={carpetArea}
                               onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
                               onClick={() => setShowCarpetUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
                             {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
                                       setCarpetUnit(u);
-                                      setBuiltUpUnit(u); // 🔹 Sync both units
+                                      setBuiltUpUnit(u); // sync
                                       setShowCarpetUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -4518,9 +4724,11 @@ const AddProperty = () => {
                             )}
                           </div>
 
-                          {/* Validation for Carpet Area */}
+                          {/* Validation */}
                           {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                            <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
                           {/* Built-up Area */}
@@ -4528,37 +4736,87 @@ const AddProperty = () => {
                             <button
                               type="button"
                               onClick={() => setShowBuiltUpArea(true)}
-                              className="step3-add-btn"
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
                             >
                               + Add Built-up Area
                             </button>
                           ) : (
-                            <div className="step3-input-group">
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
                                 onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
 
                               {showBuiltUpUnits && (
-                                <div className="step3-unit-dropdown">
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
+                                  }}
+                                >
                                   {UNIT_OPTIONS.map((u) => (
                                     <div
                                       key={u}
                                       onClick={() => {
                                         setBuiltUpUnit(u);
-                                        setCarpetUnit(u); // 🔹 Sync both units
+                                        setCarpetUnit(u); // sync
                                         setShowBuiltUpUnits(false);
                                       }}
-                                      className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
                                     >
                                       {u}
                                     </div>
@@ -4567,7 +4825,6 @@ const AddProperty = () => {
                               )}
                             </div>
                           )}
-
                         </div>
 
 
@@ -4597,30 +4854,7 @@ const AddProperty = () => {
 
 
                               <div className="furnishing-grid">
-                                {Object.keys(furnishings).map((item) => (
-                                  <div key={item} className="furnishing-item">
-                                    <button
-                                      onClick={() => handleFurnishingCount(item, -1)}
-                                      onMouseEnter={() => setHoveredButton(`${item}-minus`)}
-                                      onMouseLeave={() => setHoveredButton(null)}
-                                      className={`count-btn ${hoveredButton === `${item}-minus` ? "hovered" : ""
-                                        }`}
-                                    >
-                                      –
-                                    </button>
-                                    <span className="count-value">{furnishings[item]}</span>
-                                    <button
-                                      onClick={() => handleFurnishingCount(item, 1)}
-                                      onMouseEnter={() => setHoveredButton(`${item}-plus`)}
-                                      onMouseLeave={() => setHoveredButton(null)}
-                                      className={`count-btn ${hoveredButton === `${item}-plus` ? "hovered" : ""
-                                        }`}
-                                    >
-                                      +
-                                    </button>
-                                    <span className="furnishing-name">{item}</span>
-                                  </div>
-                                ))}
+
 
                                 {Object.keys(furnishingCheckboxes).map((item) => (
                                   <label key={item} className="furnishing-checkbox">
@@ -4636,6 +4870,59 @@ const AddProperty = () => {
                             </>
                           )}
                         </div>
+
+                        <div className="section">
+                          <label className="section-label">Reserved Parking (Optional)</label>
+                          <div className="parking-container">
+                            <div className="parking-item">
+                              <span className="parking-label">Covered Parking</span>
+                              <button
+                                className={`count-btn ${hoveredButton === "covered-minus" ? "hovered" : ""
+                                  }`}
+                                onClick={() => setCoveredParking(Math.max(0, coveredParking - 1))}
+                                onMouseEnter={() => setHoveredButton("covered-minus")}
+                                onMouseLeave={() => setHoveredButton(null)}
+                              >
+                                –
+                              </button>
+                              <span className="count-value">{coveredParking}</span>
+                              <button
+                                className={`count-btn ${hoveredButton === "covered-plus" ? "hovered" : ""
+                                  }`}
+                                onClick={() => setCoveredParking(coveredParking + 1)}
+                                onMouseEnter={() => setHoveredButton("covered-plus")}
+                                onMouseLeave={() => setHoveredButton(null)}
+                              >
+                                +
+                              </button>
+                            </div>
+
+                            <div className="parking-item">
+                              <span className="parking-label">Open Parking</span>
+                              <button
+                                className={`count-btn ${hoveredButton === "open-minus" ? "hovered" : ""
+                                  }`}
+                                onClick={() => setOpenParking(Math.max(0, openParking - 1))}
+                                onMouseEnter={() => setHoveredButton("open-minus")}
+                                onMouseLeave={() => setHoveredButton(null)}
+                              >
+                                –
+                              </button>
+                              <span className="count-value">{openParking}</span>
+                              <button
+                                className={`count-btn ${hoveredButton === "open-plus" ? "hovered" : ""
+                                  }`}
+                                onClick={() => setOpenParking(openParking + 1)}
+                                onMouseEnter={() => setHoveredButton("open-plus")}
+                                onMouseLeave={() => setHoveredButton(null)}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+
 
                         {/* floor */}
                         <div className="step3-section">
@@ -4681,6 +4968,8 @@ const AddProperty = () => {
                             </select>
                           </div>
                         </div>
+
+
 
                         {/* Age of property if Ready to Move */}
 
@@ -4729,152 +5018,6 @@ const AddProperty = () => {
                               </button>
                             ))}
                           </div>
-                        </div>
-
-                        {/* Rent Details */}
-                        <div className="step3-section">
-                          <h6 className="step3-subheader">Rent Details</h6>
-                          <div className="step3-price-group">
-                            <input
-                              type="number"
-                              placeholder="₹ Expected Rent"
-                              value={expectedRent}
-                              onChange={(e) => setExpectedRent(e.target.value)}
-                              className={`step3-input ${!expectedRent ? "error-border" : ""}`}
-                            />
-                          </div>
-                          <small className="step3-subnote">₹ Price in words</small>
-
-                          {/* Checkboxes */}
-                          <div className="step3-checkbox-group">
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={elecWaterExcluded}
-                                onChange={(e) => setElecWaterExcluded(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Electricity & Water charges excluded
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={priceNegotiable}
-                                onChange={(e) => setPriceNegotiable(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Price Negotiable
-                            </label>
-                          </div>
-                        </div>
-                        {/* Additional Price Details */}
-                        <div className="step3-section">
-                          <button
-                            type="button"
-                            onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                            className="step3-toggle-btn"
-                          >
-                            {showAdditionalPricing
-                              ? "− Hide  more Rent Details"
-                              : "+ Add more Rent Details (Optional)"}
-                          </button>
-
-                          {showAdditionalPricing && (
-                            <div className="step3-additional-fields">
-                              {/* Maintenance + unit */}
-                              <div className="step3-input-group">
-                                <input
-                                  type="number"
-                                  placeholder="Maintenance"
-                                  value={maintenance}
-                                  onChange={(e) => setMaintenance(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <select
-                                  value={maintenanceUnit}
-                                  onChange={(e) => setMaintenanceUnit(e.target.value)}
-                                  className="step3-unit-select"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Monthly">Monthly</option>
-                                  <option value="Annually">Annually</option>
-                                  <option value="One Time">One Time</option>
-                                  <option value="Per Unit">Per Unit</option>
-                                </select>
-                              </div>
-
-                              {/* Booking Amount */}
-                              <input
-                                type="number"
-                                placeholder="Booking Amount"
-                                value={bookingAmount}
-                                onChange={(e) => setBookingAmount(e.target.value)}
-                                className="step3-input"
-                              />
-
-                              {/* Membership Charge */}
-                              <input
-                                type="number"
-                                placeholder="Membership Charge"
-                                value={membershipCharge}
-                                onChange={(e) => setMembershipCharge(e.target.value)}
-                                className="step3-input"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-
-                        {/* Preferred Agreement Type */}
-                        <div className="step3-section">
-                          <label className="step3-label">Preferred agreement type</label>
-                          <div className="step3-button-group">
-                            {["Company lease agreement", "Any"].map((type) => (
-                              <button
-                                key={type}
-                                type="button"
-                                onClick={() => setAgreementType(type)}
-                                className={`step3-option-btn ${agreementType === type ? "active" : ""
-                                  }`}
-                              >
-                                {type}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Broker contact permission */}
-                        <div className="step3-section">
-                          <label className="step3-label">
-                            Are you ok with brokers contacting you?
-                          </label>
-                          <div className="step3-button-group">
-                            {["Yes", "No"].map((opt) => (
-                              <button
-                                key={opt}
-                                type="button"
-                                onClick={() => setAllowBroker(opt)}
-                                className={`step3-option-btn ${allowBroker === opt ? "active" : ""
-                                  }`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Unique Property */}
-                        <div className="step3-section">
-                          <p className="step3-label">
-                            What makes your property unique?
-                          </p>
-                          <textarea
-                            placeholder="What makes your property unique?"
-                            value={uniqueProperty}
-                            onChange={(e) => setUniqueProperty(e.target.value)}
-                            rows={3}
-                            className="step3-textarea"
-                          />
                         </div>
 
 
@@ -4949,108 +5092,207 @@ const AddProperty = () => {
                           </div>
                         </div>
                         {/* Area Details */}
-                        <div className="step3-section">
-                          <label className="step3-label">Add Area Details</label>
-                          <p className="step3-mandatory-text">Please enter the plot size</p>
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                              Add Area Details
+                            </label>
 
-                          {/* Plot Area */}
-                          <div className="step3-input-group">
-                            <input
-                              type="number"
-                              placeholder="Plot Area"
-                              value={plotArea}
-                              onChange={(e) => setPlotArea(e.target.value)}
-                              className="step3-input"
-                            />
-                            <select
-                              value={sharedUnit}
-                              onChange={(e) => setSharedUnit(e.target.value)}
-                              className="step3-unit-select"
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <option key={u} value={u}>{u}</option>
-                              ))}
-                            </select>
                           </div>
 
-                          {/* Before Clicking - Both buttons in 1 row */}
-                          {!showBuiltUpArea && !showCarpetArea && (
-                            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                              <button
-                                type="button"
-                                onClick={() => setShowBuiltUpArea(true)}
-                                className="step3-add-btn"
-                                style={{ flex: 1 }}
-                              >
-                                + Add Built-up Area
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setShowCarpetArea(true)}
-                                className="step3-add-btn"
-                                style={{ flex: 1 }}
-                              >
-                                + Add Carpet Area
-                              </button>
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
+                          </p>
+
+                          {/* Carpet Area */}
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
+                            <input
+                              type="number"
+                              placeholder="Carpet Area"
+                              value={carpetArea}
+                              onChange={(e) => setCarpetArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
+                            />
+                            <div
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowCarpetUnits((p) => !p)}
+                            >
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
+
+                            {showCarpetUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
+                                {UNIT_OPTIONS.map((u) => (
+                                  <div
+                                    key={u}
+                                    onClick={() => {
+                                      setCarpetUnit(u);
+                                      setBuiltUpUnit(u); // sync
+                                      setShowCarpetUnits(false);
+                                    }}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
+                                  >
+                                    {u}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Validation */}
+                          {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
-                          {/* Built-up Area Input (its own row) */}
-                          {showBuiltUpArea && (
-                            <div className="step3-input-group" style={{ marginTop: "10px" }}>
+                          {/* Built-up Area */}
+                          {!showBuiltUpArea ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowBuiltUpArea(true)}
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
+                            >
+                              + Add Built-up Area
+                            </button>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
-                                onClick={() => setShowUnitDropdown((p) => !p)}
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
+                                onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {sharedUnit} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
-                            </div>
-                          )}
 
-                          {/* Carpet Area Input (its own row) */}
-                          {showCarpetArea && (
-                            <div className="step3-input-group" style={{ marginTop: "10px" }}>
-                              <input
-                                type="number"
-                                placeholder="Carpet Area"
-                                value={carpetArea}
-                                onChange={(e) => setCarpetArea(e.target.value)}
-                                className="step3-input"
-                              />
-                              <div
-                                className="step3-unit-selector"
-                                onClick={() => setShowUnitDropdown((p) => !p)}
-                              >
-                                {sharedUnit} <span className="step3-dropdown-icon">▼</span>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Custom Dropdown (shared) */}
-                          {showUnitDropdown && (
-                            <div className="step3-unit-dropdown">
-                              {UNIT_OPTIONS.map((u) => (
+                              {showBuiltUpUnits && (
                                 <div
-                                  key={u}
-                                  onClick={() => {
-                                    setSharedUnit(u);
-                                    setShowUnitDropdown(false);
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
                                   }}
-                                  className={`step3-unit-option ${sharedUnit === u ? "selected" : ""}`}
                                 >
-                                  {u}
+                                  {UNIT_OPTIONS.map((u) => (
+                                    <div
+                                      key={u}
+                                      onClick={() => {
+                                        setBuiltUpUnit(u);
+                                        setCarpetUnit(u); // sync
+                                        setShowBuiltUpUnits(false);
+                                      }}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
+                                    >
+                                      {u}
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
+                              )}
                             </div>
                           )}
                         </div>
+
 
                         {/* {floor deatils} */}
                         <div className="step3-section">
@@ -5257,137 +5499,6 @@ const AddProperty = () => {
                             </>
                           )}
                         </div>
-                        {/* Price Details */}
-                        <div className="step3-section">
-                          <h6 className="step3-subheader">
-                            Price Details
-                          </h6>
-                          <div className="step3-price-group">
-                            <input
-                              type="number"
-                              placeholder="Expected Price"
-                              value={expectedPrice}
-                              onChange={(e) => setExpectedPrice(e.target.value)}
-                              className="step3-input"
-                            />
-                            <input
-                              type="number"
-                              placeholder="Price per Sq.Ft"
-                              value={
-                                expectedPrice && (carpetArea || builtUpArea)
-                                  ? (
-                                    parseFloat(expectedPrice) /
-                                    parseFloat(carpetArea || builtUpArea)
-                                  ).toFixed(2)
-                                  : ""
-                              }
-                              readOnly
-                              className="step3-input step3-readonly-input"
-                            />
-                          </div>
-                          <div className="step3-checkbox-group">
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={allInclusive}
-                                onChange={(e) => setAllInclusive(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              All Inclusive Price?
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={taxGovt}
-                                onChange={(e) => setTaxGovt(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Tax & Govt. Charges
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={priceNegotiable}
-                                onChange={(e) => setPriceNegotiable(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Price Negotiable
-                            </label>
-                          </div>
-                        </div>
-
-                        {/* Additional Price Details */}
-                        <div className="step3-section">
-                          <button
-                            type="button"
-                            onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                            className="step3-toggle-btn"
-                          >
-                            {showAdditionalPricing
-                              ? "− Hide Additional Price Details"
-                              : "+ Add Additional Price Details (Optional)"}
-                          </button>
-
-                          {showAdditionalPricing && (
-                            <div className="step3-additional-fields">
-                              <div className="step3-input-group">
-                                <input
-                                  type="number"
-                                  placeholder="Maintenance"
-                                  value={maintenance}
-                                  onChange={(e) => setMaintenance(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <select
-                                  value={maintenanceUnit}
-                                  onChange={(e) => setMaintenanceUnit(e.target.value)}
-                                  className="step3-unit-select"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Monthly">Monthly</option>
-                                  <option value="Annually">Annually</option>
-                                  <option value="One Time">One Time</option>
-                                  <option value="Per Unit">Per Unit</option>
-                                </select>
-                              </div>
-                              <input
-                                type="number"
-                                placeholder="Rental"
-                                value={rental}
-                                onChange={(e) => setRental(e.target.value)}
-                                className="step3-input"
-                              />
-                              <input
-                                type="number"
-                                placeholder="Booking Amount"
-                                value={bookingAmount}
-                                onChange={(e) => setBookingAmount(e.target.value)}
-                                className="step3-input"
-                              />
-                              <input
-                                type="number"
-                                placeholder="Annual Dues Payable Membership Charge"
-                                value={annualDues}
-                                onChange={(e) => setAnnualDues(e.target.value)}
-                                className="step3-input"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Unique Property */}
-                        <div className="step3-section">
-                          <p className="step3-label">
-                            What makes your property unique?
-                          </p>
-                          <textarea
-                            placeholder="What makes your property unique?"
-                            value={uniqueProperty}
-                            onChange={(e) => setUniqueProperty(e.target.value)}
-                            rows={3}
-                            className="step3-textarea"
-                          />
-                        </div>
 
                       </>
                     )}
@@ -5455,105 +5566,203 @@ const AddProperty = () => {
                           </div>
                         </div>
                         {/* Area Details */}
-                        <div className="step3-section">
-                          <label className="step3-label">Add Area Details</label>
-                          <p className="step3-mandatory-text">Please enter the plot size</p>
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                              Add Area Details
+                            </label>
 
-                          {/* Plot Area */}
-                          <div className="step3-input-group">
-                            <input
-                              type="number"
-                              placeholder="Plot Area"
-                              value={plotArea}
-                              onChange={(e) => setPlotArea(e.target.value)}
-                              className="step3-input"
-                            />
-                            <select
-                              value={sharedUnit}
-                              onChange={(e) => setSharedUnit(e.target.value)}
-                              className="step3-unit-select"
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <option key={u} value={u}>{u}</option>
-                              ))}
-                            </select>
                           </div>
 
-                          {/* Before Clicking - Both buttons in 1 row */}
-                          {!showBuiltUpArea && !showCarpetArea && (
-                            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                              <button
-                                type="button"
-                                onClick={() => setShowBuiltUpArea(true)}
-                                className="step3-add-btn"
-                                style={{ flex: 1 }}
-                              >
-                                + Add Built-up Area
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setShowCarpetArea(true)}
-                                className="step3-add-btn"
-                                style={{ flex: 1 }}
-                              >
-                                + Add Carpet Area
-                              </button>
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
+                          </p>
+
+                          {/* Carpet Area */}
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
+                            <input
+                              type="number"
+                              placeholder="Carpet Area"
+                              value={carpetArea}
+                              onChange={(e) => setCarpetArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
+                            />
+                            <div
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowCarpetUnits((p) => !p)}
+                            >
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
+
+                            {showCarpetUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
+                                {UNIT_OPTIONS.map((u) => (
+                                  <div
+                                    key={u}
+                                    onClick={() => {
+                                      setCarpetUnit(u);
+                                      setBuiltUpUnit(u); // sync
+                                      setShowCarpetUnits(false);
+                                    }}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
+                                  >
+                                    {u}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Validation */}
+                          {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
-                          {/* Built-up Area Input (its own row) */}
-                          {showBuiltUpArea && (
-                            <div className="step3-input-group" style={{ marginTop: "10px" }}>
+                          {/* Built-up Area */}
+                          {!showBuiltUpArea ? (
+                            <button
+                              type="button"
+                              onClick={() => setShowBuiltUpArea(true)}
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
+                            >
+                              + Add Built-up Area
+                            </button>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
-                                onClick={() => setShowUnitDropdown((p) => !p)}
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
+                                onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {sharedUnit} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
-                            </div>
-                          )}
 
-                          {/* Carpet Area Input (its own row) */}
-                          {showCarpetArea && (
-                            <div className="step3-input-group" style={{ marginTop: "10px" }}>
-                              <input
-                                type="number"
-                                placeholder="Carpet Area"
-                                value={carpetArea}
-                                onChange={(e) => setCarpetArea(e.target.value)}
-                                className="step3-input"
-                              />
-                              <div
-                                className="step3-unit-selector"
-                                onClick={() => setShowUnitDropdown((p) => !p)}
-                              >
-                                {sharedUnit} <span className="step3-dropdown-icon">▼</span>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Custom Dropdown (shared) */}
-                          {showUnitDropdown && (
-                            <div className="step3-unit-dropdown">
-                              {UNIT_OPTIONS.map((u) => (
+                              {showBuiltUpUnits && (
                                 <div
-                                  key={u}
-                                  onClick={() => {
-                                    setSharedUnit(u);
-                                    setShowUnitDropdown(false);
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
                                   }}
-                                  className={`step3-unit-option ${sharedUnit === u ? "selected" : ""}`}
                                 >
-                                  {u}
+                                  {UNIT_OPTIONS.map((u) => (
+                                    <div
+                                      key={u}
+                                      onClick={() => {
+                                        setBuiltUpUnit(u);
+                                        setCarpetUnit(u); // sync
+                                        setShowBuiltUpUnits(false);
+                                      }}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
+                                    >
+                                      {u}
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
+                              )}
                             </div>
                           )}
                         </div>
@@ -5701,144 +5910,7 @@ const AddProperty = () => {
                           </div>
                         </div>
 
-                        {/* Rent Details */}
-                        <div className="step3-section">
-                          <h6 className="step3-subheader">Rent Details</h6>
-                          <div className="step3-price-group">
-                            <input
-                              type="number"
-                              placeholder="₹ Expected Rent"
-                              value={expectedRent}
-                              onChange={(e) => setExpectedRent(e.target.value)}
-                              className={`step3-input ${!expectedRent ? "error-border" : ""}`}
-                            />
-                          </div>
-                          <small className="step3-subnote">₹ Price in words</small>
 
-                          {/* Checkboxes */}
-                          <div className="step3-checkbox-group">
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={elecWaterExcluded}
-                                onChange={(e) => setElecWaterExcluded(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Electricity & Water charges excluded
-                            </label>
-                            <label className="step3-checkbox-label">
-                              <input
-                                type="checkbox"
-                                checked={priceNegotiable}
-                                onChange={(e) => setPriceNegotiable(e.target.checked)}
-                                className="step3-checkbox"
-                              />
-                              Price Negotiable
-                            </label>
-                          </div>
-                        </div>
-                        {/* Additional Price Details */}
-                        <div className="step3-section">
-                          <button
-                            type="button"
-                            onClick={() => setShowAdditionalPricing((prev) => !prev)}
-                            className="step3-toggle-btn"
-                          >
-                            {showAdditionalPricing
-                              ? "− Hide  more Rent Details"
-                              : "+ Add more Rent Details (Optional)"}
-                          </button>
-
-                          {showAdditionalPricing && (
-                            <div className="step3-additional-fields">
-                              {/* Maintenance + unit */}
-                              <div className="step3-input-group">
-                                <input
-                                  type="number"
-                                  placeholder="Maintenance"
-                                  value={maintenance}
-                                  onChange={(e) => setMaintenance(e.target.value)}
-                                  className="step3-input"
-                                />
-                                <select
-                                  value={maintenanceUnit}
-                                  onChange={(e) => setMaintenanceUnit(e.target.value)}
-                                  className="step3-unit-select"
-                                >
-                                  <option value="">Select</option>
-                                  <option value="Monthly">Monthly</option>
-                                  <option value="Annually">Annually</option>
-                                  <option value="One Time">One Time</option>
-                                  <option value="Per Unit">Per Unit</option>
-                                </select>
-                              </div>
-
-                              {/* Booking Amount */}
-                              <input
-                                type="number"
-                                placeholder="Booking Amount"
-                                value={bookingAmount}
-                                onChange={(e) => setBookingAmount(e.target.value)}
-                                className="step3-input"
-                              />
-
-
-                            </div>
-                          )}
-                        </div>
-
-
-                        {/* Preferred Agreement Type */}
-                        <div className="step3-section">
-                          <label className="step3-label">Preferred agreement type</label>
-                          <div className="step3-button-group">
-                            {["Company lease agreement", "Any"].map((type) => (
-                              <button
-                                key={type}
-                                type="button"
-                                onClick={() => setAgreementType(type)}
-                                className={`step3-option-btn ${agreementType === type ? "active" : ""
-                                  }`}
-                              >
-                                {type}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Broker contact permission */}
-                        <div className="step3-section">
-                          <label className="step3-label">
-                            Are you ok with brokers contacting you?
-                          </label>
-                          <div className="step3-button-group">
-                            {["Yes", "No"].map((opt) => (
-                              <button
-                                key={opt}
-                                type="button"
-                                onClick={() => setAllowBroker(opt)}
-                                className={`step3-option-btn ${allowBroker === opt ? "active" : ""
-                                  }`}
-                              >
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Unique Property */}
-                        <div className="step3-section">
-                          <p className="step3-label">
-                            What makes your property unique?
-                          </p>
-                          <textarea
-                            placeholder="What makes your property unique?"
-                            value={uniqueProperty}
-                            onChange={(e) => setUniqueProperty(e.target.value)}
-                            rows={3}
-                            className="step3-textarea"
-                          />
-                        </div>
 
 
 
@@ -5861,45 +5933,96 @@ const AddProperty = () => {
                   subPropertyQuestionOption === "Ready to move office space" && (
                     <>
                       {/* Area Details */}
-                      <div className="step3-section">
-                        <div className="step3-section-header">
-                          <label className="step3-label">
+                      <div
+                        className="mb-3"
+                      >
+                        {/* Header */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                             Add Area Details
                           </label>
-                          <span className="step3-info-icon">ⓘ</span>
+
                         </div>
-                        <p className="step3-mandatory-text">
-                          At least one area type mandatory
+
+                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                          At least one area type is mandatory
                         </p>
 
                         {/* Carpet Area */}
-                        {/* Carpet Area */}
-                        <div className="step3-input-group">
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
                             placeholder="Carpet Area"
                             value={carpetArea}
                             onChange={(e) => setCarpetArea(e.target.value)}
-                            className="step3-input"
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
                             onClick={() => setShowCarpetUnits((p) => !p)}
                           >
-                            {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
                           {showCarpetUnits && (
-                            <div className="step3-unit-dropdown">
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
                                     setCarpetUnit(u);
-                                    setBuiltUpUnit(u); // 🔹 Sync both units
+                                    setBuiltUpUnit(u); // sync
                                     setShowCarpetUnits(false);
                                   }}
-                                  className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: carpetUnit === u ? "#ED2027" : "#fff",
+                                    color: carpetUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -5908,9 +6031,11 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        {/* Validation for Carpet Area */}
+                        {/* Validation */}
                         {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                            Carpet area must be smaller than built-up area
+                          </p>
                         )}
 
                         {/* Built-up Area */}
@@ -5918,37 +6043,87 @@ const AddProperty = () => {
                           <button
                             type="button"
                             onClick={() => setShowBuiltUpArea(true)}
-                            className="step3-add-btn"
+                            style={{
+                              background: "transparent",
+                              border: "1px dashed #ED2027",
+                              color: "#ED2027",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "500",
+                              marginTop: "10px",
+                            }}
                           >
                             + Add Built-up Area
                           </button>
                         ) : (
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
                               placeholder="Built-up Area"
                               value={builtUpArea}
                               onChange={(e) => setBuiltUpArea(e.target.value)}
-                              className="step3-input"
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
                               onClick={() => setShowBuiltUpUnits((p) => !p)}
                             >
-                              {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
                             {showBuiltUpUnits && (
-                              <div className="step3-unit-dropdown">
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
                                       setBuiltUpUnit(u);
-                                      setCarpetUnit(u); // 🔹 Sync both units
+                                      setCarpetUnit(u); // sync
                                       setShowBuiltUpUnits(false);
                                     }}
-                                    className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                      color: builtUpUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -5957,7 +6132,6 @@ const AddProperty = () => {
                             )}
                           </div>
                         )}
-
                       </div>
 
                       {/* Describe your office setup */}
@@ -6405,40 +6579,96 @@ const AddProperty = () => {
                     <>
 
                       {/* buit and carpet  Details */}
-                      <div className="step3-section">
-                        <div className="step3-section-header">
-                          <label className="step3-label">Add Area Details</label>
-                          <span className="step3-info-icon">ⓘ</span>
-                        </div>
-                        <p className="step3-mandatory-text">At least one area type mandatory</p>
+                      <div
+                        className="mb-3"
+                      >
+                        {/* Header */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                            Add Area Details
+                          </label>
 
-                        {/* Built-up Area - this will show by default */}
-                        <div className="step3-input-group">
+                        </div>
+
+                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                          At least one area type is mandatory
+                        </p>
+
+                        {/* Carpet Area */}
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
-                            placeholder="Built-up Area"
-                            value={builtUpArea}
-                            onChange={(e) => setBuiltUpArea(e.target.value)}
-                            className="step3-input"
+                            placeholder="Carpet Area"
+                            value={carpetArea}
+                            onChange={(e) => setCarpetArea(e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
-                            onClick={() => setShowBuiltUpUnits((p) => !p)}
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
+                            onClick={() => setShowCarpetUnits((p) => !p)}
                           >
-                            {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
-                          {showBuiltUpUnits && (
-                            <div className="step3-unit-dropdown">
+                          {showCarpetUnits && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
-                                    setBuiltUpUnit(u);
-                                    setCarpetUnit(u); // 🔹 keep units in sync
-                                    setShowBuiltUpUnits(false);
+                                    setCarpetUnit(u);
+                                    setBuiltUpUnit(u); // sync
+                                    setShowCarpetUnits(false);
                                   }}
-                                  className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: carpetUnit === u ? "#ED2027" : "#fff",
+                                    color: carpetUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -6447,42 +6677,99 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        {/* Carpet Area - shown only after clicking the button */}
-                        {!showCarpetArea ? (
+                        {/* Validation */}
+                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                            Carpet area must be smaller than built-up area
+                          </p>
+                        )}
+
+                        {/* Built-up Area */}
+                        {!showBuiltUpArea ? (
                           <button
                             type="button"
-                            onClick={() => setShowCarpetArea(true)}
-                            className="step3-add-btn"
+                            onClick={() => setShowBuiltUpArea(true)}
+                            style={{
+                              background: "transparent",
+                              border: "1px dashed #ED2027",
+                              color: "#ED2027",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "500",
+                              marginTop: "10px",
+                            }}
                           >
-                            + Add Carpet Area
+                            + Add Built-up Area
                           </button>
                         ) : (
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
-                              placeholder="Carpet Area"
-                              value={carpetArea}
-                              onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              placeholder="Built-up Area"
+                              value={builtUpArea}
+                              onChange={(e) => setBuiltUpArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
-                              onClick={() => setShowCarpetUnits((p) => !p)}
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowBuiltUpUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
-                            {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                            {showBuiltUpUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
-                                      setCarpetUnit(u);
                                       setBuiltUpUnit(u);
-                                      setShowCarpetUnits(false);
+                                      setCarpetUnit(u); // sync
+                                      setShowBuiltUpUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                      color: builtUpUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -6490,11 +6777,6 @@ const AddProperty = () => {
                               </div>
                             )}
                           </div>
-                        )}
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p className="step3-error">Carpet area must be smaller than built-up area</p>
                         )}
                       </div>
 
@@ -6884,40 +7166,96 @@ const AddProperty = () => {
                       </div>
 
                       {/* Area Details */}
-                      <div className="step3-section">
-                        <div className="step3-section-header">
-                          <label className="step3-label">Add Area Details</label>
-                          <span className="step3-info-icon">ⓘ</span>
-                        </div>
-                        <p className="step3-mandatory-text">At least one area type mandatory</p>
+                      <div
+                        className="mb-3"
+                      >
+                        {/* Header */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                            Add Area Details
+                          </label>
 
-                        {/* Plot Area (Built-up Area shown by default) */}
-                        <div className="step3-input-group">
+                        </div>
+
+                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                          At least one area type is mandatory
+                        </p>
+
+                        {/* Carpet Area */}
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
-                            placeholder="Plot Area"
-                            value={builtUpArea}
-                            onChange={(e) => setBuiltUpArea(e.target.value)}
-                            className="step3-input"
+                            placeholder="Carpet Area"
+                            value={carpetArea}
+                            onChange={(e) => setCarpetArea(e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
-                            onClick={() => setShowBuiltUpUnits((p) => !p)}
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
+                            onClick={() => setShowCarpetUnits((p) => !p)}
                           >
-                            {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
-                          {showBuiltUpUnits && (
-                            <div className="step3-unit-dropdown">
+                          {showCarpetUnits && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
-                                    setBuiltUpUnit(u);
-                                    setCarpetUnit(u); // keep units in sync
-                                    setShowBuiltUpUnits(false);
+                                    setCarpetUnit(u);
+                                    setBuiltUpUnit(u); // sync
+                                    setShowCarpetUnits(false);
                                   }}
-                                  className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: carpetUnit === u ? "#ED2027" : "#fff",
+                                    color: carpetUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -6926,42 +7264,99 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        {/* Add Carpet Area button + input */}
-                        {!showCarpetArea ? (
+                        {/* Validation */}
+                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                            Carpet area must be smaller than built-up area
+                          </p>
+                        )}
+
+                        {/* Built-up Area */}
+                        {!showBuiltUpArea ? (
                           <button
                             type="button"
-                            onClick={() => setShowCarpetArea(true)}
-                            className="step3-add-btn"
+                            onClick={() => setShowBuiltUpArea(true)}
+                            style={{
+                              background: "transparent",
+                              border: "1px dashed #ED2027",
+                              color: "#ED2027",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "500",
+                              marginTop: "10px",
+                            }}
                           >
-                            + Add Carpet Area
+                            + Add Built-up Area
                           </button>
                         ) : (
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
-                              placeholder="Carpet Area"
-                              value={carpetArea}
-                              onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              placeholder="Built-up Area"
+                              value={builtUpArea}
+                              onChange={(e) => setBuiltUpArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
-                              onClick={() => setShowCarpetUnits((p) => !p)}
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowBuiltUpUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
-                            {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                            {showBuiltUpUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
-                                      setCarpetUnit(u);
                                       setBuiltUpUnit(u);
-                                      setShowCarpetUnits(false);
+                                      setCarpetUnit(u); // sync
+                                      setShowBuiltUpUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                      color: builtUpUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -6969,11 +7364,6 @@ const AddProperty = () => {
                               </div>
                             )}
                           </div>
-                        )}
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p className="step3-error">Carpet area must be smaller than plot area</p>
                         )}
                       </div>
 
@@ -7047,44 +7437,96 @@ const AddProperty = () => {
                     subPropertyQuestionOption === "Commercial Showrooms") && (
                     <>
                       {/* Area Details */}
-                      <div className="step3-section">
-                        <div className="step3-section-header">
-                          <label className="step3-label">
+                      <div
+                        className="mb-3"
+                      >
+                        {/* Header */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                             Add Area Details
                           </label>
-                          <span className="step3-info-icon">ⓘ</span>
+
                         </div>
-                        <p className="step3-mandatory-text">
-                          At least one area type mandatory
+
+                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                          At least one area type is mandatory
                         </p>
 
                         {/* Carpet Area */}
-                        <div className="step3-input-group">
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
                             placeholder="Carpet Area"
                             value={carpetArea}
                             onChange={(e) => setCarpetArea(e.target.value)}
-                            className="step3-input"
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
                             onClick={() => setShowCarpetUnits((p) => !p)}
                           >
-                            {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
                           {showCarpetUnits && (
-                            <div className="step3-unit-dropdown">
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
                                     setCarpetUnit(u);
-                                    setBuiltUpUnit(u); // 🔹 Sync both units
+                                    setBuiltUpUnit(u); // sync
                                     setShowCarpetUnits(false);
                                   }}
-                                  className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: carpetUnit === u ? "#ED2027" : "#fff",
+                                    color: carpetUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -7093,9 +7535,11 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        {/* Validation for Carpet Area */}
+                        {/* Validation */}
                         {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                            Carpet area must be smaller than built-up area
+                          </p>
                         )}
 
                         {/* Built-up Area */}
@@ -7103,37 +7547,87 @@ const AddProperty = () => {
                           <button
                             type="button"
                             onClick={() => setShowBuiltUpArea(true)}
-                            className="step3-add-btn"
+                            style={{
+                              background: "transparent",
+                              border: "1px dashed #ED2027",
+                              color: "#ED2027",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "500",
+                              marginTop: "10px",
+                            }}
                           >
                             + Add Built-up Area
                           </button>
                         ) : (
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
                               placeholder="Built-up Area"
                               value={builtUpArea}
                               onChange={(e) => setBuiltUpArea(e.target.value)}
-                              className="step3-input"
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
                               onClick={() => setShowBuiltUpUnits((p) => !p)}
                             >
-                              {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
                             {showBuiltUpUnits && (
-                              <div className="step3-unit-dropdown">
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
                                       setBuiltUpUnit(u);
-                                      setCarpetUnit(u); // 🔹 Sync both units
+                                      setCarpetUnit(u); // sync
                                       setShowBuiltUpUnits(false);
                                     }}
-                                    className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                      color: builtUpUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -7142,7 +7636,6 @@ const AddProperty = () => {
                             )}
                           </div>
                         )}
-
                       </div>
 
                       {/* Shop Facade Size */}
@@ -7496,36 +7989,89 @@ const AddProperty = () => {
                   ) && (
                     <>
                       {/* Plot Area Section */}
-                      <div className="step3-section">
-                        <label className="step3-label">
-                          Add Area Details
-                        </label>
-                        <p className="step3-mandatory-text">
-                          Please enter the plot size
-                        </p>
+                      <div
+                      className="mb-3"
 
-                        <div className="step3-input-group">
-                          <input
-                            type="number"
-                            placeholder="Plot Area"
-                            value={plotArea}
-                            onChange={(e) => setPlotArea(e.target.value)}
-                            className="step3-input"
-                          />
-                          <select
-                            value={plotAreaUnit}
-                            onChange={(e) => setPlotAreaUnit(e.target.value)}
-                            className="step3-unit-select"
-                          >
-                            <option value="sqft">Sq.ft</option>
-                            <option value="sqyards">Sq.yards</option>
-                            <option value="sqm">Sq.m</option>
-                            <option value="acres">Acres</option>
-                            {/* <option value="Marla">Marla</option>
-                            <option value="Cents">Cents</option> */}
-                          </select>
-                        </div>
+                    >
+                      <label
+                        style={{
+                          display: "block",
+                          fontSize: "16px",
+                          fontWeight: 600,
+                          marginBottom: "6px",
+                          color: "#333",
+                        }}
+                      >
+                        Add Area Details
+                      </label>
+
+                      <p
+                        style={{
+                          fontSize: "13px",
+                          color: "#777",
+                          marginBottom: "14px",
+                        }}
+                      >
+                        Please enter the plot size
+                      </p>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        {/* Input box */}
+                        <input
+                          type="number"
+                          placeholder="Plot Area"
+                          value={plotArea}
+                          onChange={(e) => setPlotArea(e.target.value)}
+                          style={{
+                            flex: 1,
+                            padding: "10px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            fontSize: "15px",
+                            color: "#333",
+                            outline: "none",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                            transition: "all 0.2s ease",
+                          }}
+                          onFocus={(e) => (e.target.style.border = "1px solid #4a90e2")}
+                          onBlur={(e) => (e.target.style.border = "1px solid #ccc")}
+                        />
+
+                        {/* Select dropdown */}
+                        <select
+                          value={plotAreaUnit}
+                          onChange={(e) => setPlotAreaUnit(e.target.value)}
+                          style={{
+                            padding: "10px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            fontSize: "15px",
+                            color: "#333",
+                            backgroundColor: "#fff",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                            outline: "none",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            height: "48px"
+                          }}
+                          onFocus={(e) => (e.target.style.border = "1px solid #4a90e2")}
+                          onBlur={(e) => (e.target.style.border = "1px solid #ccc")}
+                        >
+                          <option value="sqft">Sq.ft</option>
+                          <option value="sqyards">Sq.yards</option>
+                          <option value="sqm">Sq.m</option>
+                          <option value="acres">Acres</option>
+                          <option value="Marla">Marla</option>
+                          <option value="Cents">Cents</option>
+                        </select>
                       </div>
+                    </div>
 
                       {/* Property Dimensions */}
                       <div className="step3-section">
@@ -7728,40 +8274,96 @@ const AddProperty = () => {
                         </div>
                       </div>
                       {/* Area Details */}
-                      <div className="step3-section">
-                        <div className="step3-section-header">
-                          <label className="step3-label">Add Area Details</label>
-                          <span className="step3-info-icon">ⓘ</span>
-                        </div>
-                        <p className="step3-mandatory-text">At least one area type mandatory</p>
+                      <div
+                        className="mb-3"
+                      >
+                        {/* Header */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                            Add Area Details
+                          </label>
 
-                        {/* Plot Area (Built-up Area shown by default) */}
-                        <div className="step3-input-group">
+                        </div>
+
+                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                          At least one area type is mandatory
+                        </p>
+
+                        {/* Carpet Area */}
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
-                            placeholder="Plot Area"
-                            value={builtUpArea}
-                            onChange={(e) => setBuiltUpArea(e.target.value)}
-                            className="step3-input"
+                            placeholder="Carpet Area"
+                            value={carpetArea}
+                            onChange={(e) => setCarpetArea(e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
-                            onClick={() => setShowBuiltUpUnits((p) => !p)}
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
+                            onClick={() => setShowCarpetUnits((p) => !p)}
                           >
-                            {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
-                          {showBuiltUpUnits && (
-                            <div className="step3-unit-dropdown">
+                          {showCarpetUnits && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
-                                    setBuiltUpUnit(u);
-                                    setCarpetUnit(u); // keep units in sync
-                                    setShowBuiltUpUnits(false);
+                                    setCarpetUnit(u);
+                                    setBuiltUpUnit(u); // sync
+                                    setShowCarpetUnits(false);
                                   }}
-                                  className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: carpetUnit === u ? "#ED2027" : "#fff",
+                                    color: carpetUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -7770,42 +8372,99 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        {/* Add Carpet Area button + input */}
-                        {!showCarpetArea ? (
+                        {/* Validation */}
+                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                            Carpet area must be smaller than built-up area
+                          </p>
+                        )}
+
+                        {/* Built-up Area */}
+                        {!showBuiltUpArea ? (
                           <button
                             type="button"
-                            onClick={() => setShowCarpetArea(true)}
-                            className="step3-add-btn"
+                            onClick={() => setShowBuiltUpArea(true)}
+                            style={{
+                              background: "transparent",
+                              border: "1px dashed #ED2027",
+                              color: "#ED2027",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "500",
+                              marginTop: "10px",
+                            }}
                           >
-                            + Add Carpet Area
+                            + Add Built-up Area
                           </button>
                         ) : (
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
-                              placeholder="Carpet Area"
-                              value={carpetArea}
-                              onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              placeholder="Built-up Area"
+                              value={builtUpArea}
+                              onChange={(e) => setBuiltUpArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
-                              onClick={() => setShowCarpetUnits((p) => !p)}
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowBuiltUpUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
-                            {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                            {showBuiltUpUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
-                                      setCarpetUnit(u);
                                       setBuiltUpUnit(u);
-                                      setShowCarpetUnits(false);
+                                      setCarpetUnit(u); // sync
+                                      setShowBuiltUpUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                      color: builtUpUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -7813,11 +8472,6 @@ const AddProperty = () => {
                               </div>
                             )}
                           </div>
-                        )}
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p className="step3-error">Carpet area must be smaller than plot area</p>
                         )}
                       </div>
 
@@ -7909,40 +8563,96 @@ const AddProperty = () => {
                         </div>
                       </div>
                       {/* Area Details */}
-                      <div className="step3-section">
-                        <div className="step3-section-header">
-                          <label className="step3-label">Add Area Details</label>
-                          <span className="step3-info-icon">ⓘ</span>
-                        </div>
-                        <p className="step3-mandatory-text">At least one area type mandatory</p>
+                      <div
+                        className="mb-3"
+                      >
+                        {/* Header */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                            Add Area Details
+                          </label>
 
-                        {/* Plot Area (Built-up Area shown by default) */}
-                        <div className="step3-input-group">
+                        </div>
+
+                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                          At least one area type is mandatory
+                        </p>
+
+                        {/* Carpet Area */}
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
-                            placeholder="Plot Area"
-                            value={builtUpArea}
-                            onChange={(e) => setBuiltUpArea(e.target.value)}
-                            className="step3-input"
+                            placeholder="Carpet Area"
+                            value={carpetArea}
+                            onChange={(e) => setCarpetArea(e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
-                            onClick={() => setShowBuiltUpUnits((p) => !p)}
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
+                            onClick={() => setShowCarpetUnits((p) => !p)}
                           >
-                            {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
-                          {showBuiltUpUnits && (
-                            <div className="step3-unit-dropdown">
+                          {showCarpetUnits && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
-                                    setBuiltUpUnit(u);
-                                    setCarpetUnit(u); // keep units in sync
-                                    setShowBuiltUpUnits(false);
+                                    setCarpetUnit(u);
+                                    setBuiltUpUnit(u); // sync
+                                    setShowCarpetUnits(false);
                                   }}
-                                  className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: carpetUnit === u ? "#ED2027" : "#fff",
+                                    color: carpetUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -7951,42 +8661,99 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        {/* Add Carpet Area button + input */}
-                        {!showCarpetArea ? (
+                        {/* Validation */}
+                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                            Carpet area must be smaller than built-up area
+                          </p>
+                        )}
+
+                        {/* Built-up Area */}
+                        {!showBuiltUpArea ? (
                           <button
                             type="button"
-                            onClick={() => setShowCarpetArea(true)}
-                            className="step3-add-btn"
+                            onClick={() => setShowBuiltUpArea(true)}
+                            style={{
+                              background: "transparent",
+                              border: "1px dashed #ED2027",
+                              color: "#ED2027",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "500",
+                              marginTop: "10px",
+                            }}
                           >
-                            + Add Carpet Area
+                            + Add Built-up Area
                           </button>
                         ) : (
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
-                              placeholder="Carpet Area"
-                              value={carpetArea}
-                              onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              placeholder="Built-up Area"
+                              value={builtUpArea}
+                              onChange={(e) => setBuiltUpArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
-                              onClick={() => setShowCarpetUnits((p) => !p)}
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowBuiltUpUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
-                            {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                            {showBuiltUpUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
-                                      setCarpetUnit(u);
                                       setBuiltUpUnit(u);
-                                      setShowCarpetUnits(false);
+                                      setCarpetUnit(u); // sync
+                                      setShowBuiltUpUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                      color: builtUpUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -7994,11 +8761,6 @@ const AddProperty = () => {
                               </div>
                             )}
                           </div>
-                        )}
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p className="step3-error">Carpet area must be smaller than plot area</p>
                         )}
                       </div>
 
@@ -8101,40 +8863,96 @@ const AddProperty = () => {
                         </div>
                       </div>
                       {/* Area Details */}
-                      <div className="step3-section">
-                        <div className="step3-section-header">
-                          <label className="step3-label">Add Area Details</label>
-                          <span className="step3-info-icon">ⓘ</span>
-                        </div>
-                        <p className="step3-mandatory-text">At least one area type mandatory</p>
+                      <div
+                        className="mb-3"
+                      >
+                        {/* Header */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                            Add Area Details
+                          </label>
 
-                        {/* Plot Area (Built-up Area shown by default) */}
-                        <div className="step3-input-group">
+                        </div>
+
+                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                          At least one area type is mandatory
+                        </p>
+
+                        {/* Carpet Area */}
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
-                            placeholder="Plot Area"
-                            value={builtUpArea}
-                            onChange={(e) => setBuiltUpArea(e.target.value)}
-                            className="step3-input"
+                            placeholder="Carpet Area"
+                            value={carpetArea}
+                            onChange={(e) => setCarpetArea(e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
-                            onClick={() => setShowBuiltUpUnits((p) => !p)}
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
+                            onClick={() => setShowCarpetUnits((p) => !p)}
                           >
-                            {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
-                          {showBuiltUpUnits && (
-                            <div className="step3-unit-dropdown">
+                          {showCarpetUnits && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
-                                    setBuiltUpUnit(u);
-                                    setCarpetUnit(u); // keep units in sync
-                                    setShowBuiltUpUnits(false);
+                                    setCarpetUnit(u);
+                                    setBuiltUpUnit(u); // sync
+                                    setShowCarpetUnits(false);
                                   }}
-                                  className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: carpetUnit === u ? "#ED2027" : "#fff",
+                                    color: carpetUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -8143,42 +8961,99 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        {/* Add Carpet Area button + input */}
-                        {!showCarpetArea ? (
+                        {/* Validation */}
+                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                            Carpet area must be smaller than built-up area
+                          </p>
+                        )}
+
+                        {/* Built-up Area */}
+                        {!showBuiltUpArea ? (
                           <button
                             type="button"
-                            onClick={() => setShowCarpetArea(true)}
-                            className="step3-add-btn"
+                            onClick={() => setShowBuiltUpArea(true)}
+                            style={{
+                              background: "transparent",
+                              border: "1px dashed #ED2027",
+                              color: "#ED2027",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "500",
+                              marginTop: "10px",
+                            }}
                           >
-                            + Add Carpet Area
+                            + Add Built-up Area
                           </button>
                         ) : (
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
-                              placeholder="Carpet Area"
-                              value={carpetArea}
-                              onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              placeholder="Built-up Area"
+                              value={builtUpArea}
+                              onChange={(e) => setBuiltUpArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
-                              onClick={() => setShowCarpetUnits((p) => !p)}
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowBuiltUpUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
-                            {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                            {showBuiltUpUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
-                                      setCarpetUnit(u);
                                       setBuiltUpUnit(u);
-                                      setShowCarpetUnits(false);
+                                      setCarpetUnit(u); // sync
+                                      setShowBuiltUpUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                      color: builtUpUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -8186,11 +9061,6 @@ const AddProperty = () => {
                               </div>
                             )}
                           </div>
-                        )}
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p className="step3-error">Carpet area must be smaller than plot area</p>
                         )}
                       </div>
 
@@ -8280,40 +9150,96 @@ const AddProperty = () => {
                   (subPropertyType === "Others") && (
                     <>
                       {/* Area Details */}
-                      <div className="step3-section">
-                        <div className="step3-section-header">
-                          <label className="step3-label">Add Area Details</label>
-                          <span className="step3-info-icon">ⓘ</span>
-                        </div>
-                        <p className="step3-mandatory-text">At least one area type mandatory</p>
+                      <div
+                        className="mb-3"
+                      >
+                        {/* Header */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
+                            Add Area Details
+                          </label>
 
-                        {/* Plot Area (Built-up Area shown by default) */}
-                        <div className="step3-input-group">
+                        </div>
+
+                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                          At least one area type is mandatory
+                        </p>
+
+                        {/* Carpet Area */}
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginBottom: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
-                            placeholder="Plot Area"
-                            value={builtUpArea}
-                            onChange={(e) => setBuiltUpArea(e.target.value)}
-                            className="step3-input"
+                            placeholder="Carpet Area"
+                            value={carpetArea}
+                            onChange={(e) => setCarpetArea(e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
-                            onClick={() => setShowBuiltUpUnits((p) => !p)}
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
+                            onClick={() => setShowCarpetUnits((p) => !p)}
                           >
-                            {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
-                          {showBuiltUpUnits && (
-                            <div className="step3-unit-dropdown">
+                          {showCarpetUnits && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
-                                    setBuiltUpUnit(u);
-                                    setCarpetUnit(u); // keep units in sync
-                                    setShowBuiltUpUnits(false);
+                                    setCarpetUnit(u);
+                                    setBuiltUpUnit(u); // sync
+                                    setShowCarpetUnits(false);
                                   }}
-                                  className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: carpetUnit === u ? "#ED2027" : "#fff",
+                                    color: carpetUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -8322,42 +9248,99 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        {/* Add Carpet Area button + input */}
-                        {!showCarpetArea ? (
+                        {/* Validation */}
+                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
+                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                            Carpet area must be smaller than built-up area
+                          </p>
+                        )}
+
+                        {/* Built-up Area */}
+                        {!showBuiltUpArea ? (
                           <button
                             type="button"
-                            onClick={() => setShowCarpetArea(true)}
-                            className="step3-add-btn"
+                            onClick={() => setShowBuiltUpArea(true)}
+                            style={{
+                              background: "transparent",
+                              border: "1px dashed #ED2027",
+                              color: "#ED2027",
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "500",
+                              marginTop: "10px",
+                            }}
                           >
-                            + Add Carpet Area
+                            + Add Built-up Area
                           </button>
                         ) : (
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
-                              placeholder="Carpet Area"
-                              value={carpetArea}
-                              onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              placeholder="Built-up Area"
+                              value={builtUpArea}
+                              onChange={(e) => setBuiltUpArea(e.target.value)}
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
-                              onClick={() => setShowCarpetUnits((p) => !p)}
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
+                              onClick={() => setShowBuiltUpUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
-                            {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                            {showBuiltUpUnits && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
-                                      setCarpetUnit(u);
                                       setBuiltUpUnit(u);
-                                      setShowCarpetUnits(false);
+                                      setCarpetUnit(u); // sync
+                                      setShowBuiltUpUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                      color: builtUpUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -8365,11 +9348,6 @@ const AddProperty = () => {
                               </div>
                             )}
                           </div>
-                        )}
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p className="step3-error">Carpet area must be smaller than plot area</p>
                         )}
                       </div>
 
@@ -8404,44 +9382,96 @@ const AddProperty = () => {
 
                     {listingType === "Joint Venture" && propertyType === "Residential" && (
                       <>
-                        <div className="step3-section">
-                          <div className="step3-section-header">
-                            <label className="step3-label">
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                               Add Area Details
                             </label>
-                            <span className="step3-info-icon">ⓘ</span>
+
                           </div>
-                          <p className="step3-mandatory-text">
-                            At least one area type mandatory
+
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
                           </p>
 
                           {/* Carpet Area */}
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
                               placeholder="Carpet Area"
                               value={carpetArea}
                               onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
                               onClick={() => setShowCarpetUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
                             {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
                                       setCarpetUnit(u);
-                                      setBuiltUpUnit(u); // 🔹 Sync both units
+                                      setBuiltUpUnit(u); // sync
                                       setShowCarpetUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -8450,9 +9480,11 @@ const AddProperty = () => {
                             )}
                           </div>
 
-                          {/* Validation for Carpet Area */}
+                          {/* Validation */}
                           {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                            <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
                           {/* Built-up Area */}
@@ -8460,37 +9492,87 @@ const AddProperty = () => {
                             <button
                               type="button"
                               onClick={() => setShowBuiltUpArea(true)}
-                              className="step3-add-btn"
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
                             >
                               + Add Built-up Area
                             </button>
                           ) : (
-                            <div className="step3-input-group">
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
                                 onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
 
                               {showBuiltUpUnits && (
-                                <div className="step3-unit-dropdown">
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
+                                  }}
+                                >
                                   {UNIT_OPTIONS.map((u) => (
                                     <div
                                       key={u}
                                       onClick={() => {
                                         setBuiltUpUnit(u);
-                                        setCarpetUnit(u); // 🔹 Sync both units
+                                        setCarpetUnit(u); // sync
                                         setShowBuiltUpUnits(false);
                                       }}
-                                      className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
                                     >
                                       {u}
                                     </div>
@@ -8500,7 +9582,6 @@ const AddProperty = () => {
                             </div>
                           )}
                         </div>
-
 
                         <div>
                           <label className="step3-label">
@@ -8547,53 +9628,101 @@ const AddProperty = () => {
 
                   </>
                 )}
-
-
-
 
                 {(subPropertyType.includes("Office") || subPropertyType.includes("Retail") || subPropertyType.includes("Industry") || subPropertyType.includes("Hospitality")) && (
                   <>
-
                     {listingType === "Joint Venture" && propertyType === "Commercial" && (
                       <>
-                        <div className="step3-section">
-                          <div className="step3-section-header">
-                            <label className="step3-label">
+                        <div
+                          className="mb-3"
+                        >
+                          {/* Header */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                               Add Area Details
                             </label>
-                            <span className="step3-info-icon">ⓘ</span>
+
                           </div>
-                          <p className="step3-mandatory-text">
-                            At least one area type mandatory
+
+                          <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                            At least one area type is mandatory
                           </p>
 
                           {/* Carpet Area */}
-                          <div className="step3-input-group">
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginBottom: "16px",
+                              position: "relative",
+                            }}
+                          >
                             <input
                               type="number"
                               placeholder="Carpet Area"
                               value={carpetArea}
                               onChange={(e) => setCarpetArea(e.target.value)}
-                              className="step3-input"
+                              style={{
+                                flex: 1,
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                              }}
                             />
                             <div
-                              className="step3-unit-selector"
+                              style={{
+                                minWidth: "100px",
+                                padding: "12px",
+                                border: "1px solid #ccc",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                cursor: "pointer",
+                                background: "#f9f9f9",
+                              }}
                               onClick={() => setShowCarpetUnits((p) => !p)}
                             >
-                              {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                              {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                             </div>
 
                             {showCarpetUnits && (
-                              <div className="step3-unit-dropdown">
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "110%",
+                                  right: "0",
+                                  background: "#fff",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                  zIndex: 10,
+                                  width: "120px",
+                                }}
+                              >
                                 {UNIT_OPTIONS.map((u) => (
                                   <div
                                     key={u}
                                     onClick={() => {
                                       setCarpetUnit(u);
-                                      setBuiltUpUnit(u); // 🔹 Sync both units
+                                      setBuiltUpUnit(u); // sync
                                       setShowCarpetUnits(false);
                                     }}
-                                    className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                    style={{
+                                      padding: "10px",
+                                      cursor: "pointer",
+                                      background: carpetUnit === u ? "#ED2027" : "#fff",
+                                      color: carpetUnit === u ? "#fff" : "#333",
+                                      borderBottom: "1px solid #eee",
+                                    }}
                                   >
                                     {u}
                                   </div>
@@ -8602,9 +9731,11 @@ const AddProperty = () => {
                             )}
                           </div>
 
-                          {/* Validation for Carpet Area */}
+                          {/* Validation */}
                           {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                            <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                            <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                              Carpet area must be smaller than built-up area
+                            </p>
                           )}
 
                           {/* Built-up Area */}
@@ -8612,37 +9743,87 @@ const AddProperty = () => {
                             <button
                               type="button"
                               onClick={() => setShowBuiltUpArea(true)}
-                              className="step3-add-btn"
+                              style={{
+                                background: "transparent",
+                                border: "1px dashed #ED2027",
+                                color: "#ED2027",
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                                marginTop: "10px",
+                              }}
                             >
                               + Add Built-up Area
                             </button>
                           ) : (
-                            <div className="step3-input-group">
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                marginTop: "16px",
+                                position: "relative",
+                              }}
+                            >
                               <input
                                 type="number"
                                 placeholder="Built-up Area"
                                 value={builtUpArea}
                                 onChange={(e) => setBuiltUpArea(e.target.value)}
-                                className="step3-input"
+                                style={{
+                                  flex: 1,
+                                  padding: "12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #ccc",
+                                  fontSize: "14px",
+                                }}
                               />
                               <div
-                                className="step3-unit-selector"
+                                style={{
+                                  minWidth: "100px",
+                                  padding: "12px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  cursor: "pointer",
+                                  background: "#f9f9f9",
+                                }}
                                 onClick={() => setShowBuiltUpUnits((p) => !p)}
                               >
-                                {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                                {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                               </div>
 
                               {showBuiltUpUnits && (
-                                <div className="step3-unit-dropdown">
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "110%",
+                                    right: "0",
+                                    background: "#fff",
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                    zIndex: 10,
+                                    width: "120px",
+                                  }}
+                                >
                                   {UNIT_OPTIONS.map((u) => (
                                     <div
                                       key={u}
                                       onClick={() => {
                                         setBuiltUpUnit(u);
-                                        setCarpetUnit(u); // 🔹 Sync both units
+                                        setCarpetUnit(u); // sync
                                         setShowBuiltUpUnits(false);
                                       }}
-                                      className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                      style={{
+                                        padding: "10px",
+                                        cursor: "pointer",
+                                        background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                        color: builtUpUnit === u ? "#fff" : "#333",
+                                        borderBottom: "1px solid #eee",
+                                      }}
                                     >
                                       {u}
                                     </div>
@@ -8692,55 +9873,102 @@ const AddProperty = () => {
 
                       </>
                     )}
-
-
                   </>
                 )}
-
-
-
 
 
                 {listingType === "Joint Venture" && propertyType === "Layout/Land development" && (
                   <>
-                    <div className="step3-section">
-                      <div className="step3-section-header">
-                        <label className="step3-label">
+                    <div
+                      className="mb-3"
+                    >
+                      {/* Header */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
                           Add Area Details
                         </label>
-                        <span className="step3-info-icon">ⓘ</span>
+
                       </div>
-                      <p className="step3-mandatory-text">
-                        At least one area type mandatory
+
+                      <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
+                        At least one area type is mandatory
                       </p>
 
                       {/* Carpet Area */}
-                      <div className="step3-input-group">
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          marginBottom: "16px",
+                          position: "relative",
+                        }}
+                      >
                         <input
                           type="number"
                           placeholder="Carpet Area"
                           value={carpetArea}
                           onChange={(e) => setCarpetArea(e.target.value)}
-                          className="step3-input"
+                          style={{
+                            flex: 1,
+                            padding: "12px",
+                            borderRadius: "8px",
+                            border: "1px solid #ccc",
+                            fontSize: "14px",
+                          }}
                         />
                         <div
-                          className="step3-unit-selector"
+                          style={{
+                            minWidth: "100px",
+                            padding: "12px",
+                            border: "1px solid #ccc",
+                            borderRadius: "8px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            cursor: "pointer",
+                            background: "#f9f9f9",
+                          }}
                           onClick={() => setShowCarpetUnits((p) => !p)}
                         >
-                          {carpetUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                          {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                         </div>
 
                         {showCarpetUnits && (
-                          <div className="step3-unit-dropdown">
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "110%",
+                              right: "0",
+                              background: "#fff",
+                              border: "1px solid #ddd",
+                              borderRadius: "8px",
+                              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                              zIndex: 10,
+                              width: "120px",
+                            }}
+                          >
                             {UNIT_OPTIONS.map((u) => (
                               <div
                                 key={u}
                                 onClick={() => {
                                   setCarpetUnit(u);
-                                  setBuiltUpUnit(u); // 🔹 Sync both units
+                                  setBuiltUpUnit(u); // sync
                                   setShowCarpetUnits(false);
                                 }}
-                                className={`step3-unit-option ${carpetUnit === u ? "selected" : ""}`}
+                                style={{
+                                  padding: "10px",
+                                  cursor: "pointer",
+                                  background: carpetUnit === u ? "#ED2027" : "#fff",
+                                  color: carpetUnit === u ? "#fff" : "#333",
+                                  borderBottom: "1px solid #eee",
+                                }}
                               >
                                 {u}
                               </div>
@@ -8749,9 +9977,11 @@ const AddProperty = () => {
                         )}
                       </div>
 
-                      {/* Validation for Carpet Area */}
+                      {/* Validation */}
                       {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                        <p className="step3-error">Carpet area must be smaller than built-up area</p>
+                        <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
+                          Carpet area must be smaller than built-up area
+                        </p>
                       )}
 
                       {/* Built-up Area */}
@@ -8759,37 +9989,87 @@ const AddProperty = () => {
                         <button
                           type="button"
                           onClick={() => setShowBuiltUpArea(true)}
-                          className="step3-add-btn"
+                          style={{
+                            background: "transparent",
+                            border: "1px dashed #ED2027",
+                            color: "#ED2027",
+                            padding: "10px 14px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontWeight: "500",
+                            marginTop: "10px",
+                          }}
                         >
                           + Add Built-up Area
                         </button>
                       ) : (
-                        <div className="step3-input-group">
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginTop: "16px",
+                            position: "relative",
+                          }}
+                        >
                           <input
                             type="number"
                             placeholder="Built-up Area"
                             value={builtUpArea}
                             onChange={(e) => setBuiltUpArea(e.target.value)}
-                            className="step3-input"
+                            style={{
+                              flex: 1,
+                              padding: "12px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "14px",
+                            }}
                           />
                           <div
-                            className="step3-unit-selector"
+                            style={{
+                              minWidth: "100px",
+                              padding: "12px",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              cursor: "pointer",
+                              background: "#f9f9f9",
+                            }}
                             onClick={() => setShowBuiltUpUnits((p) => !p)}
                           >
-                            {builtUpUnit || "Unit"} <span className="step3-dropdown-icon">▼</span>
+                            {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
                           </div>
 
                           {showBuiltUpUnits && (
-                            <div className="step3-unit-dropdown">
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "110%",
+                                right: "0",
+                                background: "#fff",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
                               {UNIT_OPTIONS.map((u) => (
                                 <div
                                   key={u}
                                   onClick={() => {
                                     setBuiltUpUnit(u);
-                                    setCarpetUnit(u); // 🔹 Sync both units
+                                    setCarpetUnit(u); // sync
                                     setShowBuiltUpUnits(false);
                                   }}
-                                  className={`step3-unit-option ${builtUpUnit === u ? "selected" : ""}`}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    background: builtUpUnit === u ? "#ED2027" : "#fff",
+                                    color: builtUpUnit === u ? "#fff" : "#333",
+                                    borderBottom: "1px solid #eee",
+                                  }}
                                 >
                                   {u}
                                 </div>
@@ -8839,24 +10119,6 @@ const AddProperty = () => {
 
                   </>
                 )}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                 <div className="step3-continue-container">
                   <button
@@ -8981,350 +10243,5989 @@ const AddProperty = () => {
 
             {/* step 5 */}
             {currentStep === 5 && (
-              <div style={{ padding: "20px", maxWidth: "700px" }}>
-                <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
-                  Add pricing and details...
-                </h4>
+              <>
 
-                {/* Ownership */}
-                <div style={{ marginBottom: 20 }}>
-                  <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
-                    Ownership
-                  </label>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                    {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
-                      (type) => {
-                        const isSelected = selectedOwnership === type;
-                        return (
-                          <button
-                            key={type}
-                            type="button"
-                            onClick={() => setSelectedOwnership(type)}
-                            style={{
-                              padding: "8px 18px",
-                              border: "1px solid",
-                              borderColor: isSelected ? "#ED2027" : "#ddd",
-                              borderRadius: 20,
-                              background: isSelected ? "#ED2027" : "#fff",
-                              color: isSelected ? "#fff" : "#333",
-                              cursor: "pointer",
-                              fontSize: 14,
-                              fontWeight: isSelected ? 600 : 500,
-                              transition: "all 0.15s ease",
-                            }}
-                            // onMouseOver={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ED2027")}
-                            onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
-                          >
-                            {type}
-                          </button>
-                        );
-                      }
-                    )}
-                  </div>
-                </div>
 
-                {/* Price Details */}
-                <div style={{ marginBottom: 20 }}>
-                  <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
-                    Price Details
-                  </label>
+                {(subPropertyType.includes("Flat / Apartment") || subPropertyType.includes("Independent Floor") || subPropertyType.includes("Serviced Apartment")) && (
+                  <>
+                    {/* Rent + Residential */}
+                    {(listingType === "Rent" || listingType === "Joint Venture") &&
+                      propertyType === "Residential" && (
+                        <>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
 
-                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
-                    <input
-                      type="text"
-                      placeholder="Expected Price"
-                      value={expectedPrice}
-                      onChange={(e) => setExpectedPrice(e.target.value)}
-                      style={{
-                        flex: 1,
-                        padding: 10,
-                        border: "1px solid #ccc",
-                        borderRadius: 4,
-                        fontSize: 14,
-                        transition: "border-color 0.15s ease",
-                      }}
-                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
-                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Price per sq.yards"
-                      value={pricePerSqYards}
-                      onChange={(e) => setPricePerSqYards(e.target.value)}
-                      style={{
-                        flex: 1,
-                        padding: 10,
-                        border: "1px solid #ccc",
-                        borderRadius: 4,
-                        fontSize: 14,
-                        transition: "border-color 0.15s ease",
-                      }}
-                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
-                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
-                    />
-                  </div>
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
 
-                  {/* Checkboxes */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <label
-                      style={{
-                        fontSize: 14,
-                        accentColor: "#ED2027",
-                        cursor: "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checkboxes.allInclusive}
-                        onChange={() => toggleCheckbox("allInclusive")}
-                      />
-                      All inclusive price
-                    </label>
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
 
-                    <label
-                      style={{
-                        fontSize: 14,
-                        accentColor: "#ED2027",
-                        cursor: "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checkboxes.taxExcluded}
-                        onChange={() => toggleCheckbox("taxExcluded")}
-                      />
-                      Tax and Govt. charges excluded
-                    </label>
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
 
-                    <label
-                      style={{
-                        fontSize: 14,
-                        accentColor: "#ED2027",
-                        cursor: "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checkboxes.negotiable}
-                        onChange={() => toggleCheckbox("negotiable")}
-                      />
-                      Price Negotiable
-                    </label>
-                  </div>
-                </div>
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
 
-                {/* Additional Pricing */}
-                <div style={{ marginBottom: 20 }}>
-                  {/* Toggle Button styled like nice-select */}
-                  <div
-                    style={{
-                      position: "relative",
-                      display: "inline-block",
-                      width: "100%",
-                      cursor: "pointer",
-                      border: "1px solid #ccc",
-                      borderRadius: 4,
-                      padding: "10px 40px 10px 16px",
-                      background: "#fff",
-                      fontSize: 14,
-                      color: "#333",
-                      userSelect: "none",
-                    }}
-                    onClick={() => setIsOpen(!isOpen)}
-                    onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
-                    onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
-                  >
-                    <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
-                    <span
-                      style={{
-                        position: "absolute",
-                        right: 12,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        fontSize: 12,
-                        pointerEvents: "none",
-                      }}
-                    >
-                      {isOpen ? "▲" : "▼"}
-                    </span>
-                  </div>
 
-                  {/* Collapsible Section */}
-                  {isOpen && (
-                    <div style={{ marginTop: 20 }}>
-                      <label
-                        style={{
-                          fontWeight: 600,
-                          display: "block",
-                          marginBottom: 10,
-                        }}
-                      >
-                        Additional Pricing Details (Optional)
-                      </label>
+                          {/* Preferred Agreement Type */}
+                          <div className="step3-section">
+                            <label className="step3-label">Preferred agreement type</label>
+                            <div className="step3-button-group">
+                              {["Company lease agreement", "Any"].map((type) => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  onClick={() => setAgreementType(type)}
+                                  className={`step3-option-btn ${agreementType === type ? "active" : ""
+                                    }`}
+                                >
+                                  {type}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
 
-                      {/* Maintenance & Frequency */}
-                      <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                          {/* Broker contact permission */}
+                          <div className="step3-section">
+                            <label className="step3-label">
+                              Are you ok with brokers contacting you?
+                            </label>
+                            <div className="step3-button-group">
+                              {["Yes", "No"].map((opt) => (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() => setAllowBroker(opt)}
+                                  className={`step3-option-btn ${allowBroker === opt ? "active" : ""
+                                    }`}
+                                >
+                                  {opt}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Unique Property */}
+                          <div className="step3-section">
+                            <p className="step3-label">
+                              What makes your property unique?
+                            </p>
+                            <textarea
+                              placeholder="What makes your property unique?"
+                              value={uniqueProperty}
+                              onChange={(e) => setUniqueProperty(e.target.value)}
+                              rows={3}
+                              className="step3-textarea"
+                            />
+                          </div>
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+                    {/* Sell + Residential */}
+                    {(listingType === "Sell" || listingType === "Joint Venture") &&
+                      propertyType === "Residential" && (
+                        <>
+                          <div className="step3-container">
+                            {/* Price Details */}
+                            <div className="step3-section">
+                              <h6 className="step3-subheader">
+                                Price Details
+                              </h6>
+                              <div className="step3-price-group">
+                                <input
+                                  type="number"
+                                  placeholder="Expected Price"
+                                  value={expectedPrice}
+                                  onChange={(e) => setExpectedPrice(e.target.value)}
+                                  className="step3-input"
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Price per Sq.Ft"
+                                  value={
+                                    expectedPrice && (carpetArea || builtUpArea)
+                                      ? (
+                                        parseFloat(expectedPrice) /
+                                        parseFloat(carpetArea || builtUpArea)
+                                      ).toFixed(2)
+                                      : ""
+                                  }
+                                  readOnly
+                                  className="step3-input step3-readonly-input mt-3"
+                                />
+                              </div>
+                              <div className="step3-checkbox-group">
+                                <label className="step3-checkbox-label">
+                                  <input
+                                    type="checkbox"
+                                    checked={allInclusive}
+                                    onChange={(e) => setAllInclusive(e.target.checked)}
+                                    className="step3-checkbox"
+                                  />
+                                  All Inclusive Price?
+                                </label>
+                                <label className="step3-checkbox-label">
+                                  <input
+                                    type="checkbox"
+                                    checked={taxGovt}
+                                    onChange={(e) => setTaxGovt(e.target.checked)}
+                                    className="step3-checkbox"
+                                  />
+                                  Tax & Govt. Charges
+                                </label>
+                                <label className="step3-checkbox-label">
+                                  <input
+                                    type="checkbox"
+                                    checked={priceNegotiable}
+                                    onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                    className="step3-checkbox"
+                                  />
+                                  Price Negotiable
+                                </label>
+                              </div>
+                            </div>
+
+                            {/* Additional Price Details */}
+                            <div className="step3-section">
+                              <button
+                                type="button"
+                                onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                                className="step3-toggle-btn"
+                              >
+                                {showAdditionalPricing
+                                  ? "− Hide Additional Price Details"
+                                  : "+ Add Additional Price Details (Optional)"}
+                              </button>
+
+                              {showAdditionalPricing && (
+                                <div className="step3-additional-fields">
+                                  <div className="step3-input-group">
+                                    <input
+                                      type="number"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      className="step3-input"
+                                    />
+                                    <select
+                                      value={maintenanceUnit}
+                                      onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                      className="step3-unit-select"
+                                    >
+                                      <option value="">Select</option>
+                                      <option value="Monthly">Monthly</option>
+                                      <option value="Annually">Annually</option>
+                                      <option value="One Time">One Time</option>
+                                      <option value="Per Unit">Per Unit</option>
+                                    </select>
+                                  </div>
+                                  <input
+                                    type="number"
+                                    placeholder="Rental"
+                                    value={rental}
+                                    onChange={(e) => setRental(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <input
+                                    type="number"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <input
+                                    type="number"
+                                    placeholder="Annual Dues Payable Membership Charge"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Unique Property */}
+                            <div className="step3-section">
+                              <p className="step3-label">
+                                What makes your property unique?
+                              </p>
+                              <textarea
+                                placeholder="What makes your property unique?"
+                                value={uniqueProperty}
+                                onChange={(e) => setUniqueProperty(e.target.value)}
+                                rows={3}
+                                className="step3-textarea"
+                              />
+                            </div>
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                  </>
+                )}
+
+                {subPropertyType.includes("Independent House / Villa") && (
+                  <>
+                    {/* Sell + Residential */}
+                    {(listingType === "Sell" || listingType === "Joint Venture") &&
+                      propertyType === "Residential" && (
+                        <>
+                          {/* Price Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">
+                              Price Details
+                            </h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                className="step3-input"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Price per Sq.Ft"
+                                value={
+                                  expectedPrice && (carpetArea || builtUpArea)
+                                    ? (
+                                      parseFloat(expectedPrice) /
+                                      parseFloat(carpetArea || builtUpArea)
+                                    ).toFixed(2)
+                                    : ""
+                                }
+                                readOnly
+                                className="step3-input step3-readonly-input"
+                              />
+                            </div>
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={allInclusive}
+                                  onChange={(e) => setAllInclusive(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                All Inclusive Price?
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={taxGovt}
+                                  onChange={(e) => setTaxGovt(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Tax & Govt. Charges
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide Additional Price Details"
+                                : "+ Add Additional Price Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+                                <input
+                                  type="number"
+                                  placeholder="Rental"
+                                  value={rental}
+                                  onChange={(e) => setRental(e.target.value)}
+                                  className="step3-input"
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Annual Dues Payable Membership Charge"
+                                  value={annualDues}
+                                  onChange={(e) => setAnnualDues(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Unique Property */}
+                          <div className="step3-section">
+                            <p className="step3-label">
+                              What makes your property unique?
+                            </p>
+                            <textarea
+                              placeholder="What makes your property unique?"
+                              value={uniqueProperty}
+                              onChange={(e) => setUniqueProperty(e.target.value)}
+                              rows={3}
+                              className="step3-textarea"
+                            />
+                          </div>
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+                    {/* Rent + Residential */}
+                    {(listingType === "Rent" || listingType === "Joint Venture") &&
+                      propertyType === "Residential" && (
+                        <>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+
+                              </div>
+                            )}
+                          </div>
+
+
+                          {/* Preferred Agreement Type */}
+                          <div className="step3-section">
+                            <label className="step3-label">Preferred agreement type</label>
+                            <div className="step3-button-group">
+                              {["Company lease agreement", "Any"].map((type) => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  onClick={() => setAgreementType(type)}
+                                  className={`step3-option-btn ${agreementType === type ? "active" : ""
+                                    }`}
+                                >
+                                  {type}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Broker contact permission */}
+                          <div className="step3-section">
+                            <label className="step3-label">
+                              Are you ok with brokers contacting you?
+                            </label>
+                            <div className="step3-button-group">
+                              {["Yes", "No"].map((opt) => (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() => setAllowBroker(opt)}
+                                  className={`step3-option-btn ${allowBroker === opt ? "active" : ""
+                                    }`}
+                                >
+                                  {opt}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Unique Property */}
+                          <div className="step3-section">
+                            <p className="step3-label">
+                              What makes your property unique?
+                            </p>
+                            <textarea
+                              placeholder="What makes your property unique?"
+                              value={uniqueProperty}
+                              onChange={(e) => setUniqueProperty(e.target.value)}
+                              rows={3}
+                              className="step3-textarea"
+                            />
+                          </div>
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+
+                        </>
+                      )}
+                  </>
+                )}
+
+
+
+                {subPropertyType.includes("Plot / Land") && (
+                  <>
+
+                    {/* Price Details */}
+                    <div className="step3-section">
+                      <h6 className="step3-subheader">
+                        Price Details
+                      </h6>
+                      <div className="step3-price-group">
                         <input
-                          type="text"
-                          placeholder="Maintenance"
-                          value={maintenance}
-                          onChange={(e) => setMaintenance(e.target.value)}
-                          style={{
-                            flex: 1,
-                            padding: 10,
-                            border: "1px solid #ccc",
-                            borderRadius: 4,
-                            fontSize: 14,
-                          }}
-                          onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
-                          onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                          type="number"
+                          placeholder="Expected Price"
+                          value={expectedPrice}
+                          onChange={(e) => setExpectedPrice(e.target.value)}
+                          className="step3-input"
                         />
-
-                        <select
-                          value={maintenanceFreq}
-                          onChange={(e) => setMaintenanceFreq(e.target.value)}
-                          style={{
-                            width: 160,
-                            padding: 10,
-                            border: "1px solid #ccc",
-                            borderRadius: 4,
-                            fontSize: 14,
-                            background: "#fff",
-                          }}
-                          onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
-                          onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
-                        >
-                          <option>Monthly</option>
-                          <option>Quarterly</option>
-                          <option>Yearly</option>
-                        </select>
+                        <input
+                          type="number"
+                          placeholder="Price per Sq.Ft"
+                          value={
+                            expectedPrice && (carpetArea || builtUpArea)
+                              ? (
+                                parseFloat(expectedPrice) /
+                                parseFloat(carpetArea || builtUpArea)
+                              ).toFixed(2)
+                              : ""
+                          }
+                          readOnly
+                          className="step3-input step3-readonly-input"
+                        />
                       </div>
+                      <div className="step3-checkbox-group">
+                        <label className="step3-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={allInclusive}
+                            onChange={(e) => setAllInclusive(e.target.checked)}
+                            className="step3-checkbox"
+                          />
+                          All Inclusive Price?
+                        </label>
+                        <label className="step3-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={taxGovt}
+                            onChange={(e) => setTaxGovt(e.target.checked)}
+                            className="step3-checkbox"
+                          />
+                          Tax & Govt. Charges
+                        </label>
+                        <label className="step3-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={priceNegotiable}
+                            onChange={(e) => setPriceNegotiable(e.target.checked)}
+                            className="step3-checkbox"
+                          />
+                          Price Negotiable
+                        </label>
+                      </div>
+                    </div>
 
-                      {/* Expected Rental */}
-                      <input
-                        type="text"
-                        placeholder="Expected rental"
-                        value={expectedRental}
-                        onChange={(e) => setExpectedRental(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: 10,
-                          marginBottom: 10,
-                          border: "1px solid #ccc",
-                          borderRadius: 4,
-                          fontSize: 14,
-                        }}
-                        onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
-                        onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
-                      />
+                    {/* Additional Price Details */}
+                    <div className="step3-section">
+                      <button
+                        type="button"
+                        onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                        className="step3-toggle-btn"
+                      >
+                        {showAdditionalPricing
+                          ? "− Hide Additional Price Details"
+                          : "+ Add Additional Price Details (Optional)"}
+                      </button>
 
-                      {/* Booking Amount */}
-                      <input
-                        type="text"
-                        placeholder="Booking Amount"
-                        value={bookingAmount}
-                        onChange={(e) => setBookingAmount(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: 10,
-                          marginBottom: 10,
-                          border: "1px solid #ccc",
-                          borderRadius: 4,
-                          fontSize: 14,
-                        }}
-                        onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
-                        onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
-                      />
+                      {showAdditionalPricing && (
+                        <div className="step3-additional-fields">
+                          <div className="step3-input-group">
+                            <input
+                              type="number"
+                              placeholder="Maintenance"
+                              value={maintenance}
+                              onChange={(e) => setMaintenance(e.target.value)}
+                              className="step3-input"
+                            />
+                            <select
+                              value={maintenanceUnit}
+                              onChange={(e) => setMaintenanceUnit(e.target.value)}
+                              className="step3-unit-select"
+                            >
+                              <option value="">Select</option>
+                              <option value="Monthly">Monthly</option>
+                              <option value="Annually">Annually</option>
+                              <option value="One Time">One Time</option>
+                              <option value="Per Unit">Per Unit</option>
+                            </select>
+                          </div>
+                          <input
+                            type="number"
+                            placeholder="Rental"
+                            value={rental}
+                            onChange={(e) => setRental(e.target.value)}
+                            className="step3-input"
+                          />
+                          <input
+                            type="number"
+                            placeholder="Booking Amount"
+                            value={bookingAmount}
+                            onChange={(e) => setBookingAmount(e.target.value)}
+                            className="step3-input"
+                          />
+                          <input
+                            type="number"
+                            placeholder="Annual Dues Payable Membership Charge"
+                            value={annualDues}
+                            onChange={(e) => setAnnualDues(e.target.value)}
+                            className="step3-input"
+                          />
+                        </div>
+                      )}
+                    </div>
 
-                      {/* Annual Dues */}
-                      <input
-                        type="text"
-                        placeholder="Annual dues payable"
-                        value={annualDues}
-                        onChange={(e) => setAnnualDues(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: 10,
-                          marginBottom: 10,
-                          border: "1px solid #ccc",
-                          borderRadius: 4,
-                          fontSize: 14,
-                        }}
-                        onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
-                        onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                    {/* Unique Property */}
+                    <div className="step3-section">
+                      <p className="step3-label">
+                        What makes your property unique?
+                      </p>
+                      <textarea
+                        placeholder="What makes your property unique?"
+                        value={uniqueProperty}
+                        onChange={(e) => setUniqueProperty(e.target.value)}
+                        rows={3}
+                        className="step3-textarea"
                       />
                     </div>
+
+                    <div>
+                      <button
+                        type="button"
+                        onClick={handleStep5Continue}
+                        style={{
+                          backgroundColor: "#ED2027",
+                          color: "#fff",
+                          padding: "12px 28px",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: 15,
+                          transition: "background-color 0.15s ease",
+                        }}
+                        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                      >
+                        Continue
+                      </button>
+                    </div>
+
+                  </>
+                )}
+
+                {subPropertyType === "1 RK / Studio Apartment" && (
+
+                  <>
+                    {/* Sell + Residential */}
+                    {(listingType === "Sell" || listingType === "Joint Venture") &&
+                      propertyType === "Residential" && (
+                        <>
+                          {/* Price Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">
+                              Price Details
+                            </h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                className="step3-input"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Price per Sq.Ft"
+                                value={
+                                  expectedPrice && (carpetArea || builtUpArea)
+                                    ? (
+                                      parseFloat(expectedPrice) /
+                                      parseFloat(carpetArea || builtUpArea)
+                                    ).toFixed(2)
+                                    : ""
+                                }
+                                readOnly
+                                className="step3-input step3-readonly-input"
+                              />
+                            </div>
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={allInclusive}
+                                  onChange={(e) => setAllInclusive(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                All Inclusive Price?
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={taxGovt}
+                                  onChange={(e) => setTaxGovt(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Tax & Govt. Charges
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide Additional Price Details"
+                                : "+ Add Additional Price Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+                                <input
+                                  type="number"
+                                  placeholder="Rental"
+                                  value={rental}
+                                  onChange={(e) => setRental(e.target.value)}
+                                  className="step3-input"
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Annual Dues Payable Membership Charge"
+                                  value={annualDues}
+                                  onChange={(e) => setAnnualDues(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Unique Property */}
+                          <div className="step3-section">
+                            <p className="step3-label">
+                              What makes your property unique?
+                            </p>
+                            <textarea
+                              placeholder="What makes your property unique?"
+                              value={uniqueProperty}
+                              onChange={(e) => setUniqueProperty(e.target.value)}
+                              rows={3}
+                              className="step3-textarea"
+                            />
+                          </div>
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+                    {/* Rent + Residential */}
+                    {(listingType === "Rent" || listingType === "Joint Venture") &&
+                      propertyType === "Residential" && (
+                        <>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+
+                          {/* Preferred Agreement Type */}
+                          <div className="step3-section">
+                            <label className="step3-label">Preferred agreement type</label>
+                            <div className="step3-button-group">
+                              {["Company lease agreement", "Any"].map((type) => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  onClick={() => setAgreementType(type)}
+                                  className={`step3-option-btn ${agreementType === type ? "active" : ""
+                                    }`}
+                                >
+                                  {type}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Broker contact permission */}
+                          <div className="step3-section">
+                            <label className="step3-label">
+                              Are you ok with brokers contacting you?
+                            </label>
+                            <div className="step3-button-group">
+                              {["Yes", "No"].map((opt) => (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() => setAllowBroker(opt)}
+                                  className={`step3-option-btn ${allowBroker === opt ? "active" : ""
+                                    }`}
+                                >
+                                  {opt}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Unique Property */}
+                          <div className="step3-section">
+                            <p className="step3-label">
+                              What makes your property unique?
+                            </p>
+                            <textarea
+                              placeholder="What makes your property unique?"
+                              value={uniqueProperty}
+                              onChange={(e) => setUniqueProperty(e.target.value)}
+                              rows={3}
+                              className="step3-textarea"
+                            />
+                          </div>
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+                  </>
+                )}
+
+
+                {subPropertyType.includes("Farmhouse") && (
+
+                  <>
+                    {/* Sell + Residential */}
+                    {(listingType === "Sell" || listingType === "Joint Venture") &&
+                      propertyType === "Residential" && (
+                        <>
+                          {/* Price Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">
+                              Price Details
+                            </h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                className="step3-input"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Price per Sq.Ft"
+                                value={
+                                  expectedPrice && (carpetArea || builtUpArea)
+                                    ? (
+                                      parseFloat(expectedPrice) /
+                                      parseFloat(carpetArea || builtUpArea)
+                                    ).toFixed(2)
+                                    : ""
+                                }
+                                readOnly
+                                className="step3-input step3-readonly-input"
+                              />
+                            </div>
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={allInclusive}
+                                  onChange={(e) => setAllInclusive(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                All Inclusive Price?
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={taxGovt}
+                                  onChange={(e) => setTaxGovt(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Tax & Govt. Charges
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide Additional Price Details"
+                                : "+ Add Additional Price Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+                                <input
+                                  type="number"
+                                  placeholder="Rental"
+                                  value={rental}
+                                  onChange={(e) => setRental(e.target.value)}
+                                  className="step3-input"
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+                                <input
+                                  type="number"
+                                  placeholder="Annual Dues Payable Membership Charge"
+                                  value={annualDues}
+                                  onChange={(e) => setAnnualDues(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Unique Property */}
+                          <div className="step3-section">
+                            <p className="step3-label">
+                              What makes your property unique?
+                            </p>
+                            <textarea
+                              placeholder="What makes your property unique?"
+                              value={uniqueProperty}
+                              onChange={(e) => setUniqueProperty(e.target.value)}
+                              rows={3}
+                              className="step3-textarea"
+                            />
+                          </div>
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+                      )}
+
+
+                    {/* Rent + Residential */}
+                    {(listingType === "Rent" || listingType === "Joint Venture") &&
+                      propertyType === "Residential" && (
+                        <>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+
+                              </div>
+                            )}
+                          </div>
+
+
+                          {/* Preferred Agreement Type */}
+                          <div className="step3-section">
+                            <label className="step3-label">Preferred agreement type</label>
+                            <div className="step3-button-group">
+                              {["Company lease agreement", "Any"].map((type) => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  onClick={() => setAgreementType(type)}
+                                  className={`step3-option-btn ${agreementType === type ? "active" : ""
+                                    }`}
+                                >
+                                  {type}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Broker contact permission */}
+                          <div className="step3-section">
+                            <label className="step3-label">
+                              Are you ok with brokers contacting you?
+                            </label>
+                            <div className="step3-button-group">
+                              {["Yes", "No"].map((opt) => (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() => setAllowBroker(opt)}
+                                  className={`step3-option-btn ${allowBroker === opt ? "active" : ""
+                                    }`}
+                                >
+                                  {opt}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Unique Property */}
+                          <div className="step3-section">
+                            <p className="step3-label">
+                              What makes your property unique?
+                            </p>
+                            <textarea
+                              placeholder="What makes your property unique?"
+                              value={uniqueProperty}
+                              onChange={(e) => setUniqueProperty(e.target.value)}
+                              rows={3}
+                              className="step3-textarea"
+                            />
+                          </div>
+                        </>
+                      )}
+
+
+
+                  </>
+                )}
+
+                {/*READY TO MOVE OFFICE */}
+
+
+                {propertyType === "Commercial" &&
+                  subPropertyType === "Office" &&
+                  (subPropertyQuestionOption === "Ready to move office space" ||
+                    subPropertyQuestionOption === "Bare shell office space") && (
+
+
+                    <>
+
+                      {(listingType === "Sell" || listingType === "Joint Venture") && (
+
+                        <>
+
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Price Details
+                            </label>
+
+                            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                              <input
+                                type="text"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Price per sq.yards"
+                                value={pricePerSqYards}
+                                onChange={(e) => setPricePerSqYards(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                            </div>
+
+
+
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.allInclusive}
+                                  onChange={() => toggleCheckbox("allInclusive")}
+                                />
+                                All inclusive price
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.taxExcluded}
+                                  onChange={() => toggleCheckbox("taxExcluded")}
+                                />
+                                Tax and Govt. charges excluded
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.negotiable}
+                                  onChange={() => toggleCheckbox("negotiable")}
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+
+                            <div style={{ marginBottom: 20, marginTop: 20 }}>
+
+                              <div
+                                style={{
+                                  position: "relative",
+                                  display: "inline-block",
+                                  width: "100%",
+                                  cursor: "pointer",
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  padding: "10px 40px 10px 16px",
+                                  background: "#fff",
+                                  fontSize: 14,
+                                  color: "#333",
+                                  userSelect: "none",
+                                }}
+                                onClick={() => setIsOpen(!isOpen)}
+                                onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                              >
+                                <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: 12,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: 12,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {isOpen ? "▲" : "▼"}
+                                </span>
+                              </div>
+
+
+                              {isOpen && (
+                                <div style={{ marginTop: 20 }}>
+                                  <label
+                                    style={{
+                                      fontWeight: 600,
+                                      display: "block",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    Additional Pricing Details (Optional)
+                                  </label>
+
+
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                                    <input
+                                      type="text"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    />
+
+                                    <select
+                                      value={maintenanceFreq}
+                                      onChange={(e) => setMaintenanceFreq(e.target.value)}
+                                      style={{
+                                        width: 160,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                        background: "#fff",
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    >
+                                      <option>Monthly</option>
+                                      <option>Quarterly</option>
+                                      <option>Yearly</option>
+                                    </select>
+                                  </div>
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Expected rental"
+                                    value={expectedRental}
+                                    onChange={(e) => setExpectedRental(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Annual dues payable"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+
+
+                            {/* Previously the property used for */}
+                            <div className="step2-section mt-3">
+                              <label className="step2-label">Previously the property was used for?</label>
+                              <input
+                                type="text"
+                                className="step2-input"
+                                placeholder="e.g. Office, Retail, Warehouse"
+
+                              />
+                            </div>
+
+                            <div className="mt-3" style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                Is your office fire NOC Certified?
+                              </label>
+
+
+                              <div style={{ display: "flex", gap: 20 }}>
+                                <label
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    cursor: "pointer",
+                                    accentColor: "#ED2027",
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  <input
+                                    type="radio"
+
+                                    value="yes"
+
+                                  />
+                                  Yes
+                                </label>
+
+                                <label
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    cursor: "pointer",
+                                    accentColor: "#ED2027",
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  <input
+                                    type="radio"
+
+                                    value="no"
+
+                                  />
+                                  No
+                                </label>
+                              </div>
+                            </div>
+
+
+
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                Do you charge brokerage?
+                              </label>
+
+
+                              <div style={{ display: "flex", gap: 20 }}>
+                                <label
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    cursor: "pointer",
+                                    accentColor: "#ED2027",
+                                    fontWeight: brokerage === "yes" ? 600 : 500,
+                                  }}
+                                >
+                                  <input
+                                    type="radio"
+                                    name="brokerage"
+                                    value="yes"
+                                    checked={brokerage === "yes"}
+                                    onChange={() => setBrokerage("yes")}
+                                  />
+                                  Yes
+                                </label>
+
+                                <label
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    cursor: "pointer",
+                                    accentColor: "#ED2027",
+                                    fontWeight: brokerage === "no" ? 600 : 500,
+                                  }}
+                                >
+                                  <input
+                                    type="radio"
+                                    name="brokerage"
+                                    value="no"
+                                    checked={brokerage === "no"}
+                                    onChange={() => setBrokerage("no")}
+                                  />
+                                  No
+                                </label>
+                              </div>
+
+
+                              {brokerage === "yes" && (
+                                <div style={{ marginTop: 15 }}>
+                                  <input
+                                    type="text"
+                                    placeholder="Enter Brokerage Amount"
+                                    value={brokerageAmount}
+                                    onChange={(e) => setBrokerageAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                      transition: "border-color 0.15s ease",
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                What makes your property unique
+                              </label>
+                              <textarea
+                                placeholder="Add a description..."
+                                rows={4}
+                                value={description}
+                                onChange={(e) => {
+                                  const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                  setDescription(onlyWords);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                                Minimum 30 characters required
+                              </small>
+                            </div>
+
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div>
+
+
+
+                        </>
+                      )}
+                    </>
                   )}
-                </div>
+                {listingType === "Rent" && (
+                  <>
 
-                {/* Brokerage */}
-                <div style={{ marginBottom: 20 }}>
-                  <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
-                    Do you charge brokerage?
-                  </label>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Office" &&
+                      (subPropertyQuestionOption === "Ready to move office space" ||
+                        subPropertyQuestionOption === "Bare shell office space") && (
+                        <>
 
-                  {/* Yes / No Buttons */}
-                  <div style={{ display: "flex", gap: 20 }}>
-                    <label
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                        cursor: "pointer",
-                        accentColor: "#ED2027",
-                        fontWeight: brokerage === "yes" ? 600 : 500,
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="brokerage"
-                        value="yes"
-                        checked={brokerage === "yes"}
-                        onChange={() => setBrokerage("yes")}
-                      />
-                      Yes
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+
+                          {/* Preferred Agreement Type */}
+                          <div className="step3-section">
+                            <label className="step3-label">Preferred agreement type</label>
+                            <div className="step3-button-group">
+                              {["Company lease agreement", "Any"].map((type) => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  onClick={() => setAgreementType(type)}
+                                  className={`step3-option-btn ${agreementType === type ? "active" : ""
+                                    }`}
+                                >
+                                  {type}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Previously the property used for */}
+                          <div className="step2-section mt-3">
+                            <label className="step2-label">Previously the property was used for?</label>
+                            <input
+                              type="text"
+                              className="step2-input"
+                              placeholder="e.g. Office, Retail, Warehouse"
+
+                            />
+                          </div>
+
+                          <div className="mt-3" style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Is your office fire NOC Certified?
+                            </label>
+
+
+                            <div style={{ display: "flex", gap: 20 }}>
+                              <label
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                  cursor: "pointer",
+                                  accentColor: "#ED2027",
+                                  fontWeight: 500,
+                                }}
+                              >
+                                <input
+                                  type="radio"
+
+                                  value="yes"
+
+                                />
+                                Yes
+                              </label>
+
+                              <label
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                  cursor: "pointer",
+                                  accentColor: "#ED2027",
+                                  fontWeight: 500,
+                                }}
+                              >
+                                <input
+                                  type="radio"
+
+                                  value="no"
+
+                                />
+                                No
+                              </label>
+                            </div>
+                          </div>
+
+
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Do you charge brokerage?
+                            </label>
+
+
+                            <div style={{ display: "flex", gap: 20 }}>
+                              <label
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                  cursor: "pointer",
+                                  accentColor: "#ED2027",
+                                  fontWeight: brokerage === "yes" ? 600 : 500,
+                                }}
+                              >
+                                <input
+                                  type="radio"
+                                  name="brokerage"
+                                  value="yes"
+                                  checked={brokerage === "yes"}
+                                  onChange={() => setBrokerage("yes")}
+                                />
+                                Yes
+                              </label>
+
+                              <label
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                  cursor: "pointer",
+                                  accentColor: "#ED2027",
+                                  fontWeight: brokerage === "no" ? 600 : 500,
+                                }}
+                              >
+                                <input
+                                  type="radio"
+                                  name="brokerage"
+                                  value="no"
+                                  checked={brokerage === "no"}
+                                  onChange={() => setBrokerage("no")}
+                                />
+                                No
+                              </label>
+                            </div>
+
+
+                            {brokerage === "yes" && (
+                              <div style={{ marginTop: 15 }}>
+                                <input
+                                  type="text"
+                                  placeholder="Enter Brokerage Amount"
+                                  value={brokerageAmount}
+                                  onChange={(e) => setBrokerageAmount(e.target.value)}
+                                  style={{
+                                    width: "100%",
+                                    padding: 10,
+                                    border: "1px solid #ccc",
+                                    borderRadius: 4,
+                                    fontSize: 14,
+                                    transition: "border-color 0.15s ease",
+                                  }}
+                                  onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                  onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                />
+                              </div>
+                            )}
+                          </div>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              What makes your property unique
+                            </label>
+                            <textarea
+                              placeholder="Add a description..."
+                              rows={4}
+                              value={description}
+                              onChange={(e) => {
+                                const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                setDescription(onlyWords);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: 10,
+                                border: "1px solid #ccc",
+                                borderRadius: 4,
+                                fontSize: 14,
+                                transition: "border-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                              onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                            />
+                            <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                              Minimum 30 characters required
+                            </small>
+                          </div>
+
+
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+                      )}
+                  </>
+                )}
+
+                {/*Co OFFICE */}
+                {(listingType === "Sell" || listingType === "Joint Venture") && (
+                  <>
+
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Office" &&
+                      subPropertyQuestionOption === "Co-working office space" && (
+                        <>
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Price Details
+                            </label>
+
+                            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                              <input
+                                type="text"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Price per sq.yards"
+                                value={pricePerSqYards}
+                                onChange={(e) => setPricePerSqYards(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                            </div>
+
+
+
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.allInclusive}
+                                  onChange={() => toggleCheckbox("allInclusive")}
+                                />
+                                All inclusive price
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.taxExcluded}
+                                  onChange={() => toggleCheckbox("taxExcluded")}
+                                />
+                                Tax and Govt. charges excluded
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.negotiable}
+                                  onChange={() => toggleCheckbox("negotiable")}
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+
+                            <div style={{ marginBottom: 20, marginTop: 20 }}>
+
+                              <div
+                                style={{
+                                  position: "relative",
+                                  display: "inline-block",
+                                  width: "100%",
+                                  cursor: "pointer",
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  padding: "10px 40px 10px 16px",
+                                  background: "#fff",
+                                  fontSize: 14,
+                                  color: "#333",
+                                  userSelect: "none",
+                                }}
+                                onClick={() => setIsOpen(!isOpen)}
+                                onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                              >
+                                <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: 12,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: 12,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {isOpen ? "▲" : "▼"}
+                                </span>
+                              </div>
+
+
+                              {isOpen && (
+                                <div style={{ marginTop: 20 }}>
+                                  <label
+                                    style={{
+                                      fontWeight: 600,
+                                      display: "block",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    Additional Pricing Details (Optional)
+                                  </label>
+
+
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                                    <input
+                                      type="text"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    />
+
+                                    <select
+                                      value={maintenanceFreq}
+                                      onChange={(e) => setMaintenanceFreq(e.target.value)}
+                                      style={{
+                                        width: 160,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                        background: "#fff",
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    >
+                                      <option>Monthly</option>
+                                      <option>Quarterly</option>
+                                      <option>Yearly</option>
+                                    </select>
+                                  </div>
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Expected rental"
+                                    value={expectedRental}
+                                    onChange={(e) => setExpectedRental(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Annual dues payable"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                What makes your property unique
+                              </label>
+                              <textarea
+                                placeholder="Add a description..."
+                                rows={4}
+                                value={description}
+                                onChange={(e) => {
+                                  const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                  setDescription(onlyWords);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                                Minimum 30 characters required
+                              </small>
+                            </div>
+
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )
+                    }
+                  </>
+                )}
+
+                {listingType === "Rent" && (
+                  <>
+
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Office" &&
+                      subPropertyQuestionOption === "Co-working office space" && (
+                        <>
+
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              What makes your property unique
+                            </label>
+                            <textarea
+                              placeholder="Add a description..."
+                              rows={4}
+                              value={description}
+                              onChange={(e) => {
+                                const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                setDescription(onlyWords);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: 10,
+                                border: "1px solid #ccc",
+                                borderRadius: 4,
+                                fontSize: 14,
+                                transition: "border-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                              onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                            />
+                            <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                              Minimum 30 characters required
+                            </small>
+                          </div>
+
+
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+                      )
+                    }
+                  </>
+                )}
+
+                {(listingType === "Sell" || listingType === "Joint Venture") && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Retail" &&
+                      (subPropertyQuestionOption === "Commercial Shops" ||
+                        subPropertyQuestionOption === "Commercial Showrooms") && (
+                        <>
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Price Details
+                            </label>
+
+                            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                              <input
+                                type="text"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Price per sq.yards"
+                                value={pricePerSqYards}
+                                onChange={(e) => setPricePerSqYards(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                            </div>
+
+
+
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.allInclusive}
+                                  onChange={() => toggleCheckbox("allInclusive")}
+                                />
+                                All inclusive price
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.taxExcluded}
+                                  onChange={() => toggleCheckbox("taxExcluded")}
+                                />
+                                Tax and Govt. charges excluded
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.negotiable}
+                                  onChange={() => toggleCheckbox("negotiable")}
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+
+                            <div style={{ marginBottom: 20, marginTop: 20 }}>
+
+                              <div
+                                style={{
+                                  position: "relative",
+                                  display: "inline-block",
+                                  width: "100%",
+                                  cursor: "pointer",
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  padding: "10px 40px 10px 16px",
+                                  background: "#fff",
+                                  fontSize: 14,
+                                  color: "#333",
+                                  userSelect: "none",
+                                }}
+                                onClick={() => setIsOpen(!isOpen)}
+                                onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                              >
+                                <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: 12,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: 12,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {isOpen ? "▲" : "▼"}
+                                </span>
+                              </div>
+
+
+                              {isOpen && (
+                                <div style={{ marginTop: 20 }}>
+                                  <label
+                                    style={{
+                                      fontWeight: 600,
+                                      display: "block",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    Additional Pricing Details (Optional)
+                                  </label>
+
+
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                                    <input
+                                      type="text"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    />
+
+                                    <select
+                                      value={maintenanceFreq}
+                                      onChange={(e) => setMaintenanceFreq(e.target.value)}
+                                      style={{
+                                        width: 160,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                        background: "#fff",
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    >
+                                      <option>Monthly</option>
+                                      <option>Quarterly</option>
+                                      <option>Yearly</option>
+                                    </select>
+                                  </div>
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Expected rental"
+                                    value={expectedRental}
+                                    onChange={(e) => setExpectedRental(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Annual dues payable"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                What makes your property unique
+                              </label>
+                              <textarea
+                                placeholder="Add a description..."
+                                rows={4}
+                                value={description}
+                                onChange={(e) => {
+                                  const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                  setDescription(onlyWords);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                                Minimum 30 characters required
+                              </small>
+                            </div>
+
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                  </>
+                )}
+
+
+                {listingType === "Rent" && (
+                  <>
+
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Retail" &&
+                      (subPropertyQuestionOption === "Commercial Shops" ||
+                        subPropertyQuestionOption === "Commercial Showrooms") && (
+
+                        <>
+
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              What makes your property unique
+                            </label>
+                            <textarea
+                              placeholder="Add a description..."
+                              rows={4}
+                              value={description}
+                              onChange={(e) => {
+                                const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                setDescription(onlyWords);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: 10,
+                                border: "1px solid #ccc",
+                                borderRadius: 4,
+                                fontSize: 14,
+                                transition: "border-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                              onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                            />
+                            <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                              Minimum 30 characters required
+                            </small>
+                          </div>
+
+
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+                        </>
+
+                      )}
+                  </>
+                )}
+
+
+                {listingType === "Sell" && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Plot" &&
+                      (
+                        subPropertyQuestionOption === "Commercial Land/inst.Land" ||
+                        subPropertyQuestionOption === "Agriculture/Farm Land" ||
+                        subPropertyQuestionOption === "Industrial Lands/Plots"
+                      ) && (
+
+                        <>
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Price Details
+                            </label>
+
+                            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                              <input
+                                type="text"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Price per sq.yards"
+                                value={pricePerSqYards}
+                                onChange={(e) => setPricePerSqYards(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                            </div>
+
+
+
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.allInclusive}
+                                  onChange={() => toggleCheckbox("allInclusive")}
+                                />
+                                All inclusive price
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.taxExcluded}
+                                  onChange={() => toggleCheckbox("taxExcluded")}
+                                />
+                                Tax and Govt. charges excluded
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.negotiable}
+                                  onChange={() => toggleCheckbox("negotiable")}
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+
+                            <div style={{ marginBottom: 20, marginTop: 20 }}>
+
+                              <div
+                                style={{
+                                  position: "relative",
+                                  display: "inline-block",
+                                  width: "100%",
+                                  cursor: "pointer",
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  padding: "10px 40px 10px 16px",
+                                  background: "#fff",
+                                  fontSize: 14,
+                                  color: "#333",
+                                  userSelect: "none",
+                                }}
+                                onClick={() => setIsOpen(!isOpen)}
+                                onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                              >
+                                <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: 12,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: 12,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {isOpen ? "▲" : "▼"}
+                                </span>
+                              </div>
+
+
+                              {isOpen && (
+                                <div style={{ marginTop: 20 }}>
+                                  <label
+                                    style={{
+                                      fontWeight: 600,
+                                      display: "block",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    Additional Pricing Details (Optional)
+                                  </label>
+
+
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                                    <input
+                                      type="text"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    />
+
+                                    <select
+                                      value={maintenanceFreq}
+                                      onChange={(e) => setMaintenanceFreq(e.target.value)}
+                                      style={{
+                                        width: 160,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                        background: "#fff",
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    >
+                                      <option>Monthly</option>
+                                      <option>Quarterly</option>
+                                      <option>Yearly</option>
+                                    </select>
+                                  </div>
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Expected rental"
+                                    value={expectedRental}
+                                    onChange={(e) => setExpectedRental(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Annual dues payable"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                What makes your property unique
+                              </label>
+                              <textarea
+                                placeholder="Add a description..."
+                                rows={4}
+                                value={description}
+                                onChange={(e) => {
+                                  const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                  setDescription(onlyWords);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                                Minimum 30 characters required
+                              </small>
+                            </div>
+
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                  </>
+                )}
+
+                {listingType === "Rent" && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Plot" &&
+                      (
+                        subPropertyQuestionOption === "Commercial Land/inst.Land" ||
+                        subPropertyQuestionOption === "Agriculture/Farm Land" ||
+                        subPropertyQuestionOption === "Industrial Lands/Plots"
+                      ) && (
+
+                        <>
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              What makes your property unique
+                            </label>
+                            <textarea
+                              placeholder="Add a description..."
+                              rows={4}
+                              value={description}
+                              onChange={(e) => {
+                                const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                setDescription(onlyWords);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: 10,
+                                border: "1px solid #ccc",
+                                borderRadius: 4,
+                                fontSize: 14,
+                                transition: "border-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                              onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                            />
+                            <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                              Minimum 30 characters required
+                            </small>
+                          </div>
+
+
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+
+                        </>
+                      )}
+
+                  </>
+                )}
+
+                {listingType === "Sell" && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Storage" &&
+                      (subPropertyQuestionOption === "Ware House" ||
+                        subPropertyQuestionOption === "Cold Storage") && (
+                        <>
+
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Price Details
+                            </label>
+
+                            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                              <input
+                                type="text"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Price per sq.yards"
+                                value={pricePerSqYards}
+                                onChange={(e) => setPricePerSqYards(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                            </div>
+
+
+
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.allInclusive}
+                                  onChange={() => toggleCheckbox("allInclusive")}
+                                />
+                                All inclusive price
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.taxExcluded}
+                                  onChange={() => toggleCheckbox("taxExcluded")}
+                                />
+                                Tax and Govt. charges excluded
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.negotiable}
+                                  onChange={() => toggleCheckbox("negotiable")}
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+
+                            <div style={{ marginBottom: 20, marginTop: 20 }}>
+
+                              <div
+                                style={{
+                                  position: "relative",
+                                  display: "inline-block",
+                                  width: "100%",
+                                  cursor: "pointer",
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  padding: "10px 40px 10px 16px",
+                                  background: "#fff",
+                                  fontSize: 14,
+                                  color: "#333",
+                                  userSelect: "none",
+                                }}
+                                onClick={() => setIsOpen(!isOpen)}
+                                onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                              >
+                                <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: 12,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: 12,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {isOpen ? "▲" : "▼"}
+                                </span>
+                              </div>
+
+
+                              {isOpen && (
+                                <div style={{ marginTop: 20 }}>
+                                  <label
+                                    style={{
+                                      fontWeight: 600,
+                                      display: "block",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    Additional Pricing Details (Optional)
+                                  </label>
+
+
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                                    <input
+                                      type="text"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    />
+
+                                    <select
+                                      value={maintenanceFreq}
+                                      onChange={(e) => setMaintenanceFreq(e.target.value)}
+                                      style={{
+                                        width: 160,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                        background: "#fff",
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    >
+                                      <option>Monthly</option>
+                                      <option>Quarterly</option>
+                                      <option>Yearly</option>
+                                    </select>
+                                  </div>
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Expected rental"
+                                    value={expectedRental}
+                                    onChange={(e) => setExpectedRental(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Annual dues payable"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                What makes your property unique
+                              </label>
+                              <textarea
+                                placeholder="Add a description..."
+                                rows={4}
+                                value={description}
+                                onChange={(e) => {
+                                  const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                  setDescription(onlyWords);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                                Minimum 30 characters required
+                              </small>
+                            </div>
+
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div></>
+                      )}
+                  </>
+                )}
+
+                {listingType === "Rent" && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Storage" &&
+                      (subPropertyQuestionOption === "Ware House" ||
+                        subPropertyQuestionOption === "Cold Storage") && (
+                        <>
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              What makes your property unique
+                            </label>
+                            <textarea
+                              placeholder="Add a description..."
+                              rows={4}
+                              value={description}
+                              onChange={(e) => {
+                                const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                setDescription(onlyWords);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: 10,
+                                border: "1px solid #ccc",
+                                borderRadius: 4,
+                                fontSize: 14,
+                                transition: "border-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                              onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                            />
+                            <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                              Minimum 30 characters required
+                            </small>
+                          </div>
+
+
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+
+                        </>
+                      )}
+                  </>
+                )}
+
+                {(listingType === "Sell" || listingType === "Joint Venture") && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Industry" &&
+                      (subPropertyQuestionOption === "Factory" ||
+                        subPropertyQuestionOption === "Manufacturing") && (
+                        <>
+
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Price Details
+                            </label>
+
+                            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                              <input
+                                type="text"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Price per sq.yards"
+                                value={pricePerSqYards}
+                                onChange={(e) => setPricePerSqYards(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                            </div>
+
+
+
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.allInclusive}
+                                  onChange={() => toggleCheckbox("allInclusive")}
+                                />
+                                All inclusive price
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.taxExcluded}
+                                  onChange={() => toggleCheckbox("taxExcluded")}
+                                />
+                                Tax and Govt. charges excluded
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.negotiable}
+                                  onChange={() => toggleCheckbox("negotiable")}
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+
+                            <div style={{ marginBottom: 20, marginTop: 20 }}>
+
+                              <div
+                                style={{
+                                  position: "relative",
+                                  display: "inline-block",
+                                  width: "100%",
+                                  cursor: "pointer",
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  padding: "10px 40px 10px 16px",
+                                  background: "#fff",
+                                  fontSize: 14,
+                                  color: "#333",
+                                  userSelect: "none",
+                                }}
+                                onClick={() => setIsOpen(!isOpen)}
+                                onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                              >
+                                <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: 12,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: 12,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {isOpen ? "▲" : "▼"}
+                                </span>
+                              </div>
+
+
+                              {isOpen && (
+                                <div style={{ marginTop: 20 }}>
+                                  <label
+                                    style={{
+                                      fontWeight: 600,
+                                      display: "block",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    Additional Pricing Details (Optional)
+                                  </label>
+
+
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                                    <input
+                                      type="text"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    />
+
+                                    <select
+                                      value={maintenanceFreq}
+                                      onChange={(e) => setMaintenanceFreq(e.target.value)}
+                                      style={{
+                                        width: 160,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                        background: "#fff",
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    >
+                                      <option>Monthly</option>
+                                      <option>Quarterly</option>
+                                      <option>Yearly</option>
+                                    </select>
+                                  </div>
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Expected rental"
+                                    value={expectedRental}
+                                    onChange={(e) => setExpectedRental(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Annual dues payable"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                What makes your property unique
+                              </label>
+                              <textarea
+                                placeholder="Add a description..."
+                                rows={4}
+                                value={description}
+                                onChange={(e) => {
+                                  const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                  setDescription(onlyWords);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                                Minimum 30 characters required
+                              </small>
+                            </div>
+
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div></>
+                      )}
+                  </>
+                )}
+
+                {listingType === "Rent" && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Industry" &&
+                      (subPropertyQuestionOption === "Factory" ||
+                        subPropertyQuestionOption === "Manufacturing") && (
+                        <>
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              What makes your property unique
+                            </label>
+                            <textarea
+                              placeholder="Add a description..."
+                              rows={4}
+                              value={description}
+                              onChange={(e) => {
+                                const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                setDescription(onlyWords);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: 10,
+                                border: "1px solid #ccc",
+                                borderRadius: 4,
+                                fontSize: 14,
+                                transition: "border-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                              onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                            />
+                            <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                              Minimum 30 characters required
+                            </small>
+                          </div>
+
+
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+
+                        </>
+                      )}
+                  </>
+                )}
+
+
+
+                {/* rrrr */}
+                {(listingType === "Sell" || listingType === "Joint Venture") && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Hospitality" &&
+                      (subPropertyQuestionOption === "Hotel / Resorts" ||
+                        subPropertyQuestionOption === "Guest-House / Banquet Hall") && (
+                        <>
+
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Price Details
+                            </label>
+
+                            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                              <input
+                                type="text"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Price per sq.yards"
+                                value={pricePerSqYards}
+                                onChange={(e) => setPricePerSqYards(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                            </div>
+
+
+
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.allInclusive}
+                                  onChange={() => toggleCheckbox("allInclusive")}
+                                />
+                                All inclusive price
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.taxExcluded}
+                                  onChange={() => toggleCheckbox("taxExcluded")}
+                                />
+                                Tax and Govt. charges excluded
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.negotiable}
+                                  onChange={() => toggleCheckbox("negotiable")}
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+
+                            <div style={{ marginBottom: 20, marginTop: 20 }}>
+
+                              <div
+                                style={{
+                                  position: "relative",
+                                  display: "inline-block",
+                                  width: "100%",
+                                  cursor: "pointer",
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  padding: "10px 40px 10px 16px",
+                                  background: "#fff",
+                                  fontSize: 14,
+                                  color: "#333",
+                                  userSelect: "none",
+                                }}
+                                onClick={() => setIsOpen(!isOpen)}
+                                onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                              >
+                                <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: 12,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: 12,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {isOpen ? "▲" : "▼"}
+                                </span>
+                              </div>
+
+
+                              {isOpen && (
+                                <div style={{ marginTop: 20 }}>
+                                  <label
+                                    style={{
+                                      fontWeight: 600,
+                                      display: "block",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    Additional Pricing Details (Optional)
+                                  </label>
+
+
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                                    <input
+                                      type="text"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    />
+
+                                    <select
+                                      value={maintenanceFreq}
+                                      onChange={(e) => setMaintenanceFreq(e.target.value)}
+                                      style={{
+                                        width: 160,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                        background: "#fff",
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    >
+                                      <option>Monthly</option>
+                                      <option>Quarterly</option>
+                                      <option>Yearly</option>
+                                    </select>
+                                  </div>
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Expected rental"
+                                    value={expectedRental}
+                                    onChange={(e) => setExpectedRental(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Annual dues payable"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                What makes your property unique
+                              </label>
+                              <textarea
+                                placeholder="Add a description..."
+                                rows={4}
+                                value={description}
+                                onChange={(e) => {
+                                  const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                  setDescription(onlyWords);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                                Minimum 30 characters required
+                              </small>
+                            </div>
+
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div></>
+                      )}
+                  </>
+                )}
+
+                {listingType === "Rent" && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      subPropertyType === "Hospitality" &&
+                      (subPropertyQuestionOption === "Hotel / Resorts" ||
+                        subPropertyQuestionOption === "Guest-House / Banquet Hall") && (
+                        <>
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              What makes your property unique
+                            </label>
+                            <textarea
+                              placeholder="Add a description..."
+                              rows={4}
+                              value={description}
+                              onChange={(e) => {
+                                const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                setDescription(onlyWords);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: 10,
+                                border: "1px solid #ccc",
+                                borderRadius: 4,
+                                fontSize: 14,
+                                transition: "border-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                              onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                            />
+                            <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                              Minimum 30 characters required
+                            </small>
+                          </div>
+
+
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+
+                        </>
+                      )}
+                  </>
+                )}
+
+
+
+                {listingType === "Sell" && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      (subPropertyType === "Others") && (
+                        <>
+
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Ownership
+                            </label>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                              {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                                (type) => {
+                                  const isSelected = selectedOwnership === type;
+                                  return (
+                                    <button
+                                      key={type}
+                                      type="button"
+                                      onClick={() => setSelectedOwnership(type)}
+                                      style={{
+                                        padding: "8px 18px",
+                                        border: "1px solid",
+                                        borderColor: isSelected ? "#ED2027" : "#ddd",
+                                        borderRadius: 20,
+                                        background: isSelected ? "#ED2027" : "#fff",
+                                        color: isSelected ? "#fff" : "#333",
+                                        cursor: "pointer",
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? 600 : 500,
+                                        transition: "all 0.15s ease",
+                                      }}
+
+                                      onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                                    >
+                                      {type}
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              Price Details
+                            </label>
+
+                            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                              <input
+                                type="text"
+                                placeholder="Expected Price"
+                                value={expectedPrice}
+                                onChange={(e) => setExpectedPrice(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Price per sq.yards"
+                                value={pricePerSqYards}
+                                onChange={(e) => setPricePerSqYards(e.target.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                            </div>
+
+
+
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.allInclusive}
+                                  onChange={() => toggleCheckbox("allInclusive")}
+                                />
+                                All inclusive price
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.taxExcluded}
+                                  onChange={() => toggleCheckbox("taxExcluded")}
+                                />
+                                Tax and Govt. charges excluded
+                              </label>
+
+                              <label
+                                style={{
+                                  fontSize: 14,
+                                  accentColor: "#ED2027",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checkboxes.negotiable}
+                                  onChange={() => toggleCheckbox("negotiable")}
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+
+                            <div style={{ marginBottom: 20, marginTop: 20 }}>
+
+                              <div
+                                style={{
+                                  position: "relative",
+                                  display: "inline-block",
+                                  width: "100%",
+                                  cursor: "pointer",
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  padding: "10px 40px 10px 16px",
+                                  background: "#fff",
+                                  fontSize: 14,
+                                  color: "#333",
+                                  userSelect: "none",
+                                }}
+                                onClick={() => setIsOpen(!isOpen)}
+                                onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                              >
+                                <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: 12,
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: 12,
+                                    pointerEvents: "none",
+                                  }}
+                                >
+                                  {isOpen ? "▲" : "▼"}
+                                </span>
+                              </div>
+
+
+                              {isOpen && (
+                                <div style={{ marginTop: 20 }}>
+                                  <label
+                                    style={{
+                                      fontWeight: 600,
+                                      display: "block",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    Additional Pricing Details (Optional)
+                                  </label>
+
+
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                                    <input
+                                      type="text"
+                                      placeholder="Maintenance"
+                                      value={maintenance}
+                                      onChange={(e) => setMaintenance(e.target.value)}
+                                      style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    />
+
+                                    <select
+                                      value={maintenanceFreq}
+                                      onChange={(e) => setMaintenanceFreq(e.target.value)}
+                                      style={{
+                                        width: 160,
+                                        padding: 10,
+                                        border: "1px solid #ccc",
+                                        borderRadius: 4,
+                                        fontSize: 14,
+                                        background: "#fff",
+                                      }}
+                                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                    >
+                                      <option>Monthly</option>
+                                      <option>Quarterly</option>
+                                      <option>Yearly</option>
+                                    </select>
+                                  </div>
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Expected rental"
+                                    value={expectedRental}
+                                    onChange={(e) => setExpectedRental(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Booking Amount"
+                                    value={bookingAmount}
+                                    onChange={(e) => setBookingAmount(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+
+
+                                  <input
+                                    type="text"
+                                    placeholder="Annual dues payable"
+                                    value={annualDues}
+                                    onChange={(e) => setAnnualDues(e.target.value)}
+                                    style={{
+                                      width: "100%",
+                                      padding: 10,
+                                      marginBottom: 10,
+                                      border: "1px solid #ccc",
+                                      borderRadius: 4,
+                                      fontSize: 14,
+                                    }}
+                                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ marginBottom: 20 }}>
+                              <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                                What makes your property unique
+                              </label>
+                              <textarea
+                                placeholder="Add a description..."
+                                rows={4}
+                                value={description}
+                                onChange={(e) => {
+                                  const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                  setDescription(onlyWords);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: 10,
+                                  border: "1px solid #ccc",
+                                  borderRadius: 4,
+                                  fontSize: 14,
+                                  transition: "border-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                                onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                              />
+                              <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                                Minimum 30 characters required
+                              </small>
+                            </div>
+
+
+
+                            <div>
+                              <button
+                                type="button"
+                                onClick={handleStep5Continue}
+                                style={{
+                                  backgroundColor: "#ED2027",
+                                  color: "#fff",
+                                  padding: "12px 28px",
+                                  borderRadius: 6,
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: 15,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div></>
+                      )}
+
+                  </>
+                )}
+
+
+                {listingType === "Rent" && (
+                  <>
+                    {propertyType === "Commercial" &&
+                      (subPropertyType === "Others") && (
+                        <>
+                          <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                            Add pricing and details...
+                          </h4>
+                          {/* Rent Details */}
+                          <div className="step3-section">
+                            <h6 className="step3-subheader">Rent Details</h6>
+                            <div className="step3-price-group">
+                              <input
+                                type="number"
+                                placeholder="₹ Expected Rent"
+                                value={expectedRent}
+                                onChange={(e) => setExpectedRent(e.target.value)}
+                                className={`step3-input ${!expectedRent ? "error-border" : ""}`}
+                              />
+                            </div>
+                            <small className="step3-subnote">₹ Price in words</small>
+
+                            {/* Checkboxes */}
+                            <div className="step3-checkbox-group">
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={elecWaterExcluded}
+                                  onChange={(e) => setElecWaterExcluded(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Electricity & Water charges excluded
+                              </label>
+                              <label className="step3-checkbox-label">
+                                <input
+                                  type="checkbox"
+                                  checked={priceNegotiable}
+                                  onChange={(e) => setPriceNegotiable(e.target.checked)}
+                                  className="step3-checkbox"
+                                />
+                                Price Negotiable
+                              </label>
+                            </div>
+                          </div>
+                          {/* Additional Price Details */}
+                          <div className="step3-section">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdditionalPricing((prev) => !prev)}
+                              className="step3-toggle-btn"
+                            >
+                              {showAdditionalPricing
+                                ? "− Hide  more Rent Details"
+                                : "+ Add more Rent Details (Optional)"}
+                            </button>
+
+                            {showAdditionalPricing && (
+                              <div className="step3-additional-fields">
+                                {/* Maintenance + unit */}
+                                <div className="step3-input-group">
+                                  <input
+                                    type="number"
+                                    placeholder="Maintenance"
+                                    value={maintenance}
+                                    onChange={(e) => setMaintenance(e.target.value)}
+                                    className="step3-input"
+                                  />
+                                  <select
+                                    value={maintenanceUnit}
+                                    onChange={(e) => setMaintenanceUnit(e.target.value)}
+                                    className="step3-unit-select"
+                                  >
+                                    <option value="">Select</option>
+                                    <option value="Monthly">Monthly</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="One Time">One Time</option>
+                                    <option value="Per Unit">Per Unit</option>
+                                  </select>
+                                </div>
+
+                                {/* Booking Amount */}
+                                <input
+                                  type="number"
+                                  placeholder="Booking Amount"
+                                  value={bookingAmount}
+                                  onChange={(e) => setBookingAmount(e.target.value)}
+                                  className="step3-input"
+                                />
+
+                                {/* Membership Charge */}
+                                <input
+                                  type="number"
+                                  placeholder="Membership Charge"
+                                  value={membershipCharge}
+                                  onChange={(e) => setMembershipCharge(e.target.value)}
+                                  className="step3-input"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ marginBottom: 20 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                              What makes your property unique
+                            </label>
+                            <textarea
+                              placeholder="Add a description..."
+                              rows={4}
+                              value={description}
+                              onChange={(e) => {
+                                const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                                setDescription(onlyWords);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: 10,
+                                border: "1px solid #ccc",
+                                borderRadius: 4,
+                                fontSize: 14,
+                                transition: "border-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                              onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                            />
+                            <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                              Minimum 30 characters required
+                            </small>
+                          </div>
+
+
+
+                          <div>
+                            <button
+                              type="button"
+                              onClick={handleStep5Continue}
+                              style={{
+                                backgroundColor: "#ED2027",
+                                color: "#fff",
+                                padding: "12px 28px",
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: 15,
+                                transition: "background-color 0.15s ease",
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                            >
+                              Continue
+                            </button>
+                          </div>
+
+                        </>
+                      )}
+                  </>
+                )}
+
+
+
+
+
+
+                {/* <div style={{ padding: "20px", maxWidth: "700px" }}>
+                  <h4 style={{ color: "#333", fontWeight: 600, fontSize: 18, marginBottom: 20 }}>
+                    Add pricing and details...
+                  </h4>
+
+                 
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                      Ownership
                     </label>
-
-                    <label
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                        cursor: "pointer",
-                        accentColor: "#ED2027",
-                        fontWeight: brokerage === "no" ? 600 : 500,
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="brokerage"
-                        value="no"
-                        checked={brokerage === "no"}
-                        onChange={() => setBrokerage("no")}
-                      />
-                      No
-                    </label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                      {["Freehold", "Leasehold", "Co-operative society", "Power of Attorney"].map(
+                        (type) => {
+                          const isSelected = selectedOwnership === type;
+                          return (
+                            <button
+                              key={type}
+                              type="button"
+                              onClick={() => setSelectedOwnership(type)}
+                              style={{
+                                padding: "8px 18px",
+                                border: "1px solid",
+                                borderColor: isSelected ? "#ED2027" : "#ddd",
+                                borderRadius: 20,
+                                background: isSelected ? "#ED2027" : "#fff",
+                                color: isSelected ? "#fff" : "#333",
+                                cursor: "pointer",
+                                fontSize: 14,
+                                fontWeight: isSelected ? 600 : 500,
+                                transition: "all 0.15s ease",
+                              }}
+                              
+                              onMouseOut={(e) => !isSelected && (e.currentTarget.style.borderColor = "#ddd")}
+                            >
+                              {type}
+                            </button>
+                          );
+                        }
+                      )}
+                    </div>
                   </div>
 
-                  {/* Conditional Brokerage Amount Input */}
-                  {brokerage === "yes" && (
-                    <div style={{ marginTop: 15 }}>
+               
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                      Price Details
+                    </label>
+
+                    <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
                       <input
                         type="text"
-                        placeholder="Enter Brokerage Amount"
-                        value={brokerageAmount}
-                        onChange={(e) => setBrokerageAmount(e.target.value)}
+                        placeholder="Expected Price"
+                        value={expectedPrice}
+                        onChange={(e) => setExpectedPrice(e.target.value)}
                         style={{
-                          width: "100%",
+                          flex: 1,
+                          padding: 10,
+                          border: "1px solid #ccc",
+                          borderRadius: 4,
+                          fontSize: 14,
+                          transition: "border-color 0.15s ease",
+                        }}
+                        onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                        onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Price per sq.yards"
+                        value={pricePerSqYards}
+                        onChange={(e) => setPricePerSqYards(e.target.value)}
+                        style={{
+                          flex: 1,
                           padding: 10,
                           border: "1px solid #ccc",
                           borderRadius: 4,
@@ -9335,62 +16236,335 @@ const AddProperty = () => {
                         onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
                       />
                     </div>
-                  )}
-                </div>
 
-                {/* Description */}
-                <div style={{ marginBottom: 20 }}>
-                  <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
-                    What makes your property unique
-                  </label>
-                  <textarea
-                    placeholder="Add a description..."
-                    rows={4}
-                    value={description}
-                    onChange={(e) => {
-                      const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
-                      setDescription(onlyWords);
-                    }}
-                    style={{
-                      width: "100%",
-                      padding: 10,
-                      border: "1px solid #ccc",
-                      borderRadius: 4,
-                      fontSize: 14,
-                      transition: "border-color 0.15s ease",
-                    }}
-                    onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
-                    onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
-                  />
-                  <small style={{ display: "block", marginTop: 6, color: "#888" }}>
-                    Minimum 30 characters required
-                  </small>
-                </div>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <label
+                        style={{
+                          fontSize: 14,
+                          accentColor: "#ED2027",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checkboxes.allInclusive}
+                          onChange={() => toggleCheckbox("allInclusive")}
+                        />
+                        All inclusive price
+                      </label>
+
+                      <label
+                        style={{
+                          fontSize: 14,
+                          accentColor: "#ED2027",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checkboxes.taxExcluded}
+                          onChange={() => toggleCheckbox("taxExcluded")}
+                        />
+                        Tax and Govt. charges excluded
+                      </label>
+
+                      <label
+                        style={{
+                          fontSize: 14,
+                          accentColor: "#ED2027",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checkboxes.negotiable}
+                          onChange={() => toggleCheckbox("negotiable")}
+                        />
+                        Price Negotiable
+                      </label>
+                    </div>
+                  </div>
+
+                 
+                  <div style={{ marginBottom: 20 }}>
+                   
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "inline-block",
+                        width: "100%",
+                        cursor: "pointer",
+                        border: "1px solid #ccc",
+                        borderRadius: 4,
+                        padding: "10px 40px 10px 16px",
+                        background: "#fff",
+                        fontSize: 14,
+                        color: "#333",
+                        userSelect: "none",
+                      }}
+                      onClick={() => setIsOpen(!isOpen)}
+                      onMouseOver={(e) => (e.currentTarget.style.borderColor = "#ED2027")}
+                      onMouseOut={(e) => (e.currentTarget.style.borderColor = "#ccc")}
+                    >
+                      <span>{isOpen ? "Close Pricing Details" : "Add More Pricing Details"}</span>
+                      <span
+                        style={{
+                          position: "absolute",
+                          right: 12,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          fontSize: 12,
+                          pointerEvents: "none",
+                        }}
+                      >
+                        {isOpen ? "▲" : "▼"}
+                      </span>
+                    </div>
+
+                 
+                    {isOpen && (
+                      <div style={{ marginTop: 20 }}>
+                        <label
+                          style={{
+                            fontWeight: 600,
+                            display: "block",
+                            marginBottom: 10,
+                          }}
+                        >
+                          Additional Pricing Details (Optional)
+                        </label>
+
+                       
+                        <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                          <input
+                            type="text"
+                            placeholder="Maintenance"
+                            value={maintenance}
+                            onChange={(e) => setMaintenance(e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: 10,
+                              border: "1px solid #ccc",
+                              borderRadius: 4,
+                              fontSize: 14,
+                            }}
+                            onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                            onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                          />
+
+                          <select
+                            value={maintenanceFreq}
+                            onChange={(e) => setMaintenanceFreq(e.target.value)}
+                            style={{
+                              width: 160,
+                              padding: 10,
+                              border: "1px solid #ccc",
+                              borderRadius: 4,
+                              fontSize: 14,
+                              background: "#fff",
+                            }}
+                            onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                            onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                          >
+                            <option>Monthly</option>
+                            <option>Quarterly</option>
+                            <option>Yearly</option>
+                          </select>
+                        </div>
+
+                      
+                        <input
+                          type="text"
+                          placeholder="Expected rental"
+                          value={expectedRental}
+                          onChange={(e) => setExpectedRental(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: 10,
+                            marginBottom: 10,
+                            border: "1px solid #ccc",
+                            borderRadius: 4,
+                            fontSize: 14,
+                          }}
+                          onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                          onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                        />
+
+                    
+                        <input
+                          type="text"
+                          placeholder="Booking Amount"
+                          value={bookingAmount}
+                          onChange={(e) => setBookingAmount(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: 10,
+                            marginBottom: 10,
+                            border: "1px solid #ccc",
+                            borderRadius: 4,
+                            fontSize: 14,
+                          }}
+                          onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                          onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                        />
+
+                       
+                        <input
+                          type="text"
+                          placeholder="Annual dues payable"
+                          value={annualDues}
+                          onChange={(e) => setAnnualDues(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: 10,
+                            marginBottom: 10,
+                            border: "1px solid #ccc",
+                            borderRadius: 4,
+                            fontSize: 14,
+                          }}
+                          onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                          onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                 
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                      Do you charge brokerage?
+                    </label>
+
+                 
+                    <div style={{ display: "flex", gap: 20 }}>
+                      <label
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          cursor: "pointer",
+                          accentColor: "#ED2027",
+                          fontWeight: brokerage === "yes" ? 600 : 500,
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="brokerage"
+                          value="yes"
+                          checked={brokerage === "yes"}
+                          onChange={() => setBrokerage("yes")}
+                        />
+                        Yes
+                      </label>
+
+                      <label
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          cursor: "pointer",
+                          accentColor: "#ED2027",
+                          fontWeight: brokerage === "no" ? 600 : 500,
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="brokerage"
+                          value="no"
+                          checked={brokerage === "no"}
+                          onChange={() => setBrokerage("no")}
+                        />
+                        No
+                      </label>
+                    </div>
+
+                  
+                    {brokerage === "yes" && (
+                      <div style={{ marginTop: 15 }}>
+                        <input
+                          type="text"
+                          placeholder="Enter Brokerage Amount"
+                          value={brokerageAmount}
+                          onChange={(e) => setBrokerageAmount(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: 10,
+                            border: "1px solid #ccc",
+                            borderRadius: 4,
+                            fontSize: 14,
+                            transition: "border-color 0.15s ease",
+                          }}
+                          onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                          onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ fontWeight: 600, display: "block", marginBottom: 10 }}>
+                      What makes your property unique
+                    </label>
+                    <textarea
+                      placeholder="Add a description..."
+                      rows={4}
+                      value={description}
+                      onChange={(e) => {
+                        const onlyWords = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // removes numbers & special chars
+                        setDescription(onlyWords);
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: 10,
+                        border: "1px solid #ccc",
+                        borderRadius: 4,
+                        fontSize: 14,
+                        transition: "border-color 0.15s ease",
+                      }}
+                      onMouseOver={(e) => (e.target.style.borderColor = "#ED2027")}
+                      onMouseOut={(e) => (e.target.style.borderColor = "#ccc")}
+                    />
+                    <small style={{ display: "block", marginTop: 6, color: "#888" }}>
+                      Minimum 30 characters required
+                    </small>
+                  </div>
 
 
-                {/* Continue Button */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleStep5Continue}
-                    style={{
-                      backgroundColor: "#ED2027",
-                      color: "#fff",
-                      padding: "12px 28px",
-                      borderRadius: 6,
-                      fontWeight: 600,
-                      border: "none",
-                      cursor: "pointer",
-                      fontSize: 15,
-                      transition: "background-color 0.15s ease",
-                    }}
-                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
-                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
-                  >
-                    Continue
-                  </button>
-                </div>
-              </div>
+                  
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleStep5Continue}
+                      style={{
+                        backgroundColor: "#ED2027",
+                        color: "#fff",
+                        padding: "12px 28px",
+                        borderRadius: 6,
+                        fontWeight: 600,
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: 15,
+                        transition: "background-color 0.15s ease",
+                      }}
+                      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#c41b21")}
+                      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ED2027")}
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </div> */}
+              </>
             )}
 
             {currentStep === 6 && (
@@ -9548,7 +16722,6 @@ const AddProperty = () => {
                 </div>
 
                 {/* Submit */}
-
                 <button
                   type="button"
                   onClick={handleSubmitPropperty}
@@ -9556,24 +16729,12 @@ const AddProperty = () => {
                 >
                   Submit Property
                 </button>
-
-
-
-
               </div>
             )}
-
-
-
           </div>
-
         </div>
-
       </div>
-
     </div >
-
-
   );
 };
 
