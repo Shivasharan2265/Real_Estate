@@ -17,6 +17,9 @@ const MyProfile = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [loading, setLoading] = useState(true); // 👈 loader state
 
+    const [btnLoading, setBtnLoading] = useState(false);
+
+
     const [name, setName] = useState(localStorage.getItem("name"));
     console.log(name);
 
@@ -99,6 +102,7 @@ const MyProfile = () => {
                 { text: 'Contact Us', onClick: () => navigate('/contactus') },
                 { text: 'FAQs', onClick: () => navigate('/FAQ') },
                 { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
+                  { text: 'Blogs', onClick: () => navigate('/blogs') },
             ]
         }, {
             label: 'Options', className: 'dropdown3',
@@ -146,7 +150,7 @@ const MyProfile = () => {
                 const profileUrl = user.profile
                     ? user.profile.startsWith("http")
                         ? user.profile
-                        : `http://192.168.1.103/projects/easyAcers/admin/${user.profile}`
+                        : `${api.imageUrl}/${user.profile}`
                     : "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI=";
 
                 setCustomer((prev) => ({
@@ -183,6 +187,7 @@ const MyProfile = () => {
         }
 
         try {
+            setBtnLoading(true); // start button loader
             const response = await api.post("customers/customerProfile", fd);
             console.log("Update response:", response.data);
             if (response.data.success) {
@@ -191,6 +196,8 @@ const MyProfile = () => {
         } catch (error) {
             console.error("customer error:", error);
             alert("Something went wrong while updating profile!");
+        } finally {
+            setBtnLoading(false); // stop loader
         }
     };
 
@@ -231,7 +238,7 @@ const MyProfile = () => {
                 const profileUrl = agent.profile
                     ? agent.profile.startsWith("http")
                         ? agent.profile
-                        : `http://192.168.1.103/projects/easyAcers/admin/${agent.profile}`
+                        : `${api.imageUrl}/${agent.profile}`
                     : "http://192.168.1.103/projects/easyAcers/admin/api/images/avatar/avt-2.jpg";
 
                 setCustomer({
@@ -283,6 +290,7 @@ const MyProfile = () => {
         }
 
         try {
+            setBtnLoading(true); // start button loader
             const response = await api.post("agents/agentProfile", fd);
             console.log("Agent Update response:", response.data);
 
@@ -294,6 +302,8 @@ const MyProfile = () => {
         } catch (error) {
             console.error("Agent error:", error);
             toast.error("Something went wrong while updating Agent profile!");
+        } finally {
+            setBtnLoading(false); // stop loader
         }
     };
 
@@ -513,6 +523,7 @@ const MyProfile = () => {
                                                                     <li><a href="contactus" onClick={(e) => { e.preventDefault(); navigate('/contactus'); }}>Contact Us</a></li>
                                                                     <li><a href="faq" onClick={(e) => { e.preventDefault(); navigate('/FAQ'); }}>FAQs</a></li>
                                                                     <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/Privacy-Policy'); }}>Privacy Policy</a></li>
+                                                                     <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/blogs'); }}>Blogs</a></li>
                                                                 </ul>
                                                             </li>
 
@@ -926,13 +937,13 @@ const MyProfile = () => {
                                                         {doc.document ? (
                                                             <div className="uploaded-document">
                                                                 <img
-                                                                    src={`http://192.168.1.103/projects/easyAcers/admin/${doc.document}`}
+                                                                    src={`${api.imageUrl}/${doc.document}`}
                                                                     alt={doc.documentType}
                                                                     className="document-preview"
                                                                 />
                                                                 <div className="document-actions">
                                                                     <a
-                                                                        href={`http://192.168.1.103/projects/easyAcers/admin/${doc.document}`}
+                                                                        href={`${api.imageUrl}/${doc.document}`}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
                                                                         className="view-link"
@@ -1052,9 +1063,10 @@ const MyProfile = () => {
 
 
                                     {/* Save Button */}
-                                    <div div className="box" >
+                                    <div className="box">
                                         <button
                                             className="tf-btn primary"
+                                            disabled={btnLoading} // disable while loading
                                             onClick={() => {
                                                 const userType = localStorage.getItem("usertype");
                                                 if (userType === "Agent") {
@@ -1064,9 +1076,30 @@ const MyProfile = () => {
                                                 }
                                             }}
                                         >
-                                            Save & Update
+                                            {btnLoading ? (
+                                                <span className="spinner"></span>  // 👇 loader animation
+                                            ) : (
+                                                "Save & Update"
+                                            )}
                                         </button>
+
+                                        <style>{`
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #fff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `}</style>
                                     </div>
+
 
                                 </div>
                             </div>

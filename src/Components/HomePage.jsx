@@ -14,13 +14,27 @@ import "./HomePage.css"
 
 const HomePage = () => {
     const [bannerUrl, setBannerUrl] = useState(""); // state for dynamic banner
+    const [popupBanner, setPopupBanner] = useState(""); // state for dynamic banner
+    const [stickyBanner, setStickyBanner] = useState(""); // state for dynamic banner
+
     const [footerBannerUrl, setFooterBannerUrl] = useState(""); // state for footer banner
     const [offset, setOffset] = useState(307.919); // full length (hidden)
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("View All"); // keep track of which tab is clicked
     const navigate = useNavigate()
+    const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
+    const [showPopup, setShowPopup] = useState(false);
 
+    useEffect(() => {
+        const authToken = localStorage.getItem("authToken");
+        if (popupBanner && authToken) {
+            const timer = setTimeout(() => {
+                setShowPopup(true);
+            }, 10000);
+            return () => clearTimeout(timer);
+        }
+    }, [popupBanner]);
 
 
     useEffect(() => {
@@ -113,38 +127,97 @@ const HomePage = () => {
 
 
     const bannerList = async () => {
+        setBannersLoading(true);
         const fd = new FormData();
         fd.append("programType", "getBannerDetails");
         fd.append("authToken", localStorage.getItem("authToken"));
 
         try {
             const response = await api.post("properties/preRequirements", fd);
-            console.log("banner", response);
+            console.log("banners", response)
 
             if (response.data && response.data.data) {
                 const banners = response.data.data;
-                const baseURL = "http://192.168.1.103/projects/easyAcers/admin/";
+                const baseURL = api.imageUrl;
 
-                // Hero Banner
                 const heroBanner = banners.find(b => b.type === "Hero Banner");
                 if (heroBanner && heroBanner.sliderImage) {
-                    setBannerUrl(baseURL + heroBanner.sliderImage);
+                    setBannerUrl(heroBanner.sliderImage);
                 }
 
-                // Footer Banner
+                const popupBanner = banners.find(b => b.type === "Popup Banner");
+                if (popupBanner && popupBanner.sliderImage) {
+                    setPopupBanner(popupBanner.sliderImage);
+                }
+
+                const stickyBanner = banners.find(b => b.type === "Sticky Banner");
+                if (stickyBanner && stickyBanner.sliderImage) {
+                    setStickyBanner(stickyBanner.sliderImage);
+                }
+
+
                 const footerBanner = banners.find(b => b.type === "Footer Banner");
                 if (footerBanner && footerBanner.sliderImage) {
-                    setFooterBannerUrl(baseURL + footerBanner.sliderImage);
+                    setFooterBannerUrl(footerBanner.sliderImage);
                 }
             }
         } catch (error) {
             console.error("banner error:", error);
+        } finally {
+            setBannersLoading(false);
         }
     };
 
     useEffect(() => {
         bannerList();
     }, []);
+
+    // ✅ Show loader until both banners and properties are ready
+    if (loading || bannersLoading) {
+        return (
+            <div>
+                <Header />
+                <div
+                    style={{
+                        minHeight: "80vh",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "column",
+                    }}
+                >
+                    <div className="bouncing-cubes">
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
+                        <div className="cube" style={{ backgroundColor: "#EC2126" }}></div>
+                    </div>
+                    <p className="mt-3">Loading property details...</p>
+                </div>
+
+                <style>{`
+                .bouncing-cubes {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    height: 50px;
+                }
+                .cube {
+                    width: 20px;
+                    height: 20px;
+                    animation: bounce 1.5s infinite ease-in-out;
+                }
+                .cube:nth-child(2) { animation-delay: 0.2s; }
+                .cube:nth-child(3) { animation-delay: 0.4s; }
+                @keyframes bounce {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-20px); }
+                }
+            `}</style>
+            </div>
+        );
+    }
+
 
 
     return (
@@ -156,7 +229,9 @@ const HomePage = () => {
                     <section
                         className="flat-slider home-1"
                         style={{
-                            backgroundImage: bannerUrl ? `url(${bannerUrl})` : "none",
+                            backgroundImage: bannerUrl
+                                ? `url(${api.imageUrl}${bannerUrl})`
+                                : "https://eu-central.storage.cloudconvert.com/tasks/ae46ca00-b99e-40e7-9cb8-2407fd19666c/appartment.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20250908%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20250908T080423Z&X-Amz-Expires=86400&X-Amz-Signature=a8431c7d4a33a3b9c76a84e1b4bfab05bf20dcb08377eaa2513f43da782d4a95&X-Amz-SignedHeaders=host&response-content-disposition=inline%3B%20filename%3D%22appartment.jpg%22&response-content-type=image%2Fjpeg&x-id=GetObject",
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             height: "800px",
@@ -233,7 +308,7 @@ const HomePage = () => {
                                                                         </a>
                                                                     </div>
                                                                 </div>
-                                                                <button type="submit" className="tf-btn primary" href="#">Search</button>
+                                                                <span type="submit" className="tf-btn primary" href="#">Search</span>
                                                             </div>
                                                             <div className="wd-search-form">
                                                                 <div className="grid-2 group-box group-price">
@@ -890,7 +965,7 @@ const HomePage = () => {
                         <div className="container">
                             <div className="box-title text-center wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
                                 <div className="text-subtitle text-primary">Our Benifit</div>
-                                <h4 className="mt-4">Why Choose Homeya</h4>
+                                <h4 className="mt-4">Why Choose Easy Acers</h4>
                             </div>
                             <div className="wrap-benefit wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
                                 <div className="box-benefit">
@@ -1229,12 +1304,128 @@ const HomePage = () => {
                     {footerBannerUrl && (
                         <div className="footer-banner text-center my-4">
                             <img
-                                src={footerBannerUrl}
+                                src={`${api.imageUrl}${footerBannerUrl}`}
                                 alt="Footer Banner"
-                                style={{ maxWidth: "100%",minWidth:"500px", height: "auto" }}
+                                style={{ width: "1200px", height: "300px" }}
                             />
                         </div>
                     )}
+
+                    {/* ✅ Popup Banner Modal */}
+                    {showPopup && popupBanner && (
+                        <div className="popup-overlay">
+                            <div className="popup-container">
+                                <button className="popup-close" style={{ zIndex: "999" }} onClick={() => setShowPopup(false)}>
+                                    ✖
+                                </button>
+                                <img
+                                    src={`${api.imageUrl}${popupBanner}`}
+                                    alt="Popup Banner"
+                                    className="popup-img"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <style>{`
+        .popup-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0,0,0,0.6);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          animation: fadeIn 0.5s ease-in-out;
+        }
+        .popup-container {
+          position: relative;
+          background: #fff;
+          padding: 10px;
+          border-radius: 12px;
+          box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+          animation: scaleUp 0.4s ease-in-out;
+          max-width: 600px;
+          width: 90%;
+        }
+        .popup-img {
+          width: 100%;
+          height: auto;
+          border-radius: 10px;
+        }
+        .popup-close {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: #ec2126;
+          border: none;
+          color: #fff;
+          font-size: 18px;
+          font-weight: bold;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          cursor: pointer;
+          transition: 0.3s;
+        }
+        .popup-close:hover {
+          background: #b8161a;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleUp {
+          from { transform: scale(0.8); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+
+
+                    {stickyBanner && (
+                        <div
+                            style={{
+                                position: "fixed",
+                                bottom: "20px",
+                                left: "20px",
+                                zIndex: 9999,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    position: "relative",
+                                    background: "#fff",
+                                    borderRadius: "12px",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                    overflow: "hidden",
+                                    maxWidth: "280px",
+                                    animation: "slideUp 0.5s ease-out",
+                                }}
+                            >
+                                {/* Close Button */}
+                                <button className="popup-close" style={{ zIndex: "999" }} onClick={() => setStickyBanner(false)}>
+                                    ✖
+                                </button>
+
+                                {/* Banner Image */}
+                                <img
+                                    src={`${api.imageUrl}${stickyBanner}`}
+                                    alt="Sticky Banner"
+                                    style={{
+                                        display: "block",
+                                        width: "100%",
+                                        height: "auto",
+                                        borderRadius: "12px",
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+
 
 
 

@@ -10,7 +10,7 @@ const BlogOverview = () => {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const BASE_URL = "http://192.168.1.103/projects/easyAcers/admin/";
+   
 
     useEffect(() => {
         const fetchBlogData = async () => {
@@ -111,7 +111,7 @@ const BlogOverview = () => {
                 <img
                     src={
                         blog && blog.featured_image
-                            ? `${BASE_URL}${blog.featured_image}`
+                            ? `${api.imageUrl}${blog.featured_image}`
                             : "images/blog/banner-blog.jpg"
                     }
                     alt={blog ? blog.title : "banner-blog"}
@@ -189,7 +189,7 @@ const BlogOverview = () => {
                                     >
                                         <div className="img-style">
                                             <img
-                                                src={BASE_URL + blog.featured_image}
+                                                src={api.imageUrl + blog.featured_image}
                                                 alt={blog.title}
                                             />
                                             <span className="date-post">

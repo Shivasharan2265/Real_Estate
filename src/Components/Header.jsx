@@ -477,8 +477,8 @@ const Header = () => {
 
 
 
-0
-   const containerStyle = {
+  0
+  const containerStyle = {
     width: "100%",
     maxWidth: "400px",
     // minHeight: "400px",
@@ -683,20 +683,35 @@ const Header = () => {
             </div>
             <div className="bottom-canvas">
               <div className="login-box flex align-items-center">
-                <a href="#modalLogin" data-bs-toggle="modal">Login</a>
-                <span>/</span>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowRegister(true);
-                    toggleMobileMenu();
-                  }}
-                >
-                  Register
-                </a>
-
+                {!localStorage.getItem("authToken") ? (
+                  <>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowRegister(true);
+                        toggleMobileMenu();
+                      }}
+                    >
+                      Login/Register
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate("/myprofile");
+                        toggleMobileMenu();
+                      }}
+                    >
+                      My Profile
+                    </a>
+                  </>
+                )}
               </div>
+
 
               <div className="menu-outer">
                 <div className="navbar-collapse collapse clearfix" id="navbarSupportedContent">
@@ -750,11 +765,11 @@ const Header = () => {
               <div className="mobi-icon-box">
                 <div className="box d-flex align-items-center">
                   <span className="icon icon-phone2"></span>
-                  <div>1-333-345-6868</div>
+                  <div>+91-7411043895</div>
                 </div>
                 <div className="box d-flex align-items-center">
                   <span className="icon icon-mail"></span>
-                  <div>themesflat@gmail.com</div>
+                  <div>info@easy_acers.com</div>
                 </div>
               </div>
             </div>
