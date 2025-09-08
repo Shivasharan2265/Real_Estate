@@ -15,6 +15,8 @@ const Blogs = () => {
   const [page, setPage] = useState(1); // current page
   const [hasMore, setHasMore] = useState(true); // to check if more blogs exist
 
+  console.log("image ", api.imageUrl)
+
 // Load first page on mount
 useEffect(() => {
   bloglist(1); // always load page 1 explicitly
@@ -37,6 +39,7 @@ const bloglist = async (currentPage) => {
 
   try {
     const response = await api.post("/properties/preRequirements", fd);
+    console.log(response)
     if (response.data.success) {
       const newBlogs = response.data.data;
 
@@ -60,7 +63,7 @@ const bloglist = async (currentPage) => {
   }
 };
 
-  const imageUrl = "http://192.168.1.103/projects/easyAcers/admin/";
+ 
 
   const renderSkeleton = () => {
     return Array(6)
@@ -106,7 +109,7 @@ const bloglist = async (currentPage) => {
                     >
                       <div className="img-style">
                         <img
-                          src={{imageUrl} + blog.featured_image}
+                          src={api.imageUrl + blog.featured_image}
                           alt={blog.title}
                         />
                         <span className="date-post">
