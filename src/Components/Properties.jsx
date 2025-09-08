@@ -24,7 +24,7 @@ const Properties = () => {
 
     const [email, setEmail] = useState(localStorage.getItem("email"));
     const [message, setMessage] = useState("I am Intersted!");
-
+const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
     // inside Properties component
     const [liked, setLiked] = useState(false);
     const [hover, setHover] = useState(false);

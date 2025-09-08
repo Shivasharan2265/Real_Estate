@@ -1,28 +1,30 @@
 import axios from "axios";
-// import { getToken } from "./authUtils";
 
-// Create an axios instance with the default headers
+const IMG_URL = "https://jewellery.hisabapp.com/admin/";
 
-export const api = axios.create({
-  baseURL: "http://192.168.1.103/projects/easyAcers/admin/api",
-  imageUrl: "http://192.168.1.103/projects/easyAcers/admin/",
+// const IMG_URL = "http://192.168.1.103/projects/easyAcers/admin/";
 
+
+const api = axios.create({
+  baseURL: "https://jewellery.hisabapp.com/admin/api/",
+
+  // baseURL: "http://192.168.1.103/projects/easyAcers/admin/api",
 
 });
 
+// ✅ attach custom property (not inside axios.create)
+api.imageUrl = IMG_URL;
 
 // Add the Authorization header to each request
 api.interceptors.request.use(
   (config) => {
     const token = "kasejfksjdhfywterjwefbdskgfhsdfjh"; // Get the token from localStorage
     if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`; // Set the token in the Authorization header
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-export default api;
+export default api;
