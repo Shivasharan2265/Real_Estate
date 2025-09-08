@@ -10,12 +10,19 @@ import api from '../api/api';
 import "./HomePage.css"
 
 
+
+
 const HomePage = () => {
+    const [bannerUrl, setBannerUrl] = useState(""); // state for dynamic banner
+    const [footerBannerUrl, setFooterBannerUrl] = useState(""); // state for footer banner
     const [offset, setOffset] = useState(307.919); // full length (hidden)
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("View All"); // keep track of which tab is clicked
     const navigate = useNavigate()
+
+
+
     useEffect(() => {
         // Trigger animation after component mounts
         const timer = setTimeout(() => {
@@ -103,13 +110,62 @@ const HomePage = () => {
     };
 
 
+
+
+    const bannerList = async () => {
+        const fd = new FormData();
+        fd.append("programType", "getBannerDetails");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("properties/preRequirements", fd);
+            console.log("banner", response);
+
+            if (response.data && response.data.data) {
+                const banners = response.data.data;
+                const baseURL = "http://192.168.1.103/projects/easyAcers/admin/";
+
+                // Hero Banner
+                const heroBanner = banners.find(b => b.type === "Hero Banner");
+                if (heroBanner && heroBanner.sliderImage) {
+                    setBannerUrl(baseURL + heroBanner.sliderImage);
+                }
+
+                // Footer Banner
+                const footerBanner = banners.find(b => b.type === "Footer Banner");
+                if (footerBanner && footerBanner.sliderImage) {
+                    setFooterBannerUrl(baseURL + footerBanner.sliderImage);
+                }
+            }
+        } catch (error) {
+            console.error("banner error:", error);
+        }
+    };
+
+    useEffect(() => {
+        bannerList();
+    }, []);
+
+
     return (
         <div className='body bg-surface '>
             <div id="wrapper">
                 <div id="pagee" className="clearfix">
                     <Header />
                     {/* SLIDER & TABS */}
-                    <section className="flat-slider home-1">
+                    <section
+                        className="flat-slider home-1"
+                        style={{
+                            backgroundImage: bannerUrl ? `url(${bannerUrl})` : "none",
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                            height: "800px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            position: "relative"
+                        }}
+                    >
                         <div className="container relative">
                             <div className="row">
                                 <div className="col-lg-12">
@@ -145,12 +201,12 @@ const HomePage = () => {
                                                                 <div className="inner-group">
                                                                     <div className="form-group-1 search-form form-style">
                                                                         <label>Keyword</label>
-                                                                        <input type="text" className="form-control" placeholder="Search Keyword." value="" name="s" title="Search for" required="" />
+                                                                        <input type="text" className="form-control" placeholder="Search Keyword." title="Search for" required="" />
                                                                     </div>
                                                                     <div className="form-group-2 form-style">
                                                                         <label>Location</label>
                                                                         <div className="group-ip">
-                                                                            <input type="text" className="form-control" placeholder="Search Location" value="" name="s" title="Search for" required="" />
+                                                                            <input type="text" className="form-control" placeholder="Search Location" title="Search for" required="" />
                                                                             <a href="#" className="icon icon-location"></a>
                                                                         </div>
                                                                     </div>
@@ -1169,6 +1225,16 @@ const HomePage = () => {
                             </div>
                         </div>
                     </section> */}
+
+                    {footerBannerUrl && (
+                        <div className="footer-banner text-center my-4">
+                            <img
+                                src={footerBannerUrl}
+                                alt="Footer Banner"
+                                style={{ maxWidth: "100%",minWidth:"500px", height: "auto" }}
+                            />
+                        </div>
+                    )}
 
 
 

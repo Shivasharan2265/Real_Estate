@@ -20,6 +20,7 @@ import Addproperty from "./Components/Addproperty";
 import Adddetails from "./Components/Adddetails";
 import Blogs from "./Components/Blogs";
 import BlogOverview from "./Components/BlogOverview";
+import { Toaster } from "react-hot-toast";
 
 
 // import SignInotp from "./Components/SignInotp";
