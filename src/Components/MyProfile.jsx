@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import api from '../api/api';
 import easy from "../assets/easy.png"
 import Header from './Header';
+import toast from 'react-hot-toast';
+import './Myprofile.css';
+
 
 
 const MyProfile = () => {
@@ -132,24 +135,34 @@ const MyProfile = () => {
         fd.append("authToken", localStorage.getItem("authToken"));
 
         try {
-            setLoading(true); // start loader
+            setLoading(true);
             const response = await api.post("customers/customerProfile", fd);
+            console.log("customer details", response);
+
             if (response.data?.success) {
+                const user = response.data.data;
+
+                // Normalize backend profile image URL
+                const profileUrl = user.profile
+                    ? user.profile.startsWith("http")
+                        ? user.profile
+                        : `http://192.168.1.103/projects/easyAcers/admin/${user.profile}`
+                    : "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI=";
+
                 setCustomer((prev) => ({
                     ...prev,
-                    ...response.data.data,
+                    ...user,
+                    profile: profileUrl,
                 }));
             }
+
         } catch (error) {
             console.error("customer error:", error);
         } finally {
-            setLoading(false); // stop loader
+            setLoading(false);
         }
     };
 
-    useEffect(() => {
-        getCustomerDetails();
-    }, []);
 
     // Update customer details
     const updateCustomerDetails = async () => {
@@ -173,7 +186,7 @@ const MyProfile = () => {
             const response = await api.post("customers/customerProfile", fd);
             console.log("Update response:", response.data);
             if (response.data.success) {
-                alert("Profile updated successfully!");
+                toast.success(response.data.message)
             }
         } catch (error) {
             console.error("customer error:", error);
@@ -182,17 +195,204 @@ const MyProfile = () => {
     };
 
     // Handle file change
+
+
+
+
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Save file in state
-            setCustomer({ ...customer, file });
-
-            // Show preview instantly
-            const previewUrl = URL.createObjectURL(file);
-            setCustomer((prev) => ({ ...prev, profile: previewUrl }));
+            setCustomer((prev) => ({
+                ...prev,
+                file,
+                profile: URL.createObjectURL(file), // temporary preview
+            }));
         }
     };
+
+
+
+
+
+    const getAgentDetails = async () => {
+        const fd = new FormData();
+        fd.append("programType", "getPersonalDetailsOfAgent");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            setLoading(true);
+            const response = await api.post("agents/agentProfile", fd);
+            console.log("agent details", response);
+
+            if (response.data?.success) {
+                const agent = response.data.data;
+
+                const profileUrl = agent.profile
+                    ? agent.profile.startsWith("http")
+                        ? agent.profile
+                        : `http://192.168.1.103/projects/easyAcers/admin/${agent.profile}`
+                    : "http://192.168.1.103/projects/easyAcers/admin/api/images/avatar/avt-2.jpg";
+
+                setCustomer({
+                    firstName: agent.agentName || "",
+                    lastName: "",
+                    email: agent.email || "",
+                    mobile: agent.mobileNo || "",
+                    country: agent.country || "",
+                    state: agent.state || "",
+                    city: agent.city || "",
+                    address: agent.address || "",
+                    postalCode: agent.postCode || "",
+                    profile: profileUrl,
+                    file: null,
+                });
+            }
+
+        } catch (error) {
+            console.error("agent error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
+
+
+
+
+
+
+
+    const updateAgentDetails = async () => {
+        const fd = new FormData();
+        fd.append("programType", "updateAgent");
+        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("firstName", customer.firstName);
+        fd.append("lastName", customer.lastName);
+        fd.append("email", customer.email);
+        fd.append("mobile", customer.mobile);
+        fd.append("country", customer.country);
+        fd.append("state", customer.state);
+        fd.append("city", customer.city);
+        fd.append("address", customer.address);
+        fd.append("postalCode", customer.postalCode);
+        if (customer.file) {
+            fd.append("file", customer.file);
+        }
+
+        try {
+            const response = await api.post("agents/agentProfile", fd);
+            console.log("Agent Update response:", response.data);
+
+            if (response.data.success) {
+                toast.success(response.data.message || "Agent profile updated successfully!");
+            } else {
+                toast.error(response.data.message || "Failed to update agent profile.");
+            }
+        } catch (error) {
+            console.error("Agent error:", error);
+            toast.error("Something went wrong while updating Agent profile!");
+        }
+    };
+
+
+
+
+
+
+
+
+
+    useEffect(() => {
+        const userType = localStorage.getItem("usertype");
+        if (userType === "Agent") {
+            getAgentDetails();
+        } else {
+            getCustomerDetails();
+        }
+    }, []);
+
+
+
+
+
+
+
+    const [kycDocs, setKycDocs] = useState([]);
+    const [fileMap, setFileMap] = useState({});
+
+
+
+    // ---- Fetch existing KYC details ----
+    const kycDetails = async () => {
+        const fd = new FormData();
+        fd.append("programType", "displayRequestedKycDetails");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("agents/agentProfile", fd);
+            console.log("KYC details", response);
+
+            if (response.data?.success) {
+                setKycDocs(response.data.data || []);
+            }
+        } catch (error) {
+            console.error("KYC fetch error:", error);
+            toast.error("Failed to fetch KYC details");
+        }
+    };
+    // ---- Upload Handler ----
+
+
+
+    const [aadharFile, setAadharFile] = useState(null);
+    const [panFile, setPanFile] = useState(null);
+
+    // 👇 inside MyProfile component, before return
+    const userType = localStorage.getItem("usertype");
+
+
+
+    const handleFileChangeAgent = (kycId, file) => {
+        setFileMap((prev) => ({ ...prev, [kycId]: file }));
+    };
+
+    // ---- Upload Handler ----
+    const handleUpload = async (kycId) => {
+        if (!fileMap[kycId]) {
+            toast.error("Please select a file first!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("programType", "uploadKycDetailsOfAgent");
+        formData.append("authToken", localStorage.getItem("authToken"));
+        formData.append("kycId", kycId);
+        formData.append("file", fileMap[kycId]);
+
+        try {
+            const response = await api.post("agents/agentProfile", formData);
+            console.log("Upload KYC", response);
+
+            if (response.data?.success) {
+                toast.success("Document uploaded successfully!");
+                kycDetails(); // refresh list
+            } else {
+                toast.error(response.data?.message || "Upload failed");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            toast.error("Upload failed. Try again.");
+        }
+    };
+    useEffect(() => {
+        kycDetails();
+    }, []);
+
+
+
 
 
     // ✅ Show loader if loading
@@ -550,31 +750,51 @@ const MyProfile = () => {
                                 <div className="widget-box-2">
                                     <h6 className="title">Account Settings</h6>
 
+
+
+
+
+
+
+
+
+
+
+                                    {/* Avatar Upload */}
                                     {/* Avatar Upload */}
                                     <div className="box">
                                         <h6 className="title">Avatar</h6>
                                         <div className="box-agent-avt">
-                                            <div className="avatar">
+                                            <div className="avatar-container">
+
+
+
                                                 <img
-                                                    src={`http://192.168.1.103/projects/easyAcers/admin/api/${customer.profile || 'images/avatar/avt-2.jpg'}`}
+                                                    src={customer.profile}
                                                     alt="avatar"
-                                                    width="128"
-                                                    height="128"
+                                                    className="avatar-img"
+                                                />
+
+
+
+                                                {/* Pencil Icon Overlay */}
+                                                <label htmlFor="avatarInput" className="edit-icon">
+                                                    <i className="fa-solid fa-pencil"></i>
+                                                </label>
+
+                                                {/* Hidden File Input */}
+                                                <input
+                                                    type="file"
+                                                    id="avatarInput"
+                                                    className="ip-file-hidden"
+                                                    accept="image/*"
+                                                    onChange={handleFileChange}
                                                 />
                                             </div>
-                                            <div className="content uploadfile">
-                                                <p>Upload a new avatar</p>
-                                                <div className="box-ip">
-                                                    <input
-                                                        type="file"
-                                                        className="ip-file"
-                                                        onChange={handleFileChange}
-                                                    />
-                                                </div>
-                                                <p>JPEG 100x100</p>
-                                            </div>
+                                            <p className="mt-2 text-muted">JPEG 100x100</p>
                                         </div>
                                     </div>
+
 
                                     {/* Information Fields */}
                                     <h6 className="title">Information</h6>
@@ -685,12 +905,169 @@ const MyProfile = () => {
                                         </div>
                                     </div>
 
+
+
+
+
+
+
+                                    {/* ---- KYC DOCUMENTS ---- */}
+                                    {/* ---- KYC DOCUMENTS ---- */}
+                                    {userType === "Agent" && (
+                                        <div className="kyc-container">
+                                            <h6 className="kyc-title">KYC Documents</h6>
+
+                                            <div className="approved-docs">
+                                                {kycDocs.map((doc) => (
+                                                    <div className="document-card" key={doc.id}>
+                                                        <label className="document-label">{doc.documentType}:</label>
+
+                                                        {/* If already uploaded, show preview */}
+                                                        {doc.document ? (
+                                                            <div className="uploaded-document">
+                                                                <img
+                                                                    src={`http://192.168.1.103/projects/easyAcers/admin/${doc.document}`}
+                                                                    alt={doc.documentType}
+                                                                    className="document-preview"
+                                                                />
+                                                                <div className="document-actions">
+                                                                    <a
+                                                                        href={`http://192.168.1.103/projects/easyAcers/admin/${doc.document}`}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="view-link"
+                                                                    >
+                                                                        View Uploaded Document
+                                                                    </a>
+                                                                    {doc.status === 2 && (
+                                                                        <span className="status-badge status-approved">Approved</span>
+                                                                    )}
+                                                                    {doc.status === 1 && (
+                                                                        <span className="status-badge status-rejected">Rejected</span>
+                                                                    )}
+                                                                    {(doc.status === 0 || doc.status == null) && (
+                                                                        <span className="status-badge status-pending">Pending</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <p className="no-document">No document uploaded yet</p>
+                                                        )}
+
+                                                        {/* Upload (drag-drop) only if not approved */}
+                                                        {doc.status !== 2 && (
+                                                            <div
+                                                                className="upload-area"
+                                                                onDragOver={(e) => e.preventDefault()}
+                                                                onDrop={(e) => {
+                                                                    e.preventDefault();
+                                                                    if (e.dataTransfer.files.length > 0) {
+                                                                        handleFileChangeAgent(doc.id, e.dataTransfer.files[0]);
+                                                                    }
+                                                                }}
+                                                                onClick={() =>
+                                                                    document.getElementById(`fileInput-${doc.id}`).click()
+                                                                }
+                                                            >
+                                                                <div className="upload-icon">
+                                                                    <svg
+                                                                        width="24"
+                                                                        height="24"
+                                                                        viewBox="0 0 24 24"
+                                                                        fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                    >
+                                                                        <path
+                                                                            d="M11 15H13V9H16L12 4L8 9H11V15Z"
+                                                                            fill="currentColor"
+                                                                        />
+                                                                        <path
+                                                                            d="M20 18H4V11H2V18C2 19.103 2.897 20 4 20H20C21.103 20 22 19.103 22 18V11H20V18Z"
+                                                                            fill="currentColor"
+                                                                        />
+                                                                    </svg>
+                                                                </div>
+                                                                <p>Drag & Drop {doc.documentType} here</p>
+                                                                <p className="upload-subtext">
+                                                                    or <strong>Click to Browse</strong>
+                                                                </p>
+                                                                <p className="upload-formats">Supports: JPG, PNG, PDF</p>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Hidden file input */}
+                                                        <input
+                                                            type="file"
+                                                            id={`fileInput-${doc.id}`}
+                                                            accept="image/*,.pdf"
+                                                            className="file-input"
+                                                            onChange={(e) => handleFileChangeAgent(doc.id, e.target.files[0])}
+                                                        />
+
+                                                        {/* Preview selected file before upload */}
+                                                        {fileMap[doc.id] && (
+                                                            <div className="file-preview-container">
+                                                                {fileMap[doc.id].type.startsWith("image/") ? (
+                                                                    <img
+                                                                        src={URL.createObjectURL(fileMap[doc.id])}
+                                                                        alt="Preview"
+                                                                        className="file-preview-image"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="file-preview-details">
+                                                                        <svg
+                                                                            width="40"
+                                                                            height="40"
+                                                                            viewBox="0 0 24 24"
+                                                                            fill="none"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                        >
+                                                                            <path
+                                                                                d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z"
+                                                                                fill="#6c757d"
+                                                                            />
+                                                                        </svg>
+                                                                        <p className="file-name">{fileMap[doc.id].name}</p>
+                                                                    </div>
+                                                                )}
+
+                                                                <button
+                                                                    className="upload-button"
+                                                                    onClick={() => handleUpload(doc.id)}
+                                                                >
+                                                                    Upload Document
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+
+
+
+
+
+
                                     {/* Save Button */}
-                                    <div className="box">
-                                        <button className="tf-btn primary" onClick={updateCustomerDetails}>
+                                    <div div className="box" >
+                                        <button
+                                            className="tf-btn primary"
+                                            onClick={() => {
+                                                const userType = localStorage.getItem("usertype");
+                                                if (userType === "Agent") {
+                                                    updateAgentDetails();
+                                                } else {
+                                                    updateCustomerDetails();
+                                                }
+                                            }}
+                                        >
                                             Save & Update
                                         </button>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
