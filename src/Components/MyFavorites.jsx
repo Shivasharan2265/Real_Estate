@@ -229,6 +229,7 @@ const MyFavorites = () => {
                                                                     <li><Link to="contactus" onClick={(e) => { e.preventDefault(); navigate('/contactus'); }}>Contact Us</Link> </li>
                                                                     <li><Link to="faq" onClick={(e) => { e.preventDefault(); navigate('/FAQ'); }}>FAQs</Link> </li>
                                                                     <li><Link to="" onClick={(e) => { e.preventDefault(); navigate('/Privacy-Policy'); }}>Privacy Policy</Link> </li>
+                                                                    <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/blogs'); }}>Blogs</a></li>
                                                                 </ul>
                                                             </li>
                                                             <li className="myprofile">

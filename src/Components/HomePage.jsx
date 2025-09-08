@@ -233,7 +233,7 @@ const HomePage = () => {
                                                                         </a>
                                                                     </div>
                                                                 </div>
-                                                                <button type="submit" className="tf-btn primary" href="#">Search</button>
+                                                                <button type="submit" className="tf-btn primary" href="/home">Search</button>
                                                             </div>
                                                             <div className="wd-search-form">
                                                                 <div className="grid-2 group-box group-price">
@@ -1231,10 +1231,16 @@ const HomePage = () => {
                             <img
                                 src={footerBannerUrl}
                                 alt="Footer Banner"
-                                style={{ maxWidth: "100%",minWidth:"500px", height: "auto" }}
+                                style={{
+                                    width: "1500px",      // fixed width
+                                    maxWidth: "100%",     // responsive fallback
+                                    minWidth: "500px",    // minimum width
+                                    height: "auto"
+                                }}
                             />
                         </div>
                     )}
+
 
 
 
