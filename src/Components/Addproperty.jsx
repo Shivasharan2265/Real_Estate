@@ -13,6 +13,9 @@ const AddProperty = () => {
   const [ownerPercentage, setOwnerPercentage] = useState("");
   const [developerPercentage, setDeveloperPercentage] = useState("");
 
+  const [sections, setSections] = useState([{ type: "Plan", files: [] }]);
+
+
   const [isOpen, setIsOpen] = useState(false);
   const [brokerageAmount, setBrokerageAmount] = useState("");
   const [amenities, setAmenities] = useState({
@@ -641,15 +644,15 @@ const AddProperty = () => {
   async function handleSubmitPropperty() {
 
     const facingMap = {
-  "North": "north",
-  "South": "south",
-  "East": "east",
-  "West": "west",
-  "North-East": "north-east",
-  "North-West": "north-west",
-  "South-East": "south-east",
-  "South-West": "south-west",
-};
+      "North": "north",
+      "South": "south",
+      "East": "east",
+      "West": "west",
+      "North-East": "north-east",
+      "North-West": "north-west",
+      "South-East": "south-east",
+      "South-West": "south-west",
+    };
 
 
     const willingMap = {
@@ -734,7 +737,7 @@ const AddProperty = () => {
     //pincode
     //latitude
     //longitude
-  fd.append('property_facing', facingMap[propertyFacing] || "");
+    fd.append('property_facing', facingMap[propertyFacing] || "");
     fd.append('road_width', roadWidth);
     fd.append('road_width_unit', roadUnit);
     fd.append('parking', parking);
@@ -791,7 +794,7 @@ const AddProperty = () => {
     fd.append("availabilityStatus", availabilityMap[availabilityStatus]);
     fd.append('availableFrom', availableFrom);
     fd.append("willingTo", willingMap[willingTo]);
-    fd.append('imageType[]', "plan");
+
 
 
 
@@ -893,9 +896,12 @@ const AddProperty = () => {
 
 
     // Images/files
-    files.forEach((file) => {
-      fd.append("files[]", file);
-    });
+sections.forEach((section) => {
+  fd.append("imageType[]", section.type);
+  section.files.forEach((file) => {
+    fd.append("files[]", file);
+  });
+});
 
     fd.append("authToken", localStorage.getItem("authToken"));
     fd.append("programType", "addPropertyMain");
@@ -1925,8 +1931,6 @@ const AddProperty = () => {
 
                 {(subPropertyType.includes("Flat / Apartment") || subPropertyType.includes("Independent Floor") || subPropertyType.includes("Serviced Apartment")) && (
                   <>
-
-
                     {/* Rent + Residential */}
                     {listingType === "Rent" && propertyType === "Residential" && (
                       <>
@@ -5932,207 +5936,8 @@ const AddProperty = () => {
                   subPropertyType === "Office" &&
                   subPropertyQuestionOption === "Ready to move office space" && (
                     <>
-                      {/* Area Details */}
-                      <div
-                        className="mb-3"
-                      >
-                        {/* Header */}
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
-                            Add Area Details
-                          </label>
 
-                        </div>
 
-                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
-                          At least one area type is mandatory
-                        </p>
-
-                        {/* Carpet Area */}
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            marginBottom: "16px",
-                            position: "relative",
-                          }}
-                        >
-                          <input
-                            type="number"
-                            placeholder="Carpet Area"
-                            value={carpetArea}
-                            onChange={(e) => setCarpetArea(e.target.value)}
-                            style={{
-                              flex: 1,
-                              padding: "12px",
-                              borderRadius: "8px",
-                              border: "1px solid #ccc",
-                              fontSize: "14px",
-                            }}
-                          />
-                          <div
-                            style={{
-                              minWidth: "100px",
-                              padding: "12px",
-                              border: "1px solid #ccc",
-                              borderRadius: "8px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              cursor: "pointer",
-                              background: "#f9f9f9",
-                            }}
-                            onClick={() => setShowCarpetUnits((p) => !p)}
-                          >
-                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                          </div>
-
-                          {showCarpetUnits && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "110%",
-                                right: "0",
-                                background: "#fff",
-                                border: "1px solid #ddd",
-                                borderRadius: "8px",
-                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                zIndex: 10,
-                                width: "120px",
-                              }}
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <div
-                                  key={u}
-                                  onClick={() => {
-                                    setCarpetUnit(u);
-                                    setBuiltUpUnit(u); // sync
-                                    setShowCarpetUnits(false);
-                                  }}
-                                  style={{
-                                    padding: "10px",
-                                    cursor: "pointer",
-                                    background: carpetUnit === u ? "#ED2027" : "#fff",
-                                    color: carpetUnit === u ? "#fff" : "#333",
-                                    borderBottom: "1px solid #eee",
-                                  }}
-                                >
-                                  {u}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
-                            Carpet area must be smaller than built-up area
-                          </p>
-                        )}
-
-                        {/* Built-up Area */}
-                        {!showBuiltUpArea ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowBuiltUpArea(true)}
-                            style={{
-                              background: "transparent",
-                              border: "1px dashed #ED2027",
-                              color: "#ED2027",
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "500",
-                              marginTop: "10px",
-                            }}
-                          >
-                            + Add Built-up Area
-                          </button>
-                        ) : (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              marginTop: "16px",
-                              position: "relative",
-                            }}
-                          >
-                            <input
-                              type="number"
-                              placeholder="Built-up Area"
-                              value={builtUpArea}
-                              onChange={(e) => setBuiltUpArea(e.target.value)}
-                              style={{
-                                flex: 1,
-                                padding: "12px",
-                                borderRadius: "8px",
-                                border: "1px solid #ccc",
-                                fontSize: "14px",
-                              }}
-                            />
-                            <div
-                              style={{
-                                minWidth: "100px",
-                                padding: "12px",
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                cursor: "pointer",
-                                background: "#f9f9f9",
-                              }}
-                              onClick={() => setShowBuiltUpUnits((p) => !p)}
-                            >
-                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                            </div>
-
-                            {showBuiltUpUnits && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "110%",
-                                  right: "0",
-                                  background: "#fff",
-                                  border: "1px solid #ddd",
-                                  borderRadius: "8px",
-                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                  zIndex: 10,
-                                  width: "120px",
-                                }}
-                              >
-                                {UNIT_OPTIONS.map((u) => (
-                                  <div
-                                    key={u}
-                                    onClick={() => {
-                                      setBuiltUpUnit(u);
-                                      setCarpetUnit(u); // sync
-                                      setShowBuiltUpUnits(false);
-                                    }}
-                                    style={{
-                                      padding: "10px",
-                                      cursor: "pointer",
-                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
-                                      color: builtUpUnit === u ? "#fff" : "#333",
-                                      borderBottom: "1px solid #eee",
-                                    }}
-                                  >
-                                    {u}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
 
                       {/* Describe your office setup */}
                       <div className="step3-section">
@@ -6579,206 +6384,7 @@ const AddProperty = () => {
                     <>
 
                       {/* buit and carpet  Details */}
-                      <div
-                        className="mb-3"
-                      >
-                        {/* Header */}
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
-                            Add Area Details
-                          </label>
 
-                        </div>
-
-                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
-                          At least one area type is mandatory
-                        </p>
-
-                        {/* Carpet Area */}
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            marginBottom: "16px",
-                            position: "relative",
-                          }}
-                        >
-                          <input
-                            type="number"
-                            placeholder="Carpet Area"
-                            value={carpetArea}
-                            onChange={(e) => setCarpetArea(e.target.value)}
-                            style={{
-                              flex: 1,
-                              padding: "12px",
-                              borderRadius: "8px",
-                              border: "1px solid #ccc",
-                              fontSize: "14px",
-                            }}
-                          />
-                          <div
-                            style={{
-                              minWidth: "100px",
-                              padding: "12px",
-                              border: "1px solid #ccc",
-                              borderRadius: "8px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              cursor: "pointer",
-                              background: "#f9f9f9",
-                            }}
-                            onClick={() => setShowCarpetUnits((p) => !p)}
-                          >
-                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                          </div>
-
-                          {showCarpetUnits && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "110%",
-                                right: "0",
-                                background: "#fff",
-                                border: "1px solid #ddd",
-                                borderRadius: "8px",
-                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                zIndex: 10,
-                                width: "120px",
-                              }}
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <div
-                                  key={u}
-                                  onClick={() => {
-                                    setCarpetUnit(u);
-                                    setBuiltUpUnit(u); // sync
-                                    setShowCarpetUnits(false);
-                                  }}
-                                  style={{
-                                    padding: "10px",
-                                    cursor: "pointer",
-                                    background: carpetUnit === u ? "#ED2027" : "#fff",
-                                    color: carpetUnit === u ? "#fff" : "#333",
-                                    borderBottom: "1px solid #eee",
-                                  }}
-                                >
-                                  {u}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
-                            Carpet area must be smaller than built-up area
-                          </p>
-                        )}
-
-                        {/* Built-up Area */}
-                        {!showBuiltUpArea ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowBuiltUpArea(true)}
-                            style={{
-                              background: "transparent",
-                              border: "1px dashed #ED2027",
-                              color: "#ED2027",
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "500",
-                              marginTop: "10px",
-                            }}
-                          >
-                            + Add Built-up Area
-                          </button>
-                        ) : (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              marginTop: "16px",
-                              position: "relative",
-                            }}
-                          >
-                            <input
-                              type="number"
-                              placeholder="Built-up Area"
-                              value={builtUpArea}
-                              onChange={(e) => setBuiltUpArea(e.target.value)}
-                              style={{
-                                flex: 1,
-                                padding: "12px",
-                                borderRadius: "8px",
-                                border: "1px solid #ccc",
-                                fontSize: "14px",
-                              }}
-                            />
-                            <div
-                              style={{
-                                minWidth: "100px",
-                                padding: "12px",
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                cursor: "pointer",
-                                background: "#f9f9f9",
-                              }}
-                              onClick={() => setShowBuiltUpUnits((p) => !p)}
-                            >
-                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                            </div>
-
-                            {showBuiltUpUnits && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "110%",
-                                  right: "0",
-                                  background: "#fff",
-                                  border: "1px solid #ddd",
-                                  borderRadius: "8px",
-                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                  zIndex: 10,
-                                  width: "120px",
-                                }}
-                              >
-                                {UNIT_OPTIONS.map((u) => (
-                                  <div
-                                    key={u}
-                                    onClick={() => {
-                                      setBuiltUpUnit(u);
-                                      setCarpetUnit(u); // sync
-                                      setShowBuiltUpUnits(false);
-                                    }}
-                                    style={{
-                                      padding: "10px",
-                                      cursor: "pointer",
-                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
-                                      color: builtUpUnit === u ? "#fff" : "#333",
-                                      borderBottom: "1px solid #eee",
-                                    }}
-                                  >
-                                    {u}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
 
 
                       {/* Construction status of walls */}
@@ -7165,207 +6771,6 @@ const AddProperty = () => {
                         </div>
                       </div>
 
-                      {/* Area Details */}
-                      <div
-                        className="mb-3"
-                      >
-                        {/* Header */}
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
-                            Add Area Details
-                          </label>
-
-                        </div>
-
-                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
-                          At least one area type is mandatory
-                        </p>
-
-                        {/* Carpet Area */}
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            marginBottom: "16px",
-                            position: "relative",
-                          }}
-                        >
-                          <input
-                            type="number"
-                            placeholder="Carpet Area"
-                            value={carpetArea}
-                            onChange={(e) => setCarpetArea(e.target.value)}
-                            style={{
-                              flex: 1,
-                              padding: "12px",
-                              borderRadius: "8px",
-                              border: "1px solid #ccc",
-                              fontSize: "14px",
-                            }}
-                          />
-                          <div
-                            style={{
-                              minWidth: "100px",
-                              padding: "12px",
-                              border: "1px solid #ccc",
-                              borderRadius: "8px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              cursor: "pointer",
-                              background: "#f9f9f9",
-                            }}
-                            onClick={() => setShowCarpetUnits((p) => !p)}
-                          >
-                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                          </div>
-
-                          {showCarpetUnits && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "110%",
-                                right: "0",
-                                background: "#fff",
-                                border: "1px solid #ddd",
-                                borderRadius: "8px",
-                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                zIndex: 10,
-                                width: "120px",
-                              }}
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <div
-                                  key={u}
-                                  onClick={() => {
-                                    setCarpetUnit(u);
-                                    setBuiltUpUnit(u); // sync
-                                    setShowCarpetUnits(false);
-                                  }}
-                                  style={{
-                                    padding: "10px",
-                                    cursor: "pointer",
-                                    background: carpetUnit === u ? "#ED2027" : "#fff",
-                                    color: carpetUnit === u ? "#fff" : "#333",
-                                    borderBottom: "1px solid #eee",
-                                  }}
-                                >
-                                  {u}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
-                            Carpet area must be smaller than built-up area
-                          </p>
-                        )}
-
-                        {/* Built-up Area */}
-                        {!showBuiltUpArea ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowBuiltUpArea(true)}
-                            style={{
-                              background: "transparent",
-                              border: "1px dashed #ED2027",
-                              color: "#ED2027",
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "500",
-                              marginTop: "10px",
-                            }}
-                          >
-                            + Add Built-up Area
-                          </button>
-                        ) : (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              marginTop: "16px",
-                              position: "relative",
-                            }}
-                          >
-                            <input
-                              type="number"
-                              placeholder="Built-up Area"
-                              value={builtUpArea}
-                              onChange={(e) => setBuiltUpArea(e.target.value)}
-                              style={{
-                                flex: 1,
-                                padding: "12px",
-                                borderRadius: "8px",
-                                border: "1px solid #ccc",
-                                fontSize: "14px",
-                              }}
-                            />
-                            <div
-                              style={{
-                                minWidth: "100px",
-                                padding: "12px",
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                cursor: "pointer",
-                                background: "#f9f9f9",
-                              }}
-                              onClick={() => setShowBuiltUpUnits((p) => !p)}
-                            >
-                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                            </div>
-
-                            {showBuiltUpUnits && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "110%",
-                                  right: "0",
-                                  background: "#fff",
-                                  border: "1px solid #ddd",
-                                  borderRadius: "8px",
-                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                  zIndex: 10,
-                                  width: "120px",
-                                }}
-                              >
-                                {UNIT_OPTIONS.map((u) => (
-                                  <div
-                                    key={u}
-                                    onClick={() => {
-                                      setBuiltUpUnit(u);
-                                      setCarpetUnit(u); // sync
-                                      setShowBuiltUpUnits(false);
-                                    }}
-                                    style={{
-                                      padding: "10px",
-                                      cursor: "pointer",
-                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
-                                      color: builtUpUnit === u ? "#fff" : "#333",
-                                      borderBottom: "1px solid #eee",
-                                    }}
-                                  >
-                                    {u}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
 
 
                       {/* Availability Status */}
@@ -7436,207 +6841,7 @@ const AddProperty = () => {
                   (subPropertyQuestionOption === "Commercial Shops" ||
                     subPropertyQuestionOption === "Commercial Showrooms") && (
                     <>
-                      {/* Area Details */}
-                      <div
-                        className="mb-3"
-                      >
-                        {/* Header */}
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
-                            Add Area Details
-                          </label>
 
-                        </div>
-
-                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
-                          At least one area type is mandatory
-                        </p>
-
-                        {/* Carpet Area */}
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            marginBottom: "16px",
-                            position: "relative",
-                          }}
-                        >
-                          <input
-                            type="number"
-                            placeholder="Carpet Area"
-                            value={carpetArea}
-                            onChange={(e) => setCarpetArea(e.target.value)}
-                            style={{
-                              flex: 1,
-                              padding: "12px",
-                              borderRadius: "8px",
-                              border: "1px solid #ccc",
-                              fontSize: "14px",
-                            }}
-                          />
-                          <div
-                            style={{
-                              minWidth: "100px",
-                              padding: "12px",
-                              border: "1px solid #ccc",
-                              borderRadius: "8px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              cursor: "pointer",
-                              background: "#f9f9f9",
-                            }}
-                            onClick={() => setShowCarpetUnits((p) => !p)}
-                          >
-                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                          </div>
-
-                          {showCarpetUnits && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "110%",
-                                right: "0",
-                                background: "#fff",
-                                border: "1px solid #ddd",
-                                borderRadius: "8px",
-                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                zIndex: 10,
-                                width: "120px",
-                              }}
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <div
-                                  key={u}
-                                  onClick={() => {
-                                    setCarpetUnit(u);
-                                    setBuiltUpUnit(u); // sync
-                                    setShowCarpetUnits(false);
-                                  }}
-                                  style={{
-                                    padding: "10px",
-                                    cursor: "pointer",
-                                    background: carpetUnit === u ? "#ED2027" : "#fff",
-                                    color: carpetUnit === u ? "#fff" : "#333",
-                                    borderBottom: "1px solid #eee",
-                                  }}
-                                >
-                                  {u}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
-                            Carpet area must be smaller than built-up area
-                          </p>
-                        )}
-
-                        {/* Built-up Area */}
-                        {!showBuiltUpArea ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowBuiltUpArea(true)}
-                            style={{
-                              background: "transparent",
-                              border: "1px dashed #ED2027",
-                              color: "#ED2027",
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "500",
-                              marginTop: "10px",
-                            }}
-                          >
-                            + Add Built-up Area
-                          </button>
-                        ) : (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              marginTop: "16px",
-                              position: "relative",
-                            }}
-                          >
-                            <input
-                              type="number"
-                              placeholder="Built-up Area"
-                              value={builtUpArea}
-                              onChange={(e) => setBuiltUpArea(e.target.value)}
-                              style={{
-                                flex: 1,
-                                padding: "12px",
-                                borderRadius: "8px",
-                                border: "1px solid #ccc",
-                                fontSize: "14px",
-                              }}
-                            />
-                            <div
-                              style={{
-                                minWidth: "100px",
-                                padding: "12px",
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                cursor: "pointer",
-                                background: "#f9f9f9",
-                              }}
-                              onClick={() => setShowBuiltUpUnits((p) => !p)}
-                            >
-                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                            </div>
-
-                            {showBuiltUpUnits && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "110%",
-                                  right: "0",
-                                  background: "#fff",
-                                  border: "1px solid #ddd",
-                                  borderRadius: "8px",
-                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                  zIndex: 10,
-                                  width: "120px",
-                                }}
-                              >
-                                {UNIT_OPTIONS.map((u) => (
-                                  <div
-                                    key={u}
-                                    onClick={() => {
-                                      setBuiltUpUnit(u);
-                                      setCarpetUnit(u); // sync
-                                      setShowBuiltUpUnits(false);
-                                    }}
-                                    style={{
-                                      padding: "10px",
-                                      cursor: "pointer",
-                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
-                                      color: builtUpUnit === u ? "#fff" : "#333",
-                                      borderBottom: "1px solid #eee",
-                                    }}
-                                  >
-                                    {u}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
 
                       {/* Shop Facade Size */}
                       <div className="step3-section">
@@ -7990,88 +7195,88 @@ const AddProperty = () => {
                     <>
                       {/* Plot Area Section */}
                       <div
-                      className="mb-3"
+                        className="mb-3"
 
-                    >
-                      <label
-                        style={{
-                          display: "block",
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          marginBottom: "6px",
-                          color: "#333",
-                        }}
                       >
-                        Add Area Details
-                      </label>
-
-                      <p
-                        style={{
-                          fontSize: "13px",
-                          color: "#777",
-                          marginBottom: "14px",
-                        }}
-                      >
-                        Please enter the plot size
-                      </p>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                        }}
-                      >
-                        {/* Input box */}
-                        <input
-                          type="number"
-                          placeholder="Plot Area"
-                          value={plotArea}
-                          onChange={(e) => setPlotArea(e.target.value)}
+                        <label
                           style={{
-                            flex: 1,
-                            padding: "10px 14px",
-                            borderRadius: "8px",
-                            border: "1px solid #ccc",
-                            fontSize: "15px",
+                            display: "block",
+                            fontSize: "16px",
+                            fontWeight: 600,
+                            marginBottom: "6px",
                             color: "#333",
-                            outline: "none",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                            transition: "all 0.2s ease",
                           }}
-                          onFocus={(e) => (e.target.style.border = "1px solid #4a90e2")}
-                          onBlur={(e) => (e.target.style.border = "1px solid #ccc")}
-                        />
-
-                        {/* Select dropdown */}
-                        <select
-                          value={plotAreaUnit}
-                          onChange={(e) => setPlotAreaUnit(e.target.value)}
-                          style={{
-                            padding: "10px 14px",
-                            borderRadius: "8px",
-                            border: "1px solid #ccc",
-                            fontSize: "15px",
-                            color: "#333",
-                            backgroundColor: "#fff",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                            outline: "none",
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                            height: "48px"
-                          }}
-                          onFocus={(e) => (e.target.style.border = "1px solid #4a90e2")}
-                          onBlur={(e) => (e.target.style.border = "1px solid #ccc")}
                         >
-                          <option value="sqft">Sq.ft</option>
-                          <option value="sqyards">Sq.yards</option>
-                          <option value="sqm">Sq.m</option>
-                          <option value="acres">Acres</option>
-                          <option value="Marla">Marla</option>
-                          <option value="Cents">Cents</option>
-                        </select>
+                          Add Area Details
+                        </label>
+
+                        <p
+                          style={{
+                            fontSize: "13px",
+                            color: "#777",
+                            marginBottom: "14px",
+                          }}
+                        >
+                          Please enter the plot size
+                        </p>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          {/* Input box */}
+                          <input
+                            type="number"
+                            placeholder="Plot Area"
+                            value={plotArea}
+                            onChange={(e) => setPlotArea(e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "15px",
+                              color: "#333",
+                              outline: "none",
+                              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                              transition: "all 0.2s ease",
+                            }}
+                            onFocus={(e) => (e.target.style.border = "1px solid #4a90e2")}
+                            onBlur={(e) => (e.target.style.border = "1px solid #ccc")}
+                          />
+
+                          {/* Select dropdown */}
+                          <select
+                            value={plotAreaUnit}
+                            onChange={(e) => setPlotAreaUnit(e.target.value)}
+                            style={{
+                              padding: "10px 14px",
+                              borderRadius: "8px",
+                              border: "1px solid #ccc",
+                              fontSize: "15px",
+                              color: "#333",
+                              backgroundColor: "#fff",
+                              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                              outline: "none",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              height: "48px"
+                            }}
+                            onFocus={(e) => (e.target.style.border = "1px solid #4a90e2")}
+                            onBlur={(e) => (e.target.style.border = "1px solid #ccc")}
+                          >
+                            <option value="sqft">Sq.ft</option>
+                            <option value="sqyards">Sq.yards</option>
+                            <option value="sqm">Sq.m</option>
+                            <option value="acres">Acres</option>
+                            <option value="Marla">Marla</option>
+                            <option value="Cents">Cents</option>
+                          </select>
+                        </div>
                       </div>
-                    </div>
 
                       {/* Property Dimensions */}
                       <div className="step3-section">
@@ -8562,207 +7767,7 @@ const AddProperty = () => {
                           ))}
                         </div>
                       </div>
-                      {/* Area Details */}
-                      <div
-                        className="mb-3"
-                      >
-                        {/* Header */}
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
-                            Add Area Details
-                          </label>
 
-                        </div>
-
-                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
-                          At least one area type is mandatory
-                        </p>
-
-                        {/* Carpet Area */}
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            marginBottom: "16px",
-                            position: "relative",
-                          }}
-                        >
-                          <input
-                            type="number"
-                            placeholder="Carpet Area"
-                            value={carpetArea}
-                            onChange={(e) => setCarpetArea(e.target.value)}
-                            style={{
-                              flex: 1,
-                              padding: "12px",
-                              borderRadius: "8px",
-                              border: "1px solid #ccc",
-                              fontSize: "14px",
-                            }}
-                          />
-                          <div
-                            style={{
-                              minWidth: "100px",
-                              padding: "12px",
-                              border: "1px solid #ccc",
-                              borderRadius: "8px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              cursor: "pointer",
-                              background: "#f9f9f9",
-                            }}
-                            onClick={() => setShowCarpetUnits((p) => !p)}
-                          >
-                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                          </div>
-
-                          {showCarpetUnits && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "110%",
-                                right: "0",
-                                background: "#fff",
-                                border: "1px solid #ddd",
-                                borderRadius: "8px",
-                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                zIndex: 10,
-                                width: "120px",
-                              }}
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <div
-                                  key={u}
-                                  onClick={() => {
-                                    setCarpetUnit(u);
-                                    setBuiltUpUnit(u); // sync
-                                    setShowCarpetUnits(false);
-                                  }}
-                                  style={{
-                                    padding: "10px",
-                                    cursor: "pointer",
-                                    background: carpetUnit === u ? "#ED2027" : "#fff",
-                                    color: carpetUnit === u ? "#fff" : "#333",
-                                    borderBottom: "1px solid #eee",
-                                  }}
-                                >
-                                  {u}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
-                            Carpet area must be smaller than built-up area
-                          </p>
-                        )}
-
-                        {/* Built-up Area */}
-                        {!showBuiltUpArea ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowBuiltUpArea(true)}
-                            style={{
-                              background: "transparent",
-                              border: "1px dashed #ED2027",
-                              color: "#ED2027",
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "500",
-                              marginTop: "10px",
-                            }}
-                          >
-                            + Add Built-up Area
-                          </button>
-                        ) : (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              marginTop: "16px",
-                              position: "relative",
-                            }}
-                          >
-                            <input
-                              type="number"
-                              placeholder="Built-up Area"
-                              value={builtUpArea}
-                              onChange={(e) => setBuiltUpArea(e.target.value)}
-                              style={{
-                                flex: 1,
-                                padding: "12px",
-                                borderRadius: "8px",
-                                border: "1px solid #ccc",
-                                fontSize: "14px",
-                              }}
-                            />
-                            <div
-                              style={{
-                                minWidth: "100px",
-                                padding: "12px",
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                cursor: "pointer",
-                                background: "#f9f9f9",
-                              }}
-                              onClick={() => setShowBuiltUpUnits((p) => !p)}
-                            >
-                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                            </div>
-
-                            {showBuiltUpUnits && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "110%",
-                                  right: "0",
-                                  background: "#fff",
-                                  border: "1px solid #ddd",
-                                  borderRadius: "8px",
-                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                  zIndex: 10,
-                                  width: "120px",
-                                }}
-                              >
-                                {UNIT_OPTIONS.map((u) => (
-                                  <div
-                                    key={u}
-                                    onClick={() => {
-                                      setBuiltUpUnit(u);
-                                      setCarpetUnit(u); // sync
-                                      setShowBuiltUpUnits(false);
-                                    }}
-                                    style={{
-                                      padding: "10px",
-                                      cursor: "pointer",
-                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
-                                      color: builtUpUnit === u ? "#fff" : "#333",
-                                      borderBottom: "1px solid #eee",
-                                    }}
-                                  >
-                                    {u}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
 
                       {/* Availability Status */}
                       <div className="step3-section">
@@ -8861,207 +7866,6 @@ const AddProperty = () => {
                             </button>
                           ))}
                         </div>
-                      </div>
-                      {/* Area Details */}
-                      <div
-                        className="mb-3"
-                      >
-                        {/* Header */}
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <label style={{ fontSize: "16px", fontWeight: 600, color: "#333" }}>
-                            Add Area Details
-                          </label>
-
-                        </div>
-
-                        <p style={{ fontSize: "13px", color: "#888", marginBottom: "16px" }}>
-                          At least one area type is mandatory
-                        </p>
-
-                        {/* Carpet Area */}
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            marginBottom: "16px",
-                            position: "relative",
-                          }}
-                        >
-                          <input
-                            type="number"
-                            placeholder="Carpet Area"
-                            value={carpetArea}
-                            onChange={(e) => setCarpetArea(e.target.value)}
-                            style={{
-                              flex: 1,
-                              padding: "12px",
-                              borderRadius: "8px",
-                              border: "1px solid #ccc",
-                              fontSize: "14px",
-                            }}
-                          />
-                          <div
-                            style={{
-                              minWidth: "100px",
-                              padding: "12px",
-                              border: "1px solid #ccc",
-                              borderRadius: "8px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              cursor: "pointer",
-                              background: "#f9f9f9",
-                            }}
-                            onClick={() => setShowCarpetUnits((p) => !p)}
-                          >
-                            {carpetUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                          </div>
-
-                          {showCarpetUnits && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "110%",
-                                right: "0",
-                                background: "#fff",
-                                border: "1px solid #ddd",
-                                borderRadius: "8px",
-                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                zIndex: 10,
-                                width: "120px",
-                              }}
-                            >
-                              {UNIT_OPTIONS.map((u) => (
-                                <div
-                                  key={u}
-                                  onClick={() => {
-                                    setCarpetUnit(u);
-                                    setBuiltUpUnit(u); // sync
-                                    setShowCarpetUnits(false);
-                                  }}
-                                  style={{
-                                    padding: "10px",
-                                    cursor: "pointer",
-                                    background: carpetUnit === u ? "#ED2027" : "#fff",
-                                    color: carpetUnit === u ? "#fff" : "#333",
-                                    borderBottom: "1px solid #eee",
-                                  }}
-                                >
-                                  {u}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Validation */}
-                        {carpetArea && builtUpArea && Number(carpetArea) >= Number(builtUpArea) && (
-                          <p style={{ color: "red", fontSize: "13px", marginBottom: "12px" }}>
-                            Carpet area must be smaller than built-up area
-                          </p>
-                        )}
-
-                        {/* Built-up Area */}
-                        {!showBuiltUpArea ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowBuiltUpArea(true)}
-                            style={{
-                              background: "transparent",
-                              border: "1px dashed #ED2027",
-                              color: "#ED2027",
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "500",
-                              marginTop: "10px",
-                            }}
-                          >
-                            + Add Built-up Area
-                          </button>
-                        ) : (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              marginTop: "16px",
-                              position: "relative",
-                            }}
-                          >
-                            <input
-                              type="number"
-                              placeholder="Built-up Area"
-                              value={builtUpArea}
-                              onChange={(e) => setBuiltUpArea(e.target.value)}
-                              style={{
-                                flex: 1,
-                                padding: "12px",
-                                borderRadius: "8px",
-                                border: "1px solid #ccc",
-                                fontSize: "14px",
-                              }}
-                            />
-                            <div
-                              style={{
-                                minWidth: "100px",
-                                padding: "12px",
-                                border: "1px solid #ccc",
-                                borderRadius: "8px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                cursor: "pointer",
-                                background: "#f9f9f9",
-                              }}
-                              onClick={() => setShowBuiltUpUnits((p) => !p)}
-                            >
-                              {builtUpUnit || "Unit"} <span style={{ fontSize: "12px" }}>▼</span>
-                            </div>
-
-                            {showBuiltUpUnits && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "110%",
-                                  right: "0",
-                                  background: "#fff",
-                                  border: "1px solid #ddd",
-                                  borderRadius: "8px",
-                                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                                  zIndex: 10,
-                                  width: "120px",
-                                }}
-                              >
-                                {UNIT_OPTIONS.map((u) => (
-                                  <div
-                                    key={u}
-                                    onClick={() => {
-                                      setBuiltUpUnit(u);
-                                      setCarpetUnit(u); // sync
-                                      setShowBuiltUpUnits(false);
-                                    }}
-                                    style={{
-                                      padding: "10px",
-                                      cursor: "pointer",
-                                      background: builtUpUnit === u ? "#ED2027" : "#fff",
-                                      color: builtUpUnit === u ? "#fff" : "#333",
-                                      borderBottom: "1px solid #eee",
-                                    }}
-                                  >
-                                    {u}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
                       </div>
 
                       {/* Availability Status */}
@@ -10134,104 +8938,226 @@ const AddProperty = () => {
             {/* Step 4 - Photos, Videos & Voice-over */}
 
             {currentStep === 4 && (
-              <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-                <h4 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>Upload Photos, Videos & Voice-over</h4>
+              <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "24px" }}>
+                <h4 style={{ fontSize: "24px", fontWeight: "600", color: "#333", margin: "0" }}>
+                  Photos, Videos & Voice-over
+                </h4>
 
-                <div style={{ flex: 1, overflowY: "auto", paddingRight: 10 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  {sections.map((section, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        border: "1px solid #e1e5e9",
+                        padding: "24px",
+                        borderRadius: "12px",
+                        background: "#fff",
+                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+                      }}
+                    >
+                      {/* Section Header */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                        <select
+                          value={section.type}
+                          onChange={(e) => {
+                            const newSections = [...sections];
+                            newSections[index].type = e.target.value;
+                            setSections(newSections);
+                          }}
+                          style={{
+                            padding: "12px 16px",
+                            borderRadius: "8px",
+                            border: "1px solid #d0d5dd",
+                            background: "#fff",
+                            fontSize: "14px",
+                            color: "#344054",
+                            minWidth: "200px",
+                          }}
+                        >
+                          <option value="Plan">Plan</option>
+                          <option value="Thumbnail">Thumbnail</option>
+                          <option value="Interior">Interior</option>
+                          <option value="Exterior">Exterior</option>
+                        </select>
 
-                  {/* ---- Single Drop + Click Zone ---- */}
-                  <div
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{
-                      border: "2px dashed #ccc",
-                      padding: "30px",
-                      borderRadius: "8px",
-                      textAlign: "center",
-                      marginBottom: "20px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Drag & Drop Photos or Videos here <br /> or <strong>Click to Browse</strong>
-                  </div>
-
-                  {/* Hidden file input */}
-                  <input
-                    type="file"
-                    multiple
-                    ref={fileInputRef}
-                    accept="image/*,video/*"
-                    onChange={handleFileChange}
-                    style={{ display: "none" }}
-                  />
-
-                  {/* ----- PREVIEW THUMBNAILS ----- */}
-                  {previewList.length > 0 && (
-                    <div style={{ border: "1px solid #eee", borderRadius: "8px", padding: "15px", marginBottom: "20px" }}>
-                      <h5 style={{ marginBottom: "10px", fontWeight: 500 }}>Uploaded Files ({previewList.length})</h5>
-
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: "15px" }}>
-                        {previewList.map((item, index) => (
-                          <div key={index} style={{ position: "relative", height: "160px", border: "1px solid #ddd", borderRadius: "8px", overflow: "hidden" }}>
-
-                            {/* ❌ Cancel Button */}
+                        {/* Section Actions */}
+                        <div style={{ display: "flex", gap: "12px" }}>
+                          {sections.length > 1 && (
                             <button
                               onClick={() => {
-                                setPreviewList(previewList.filter((_, i) => i !== index));
-                                setFiles(files.filter((_, i) => i !== index));
+                                const newSections = sections.filter((_, i) => i !== index);
+                                setSections(newSections);
                               }}
                               style={{
-                                position: "absolute",
-                                top: "6px",
-                                left: "6px",
-                                width: "22px",
-                                height: "22px",
-                                borderRadius: "50%",
-                                border: "none",
-                                background: "rgba(0,0,0,0.6)",
-                                color: "#fff",
-                                fontSize: "14px",
-                                lineHeight: "20px",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                padding: "8px 16px",
+                                background: "#f8f9fa",
+                                color: "#6c757d",
+                                border: "1px solid #dee2e6",
+                                borderRadius: "6px",
                                 cursor: "pointer",
-                                zIndex: 10
+                                fontSize: "14px",
                               }}
                             >
-                              ×
+                              <span style={{ fontSize: "16px" }}>×</span> Remove
                             </button>
-
-                            {/* Show thumbnail (image) or video preview */}
-                            {item.file.type.startsWith("image/") ? (
-                              <img src={item.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            ) : (
-                              <video src={item.preview} controls style={{ width: "100%", height: "100%" }} />
-                            )}
-                          </div>
-                        ))}
+                          )}
+                        </div>
                       </div>
+
+                      {/* Drag & Drop Upload Area */}
+                      <div
+                        style={{
+                          border: "2px dashed #ed2027",
+                          borderRadius: "12px",
+                          padding: section.files.length > 0 ? "20px" : "32px",
+                          textAlign: "center",
+                          cursor: "pointer",
+                          background: section.files.length > 0 ? "#f8f9fa" : "#fff5f5",
+                          borderColor: section.files.length > 0 ? "#d0d5dd" : "#ed2027",
+                          marginBottom: "20px",
+                          transition: "all 0.2s",
+                        }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const droppedFiles = Array.from(e.dataTransfer.files);
+                          const newSections = [...sections];
+                          newSections[index].files = droppedFiles;
+                          setSections(newSections);
+                        }}
+                        onClick={() => document.getElementById(`fileInput-${index}`).click()}
+                      >
+                        {section.files.length > 0 ? (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", justifyContent: "center" }}>
+                            {section.files.map((file, i) => (
+                              <div key={i} style={{ textAlign: "center" }}>
+                                {file.type.startsWith("image/") ? (
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="preview"
+                                   style={{height:"300px",width:"100%" }}
+                                  />
+                                ) : (
+                                  <div
+                                    style={{
+                                      width: "100%",
+                                      height: "100px",
+                                      border: "1px solid #dee2e6",
+                                      borderRadius: "8px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      background: "#f8f9fa",
+                                    }}
+                                  >
+                                    <span style={{ fontSize: "24px" }}>📄</span>
+                                  </div>
+                                )}
+                                <p
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#6c757d",
+                                    marginTop: "8px",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {file.name}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                            <div style={{ fontSize: "32px", marginBottom: "8px" }}>📁</div>
+                            <p style={{ fontSize: "16px", color: "#ed2027", fontWeight: "500", margin: "0" }}>
+                              Drag & Drop or Click to Upload
+                            </p>
+                            <p style={{ fontSize: "14px", color: "#6c757d", margin: "0" }}>
+                              Supports images, videos, and audio files
+                            </p>
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          id={`fileInput-${index}`}
+                          multiple
+                          style={{ display: "none" }}
+                          onChange={(e) => {
+                            const newSections = [...sections];
+                            newSections[index].files = Array.from(e.target.files);
+                            setSections(newSections);
+                          }}
+                        />
+                      </div>
+
+                      {/* Add Section Button */}
+                      {index === sections.length - 1 && (
+                        <button
+                          onClick={() => setSections([...sections, { type: "Plan", files: [] }])}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "12px 20px",
+                            backgroundColor: "#ED2027",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                          }}
+                        >
+                          <span style={{ fontSize: "16px" }}>+</span> Add Another Section
+                        </button>
+                      )}
                     </div>
-                  )}
-                  {files.length === 0 && (
-                    <div style={{ background: "#fff3cd", color: "#856404", padding: "10px", borderRadius: "4px", fontSize: "14px" }}>
-                      Without photos or videos your ad will be ignored by buyers.
-                    </div>
-                  )}
+                  ))}
                 </div>
-                {/* ---- Navigation Buttons ---- */}
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "15px 0", borderTop: "1px solid #eee", background: "#fff" }}>
+
+                {/* Navigation */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "24px 0",
+                    borderTop: "1px solid #e9ecef",
+                    background: "#fff",
+                  }}
+                >
                   <button
                     onClick={() => setCurrentStep(3)}
-                    style={{ background: "#f8f9fa", border: "1px solid #ddd", padding: "10px 20px", borderRadius: "6px", cursor: "pointer" }}>
+                    style={{
+                      padding: "12px 24px",
+                      background: "#fff",
+                      border: "1px solid #d0d5dd",
+                      borderRadius: "8px",
+                      color: "#344054",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      cursor: "pointer",
+                    }}
+                  >
                     Back
                   </button>
+
                   <button
-                    disabled={files.length === 0}
+                    disabled={!sections.some((s) => s.files.length > 0)}
                     onClick={() => setCurrentStep(5)}
                     style={{
-                      background: files.length > 0 ? "#ED2027" : "#ccc",
-                      color: "#fff", padding: "10px 28px", borderRadius: "6px",
-                      fontWeight: 600, border: "none",
-                      cursor: files.length > 0 ? "pointer" : "not-allowed"
+                      padding: "12px 24px",
+                      background: sections.some((s) => s.files.length > 0) ? "#ED2027" : "#e9ecef",
+                      color: sections.some((s) => s.files.length > 0) ? "white" : "#adb5bd",
+                      border: "none",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      cursor: sections.some((s) => s.files.length > 0) ? "pointer" : "not-allowed",
                     }}
                   >
                     Continue to Pricing
@@ -10239,6 +9165,7 @@ const AddProperty = () => {
                 </div>
               </div>
             )}
+
 
 
             {/* step 5 */}

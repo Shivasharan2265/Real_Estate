@@ -90,6 +90,40 @@ const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
         }
     };
 
+      const handleAddEnquiry = async () => {
+      
+
+        const fd = new FormData();
+        fd.append("programType", "getInquiryForProperty");
+        fd.append("name", name); 
+        fd.append("email", email); 
+
+        fd.append("phone", mobile); 
+
+        fd.append("message", message); 
+
+       
+        fd.append("property_id", id); // use favoriteId, not property id
+
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("properties/propertyInquiry", fd);
+            console.log("enquiry:", response);
+
+            if (response.data.success) {
+                toast.success(response.data.message);
+            }else{
+                toast.error(response.data.message);
+
+            }
+        } catch (error) {
+            console.error("Error removing favorite:", error);
+            setError("Error removing from favorites");
+        }
+    };
+
+
     const toggleFavorite = (e) => {
         e.preventDefault();
         if (favoriteId) {
@@ -290,25 +324,26 @@ const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
     ];
 
     // Sample amenities data (categorized)
-    const amenitiesData = [
-        {
-            category: "Amenities",
-            items: propertyData.features.amenities.map(amenity => ({
-                icon: "icon-check",
-                label: amenity.replace(/_/g, ' ')
-            }))
-        },
-        {
-            category: "Additional Features",
-            items: Array.isArray(propertyData?.features?.additional_features)
-                ? propertyData.features.additional_features.map(feature => ({
-                    icon: "icon-check",
-                    label: feature.replace(/_/g, ' ')
-                }))
-                : [] // fallback empty array if it's not an array
-        }
-
-    ];
+   const amenitiesData = [
+  {
+    category: "Amenities",
+    items: Array.isArray(propertyData?.features?.amenities)
+      ? propertyData.features.amenities.map((amenity) => ({
+          icon: "icon-check",
+          label: amenity.replace(/_/g, " "),
+        }))
+      : [], // fallback empty array if it's not an array
+  },
+  {
+    category: "Additional Features",
+    items: Array.isArray(propertyData?.features?.additional_features)
+      ? propertyData.features.additional_features.map((feature) => ({
+          icon: "icon-check",
+          label: feature.replace(/_/g, " "),
+        }))
+      : [],
+  },
+];
 
     // Add construction features for plots
     if (isPlot) {
@@ -898,7 +933,7 @@ const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
                                             <label>Your Message:</label>
                                             <textarea name="message" rows="4" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message" aria-required="true" className="form-control"></textarea>
                                         </div>
-                                        <button className="tf-btn primary w-100">Send Message</button>
+                                        <button className="tf-btn primary w-100" onClick={handleAddEnquiry}>Send Message</button>
                                     </form>
                                 </div>
 

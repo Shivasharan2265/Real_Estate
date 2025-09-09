@@ -26,15 +26,40 @@ const HomePage = () => {
     const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
     const [showPopup, setShowPopup] = useState(false);
 
+    const [showSticky, setShowSticky] = useState(false);
+
+    const authToken = localStorage.getItem("authToken") || "Guest";
+    localStorage.setItem("authToken", authToken);
+
     useEffect(() => {
-        const authToken = localStorage.getItem("authToken");
-        if (popupBanner && authToken) {
-            const timer = setTimeout(() => {
-                setShowPopup(true);
-            }, 10000);
-            return () => clearTimeout(timer);
+        if (popupBanner) {
+            const hasSeenPopup = localStorage.getItem("hasSeenPopup");
+
+            if (!hasSeenPopup) {
+                const timer = setTimeout(() => {
+                    setShowPopup(true);
+                    localStorage.setItem("hasSeenPopup", "true"); // mark as shown
+                }, 10000);
+
+                return () => clearTimeout(timer);
+            }
         }
     }, [popupBanner]);
+
+    useEffect(() => {
+        if (stickyBanner) {
+            const hasSeenSticky = localStorage.getItem("hasSeenSticky");
+
+            if (!hasSeenSticky) {
+                setShowSticky(true);
+                localStorage.setItem("hasSeenSticky", "true"); // mark as shown
+            }
+        }
+    }, [stickyBanner]);
+
+
+
+
 
 
     useEffect(() => {
@@ -64,7 +89,7 @@ const HomePage = () => {
 
         const fd = new FormData();
         fd.append("programType", "getProperties");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
 
         // send filter if not "View All"
         if (tab && tab !== "View All") {
@@ -125,13 +150,11 @@ const HomePage = () => {
     };
 
 
-
-
     const bannerList = async () => {
         setBannersLoading(true);
         const fd = new FormData();
         fd.append("programType", "getBannerDetails");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
 
         try {
             const response = await api.post("properties/preRequirements", fd);
@@ -801,12 +824,12 @@ const HomePage = () => {
                                                 color: "#fff"
                                             }}
                                         >
-                                            <span
+                                            {/* <span
                                                 className="sub-title"
                                                 style={{ display: "block", fontSize: "14px", marginBottom: "4px" }}
                                             >
                                                 321 Property
-                                            </span>
+                                            </span> */}
                                             <h6
                                                 className="title"
                                                 style={{ fontSize: "18px", margin: 0, fontWeight: "600" }}
@@ -818,7 +841,7 @@ const HomePage = () => {
 
                                     {/* Card 2 */}
                                     <a
-                                        href="l"
+                                        href=""
                                         className="box-location"
                                         style={{
                                             display: "block",
@@ -865,12 +888,7 @@ const HomePage = () => {
                                                 color: "#fff"
                                             }}
                                         >
-                                            <span
-                                                className="sub-title"
-                                                style={{ display: "block", fontSize: "14px", marginBottom: "4px" }}
-                                            >
-                                                321 Property
-                                            </span>
+
                                             <h6
                                                 className="title"
                                                 style={{ fontSize: "18px", margin: 0, fontWeight: "600" }}
@@ -1386,7 +1404,7 @@ const HomePage = () => {
       `}</style>
 
 
-                    {stickyBanner && (
+                    {showSticky && stickyBanner && (
                         <div
                             style={{
                                 position: "fixed",
@@ -1407,7 +1425,10 @@ const HomePage = () => {
                                 }}
                             >
                                 {/* Close Button */}
-                                <button className="popup-close" style={{ zIndex: "999" }} onClick={() => setStickyBanner(false)}>
+                                <button className="popup-close" style={{ zIndex: "999" }} onClick={() => {
+                                    setShowSticky(false);
+                                    localStorage.setItem("hasSeenSticky", "true"); // mark dismissed
+                                }}>
                                     ✖
                                 </button>
 
