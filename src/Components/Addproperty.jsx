@@ -914,7 +914,7 @@ sections.forEach((section) => {
 
     try {
       const response = await api.post("properties/prop1", fd);
-      console.log(response)
+      console.log("ee",response)
       toast.success(response.data.message)
     }
     catch (err) {
