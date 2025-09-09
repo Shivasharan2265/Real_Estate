@@ -98,15 +98,11 @@ localStorage.setItem("authToken", authToken);
             className: 'home',
             onClick: () => navigate('/home')
         },
-        {
-            label: 'Listing',
-            className: 'listing',
-            onClick: () => navigate('/listing')
-        },
+       
         {
             label: 'Properties',
             className: 'Properties',
-            onClick: () => navigate('/Properties')
+            onClick: () => navigate('/listing')
         },
         {
             label: 'Pages',
@@ -116,7 +112,6 @@ localStorage.setItem("authToken", authToken);
                 { text: 'Contact Us', onClick: () => navigate('/contactus') },
                 { text: 'FAQs', onClick: () => navigate('/FAQ') },
                 { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
-                  { text: 'Blogs', onClick: () => navigate('/blogs') },
             ]
         }, {
             label: 'Options', className: 'dropdown3',
@@ -511,11 +506,9 @@ localStorage.setItem("authToken", authToken);
                                                             <li className="home ms-4">
                                                                 <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}>Home</a>
                                                             </li>
-                                                            <li className="listing">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Listing</a>
-                                                            </li>
+                                                           
                                                             <li className="Properties">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/Properties'); }}>Properties</a>
+                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Properties</a>
                                                             </li>
                                                             <li
                                                                 className={`dropdown2 ${activeDropdown === 3 ? 'open' : ''}`}
@@ -542,7 +535,6 @@ localStorage.setItem("authToken", authToken);
                                                                     <li><a href="contactus" onClick={(e) => { e.preventDefault(); navigate('/contactus'); }}>Contact Us</a></li>
                                                                     <li><a href="faq" onClick={(e) => { e.preventDefault(); navigate('/FAQ'); }}>FAQs</a></li>
                                                                     <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/Privacy-Policy'); }}>Privacy Policy</a></li>
-                                                                     <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/blogs'); }}>Blogs</a></li>
                                                                 </ul>
                                                             </li>
 
@@ -739,7 +731,7 @@ localStorage.setItem("authToken", authToken);
                             <ul className="box-menu-dashboard">
                                 <li className="nav-menu-item">
                                     <a className="nav-menu-link" href="" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-                                        <span className="icon icon-dashboard"></span> Dashboards
+                                        <span className="icon icon-dashboard"></span> Dashboard
                                     </a>
                                 </li>
                                 <li className="nav-menu-item">

@@ -40,3 +40,28 @@
   50% { opacity: 0.4; }
   100% { opacity: 1; }
 }
+
+
+.flat-counter-v2.tf-counter {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 per row */
+  gap: 20px; /* spacing between them */
+}
+
+.counter-box {
+  text-align: center; /* center everything */
+  padding: 15px;
+}
+
+.counter-box .title-count {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px; /* space between title and number */
+}
+
+.counter-box .number {
+  font-size: 20px;
+  font-weight: bold;
+  display: block; /* ensures number is below */
+}
+

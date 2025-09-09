@@ -15,3 +15,87 @@
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+
+
+
+.btn-wrapper {
+  display: flex;
+  flex-direction: column; /* stack buttons one by one */
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.btn {
+  width: 140px; /* same width for all */
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+/* Gradient styles */
+.edit-btn {
+  background: linear-gradient(135deg, #36d1dc, #5b86e5);
+}
+
+.inquiry-btn {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+.review-btn {
+  background: linear-gradient(135deg, #ff512f, #dd2476);
+}
+
+/* Hover Effect */
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.inquiry-item {
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+

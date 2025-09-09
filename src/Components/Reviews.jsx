@@ -67,15 +67,11 @@ const Reviews = () => {
             className: 'home',
             onClick: () => navigate('/home')
         },
-        {
-            label: 'Listing',
-            className: 'listing',
-            onClick: () => navigate('/listing')
-        },
+        
         {
             label: 'Properties',
             className: 'Properties',
-            onClick: () => navigate('/Properties')
+            onClick: () => navigate('/listing')
         },
         {
             label: 'Pages',
@@ -143,11 +139,9 @@ const Reviews = () => {
                                                             <li className="home ms-4">
                                                                 <Link to="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}>Home</Link>
                                                             </li>
-                                                            <li className="listing">
-                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Listing</Link>
-                                                            </li>
+                                                            
                                                             <li className="Properties">
-                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/Properties'); }}>Properties</Link>
+                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Properties</Link>
                                                             </li>
                                                             <li
                                                                 className={`dropdown2 ${activeDropdown === 3 ? 'open' : ''}`}
@@ -174,11 +168,10 @@ const Reviews = () => {
                                                                     <li><Link to="contactus" onClick={(e) => { e.preventDefault(); navigate('/contactus'); }}>Contact Us</Link></li>
                                                                     <li><Link to="faq" onClick={(e) => { e.preventDefault(); navigate('/FAQ'); }}>FAQs</Link></li>
                                                                     <li><Link to="" onClick={(e) => { e.preventDefault(); navigate('/Privacy-Policy'); }}>Privacy Policy</Link></li>
-                                                                     <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/blogs'); }}>Blogs</a></li>
                                                                 </ul>
                                                             </li>
                                                             <li className="myprofile">
-                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>Myprofile</Link>
+                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>My profile</Link>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -312,7 +305,7 @@ const Reviews = () => {
                             <ul className="box-menu-dashboard">
                                 <li className="nav-menu-item">
                                     <Link to className="nav-menu-link" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-                                        <span className="icon icon-dashboard"></span> Dashboards
+                                        <span className="icon icon-dashboard"></span> Dashboard
                                     </Link>
                                 </li>
                                 <li className="nav-menu-item">
