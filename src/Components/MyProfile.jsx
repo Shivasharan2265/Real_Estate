@@ -84,15 +84,11 @@ const MyProfile = () => {
             className: 'home',
             onClick: () => navigate('/home')
         },
-        {
-            label: 'Listing',
-            className: 'listing',
-            onClick: () => navigate('/listing')
-        },
+       
         {
             label: 'Properties',
             className: 'Properties',
-            onClick: () => navigate('/Properties')
+            onClick: () => navigate('/listing')
         },
         {
             label: 'Pages',
@@ -491,11 +487,9 @@ const MyProfile = () => {
                                                             <li className="home ms-4">
                                                                 <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}>Home</a>
                                                             </li>
-                                                            <li className="listing">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Listing</a>
-                                                            </li>
+                                                           
                                                             <li className="Properties">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/Properties'); }}>Properties</a>
+                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Properties</a>
                                                             </li>
                                                             <li
                                                                 className={`dropdown2 ${activeDropdown === 3 ? 'open' : ''}`}
@@ -718,7 +712,7 @@ const MyProfile = () => {
                             <ul className="box-menu-dashboard">
                                 <li className="nav-menu-item">
                                     <a className="nav-menu-link" href="" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-                                        <span className="icon icon-dashboard"></span> Dashboards
+                                        <span className="icon icon-dashboard"></span> Dashboard
                                     </a>
                                 </li>
                                 <li className="nav-menu-item">

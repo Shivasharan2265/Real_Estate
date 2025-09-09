@@ -26,6 +26,14 @@ const HomePage = () => {
     const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
     const [showPopup, setShowPopup] = useState(false);
 
+
+    const [blogs, setBlogs] = useState([]);
+
+    const [page, setPage] = useState(1); // current page
+    const [hasMore, setHasMore] = useState(true); // to check if more blogs exist
+
+    console.log("image ", api.imageUrl)
+
     useEffect(() => {
         const authToken = localStorage.getItem("authToken");
         if (popupBanner && authToken) {
@@ -172,6 +180,69 @@ const HomePage = () => {
         bannerList();
     }, []);
 
+
+
+
+
+
+
+
+
+    // Load first page on mount
+    useEffect(() => {
+        bloglist(1); // always load page 1 explicitly
+    }, []);
+
+    // Load more handler
+    const loadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        bloglist(nextPage); // pass nextPage explicitly
+    };
+
+    const bloglist = async (currentPage) => {
+        setLoading(true);
+        const fd = new FormData();
+        fd.append("programType", "getBlogDetails");
+        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("limit", 3);
+        fd.append("page", currentPage);
+
+        try {
+            const response = await api.post("/properties/preRequirements", fd);
+            console.log(response)
+            if (response.data.success) {
+                const newBlogs = response.data.data;
+
+                if (currentPage === 1) {
+                    // First page, replace the blogs
+                    setBlogs([])
+                    setBlogs(newBlogs);
+                } else {
+                    // Append subsequent pages
+                    setBlogs((prev) => [...prev, ...newBlogs]);
+                }
+
+                if (newBlogs.length < 1) {
+                    setHasMore(false);
+                }
+            }
+        } catch (error) {
+            console.error("blog error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
+
+
+
+
+
+
+
     // ✅ Show loader until both banners and properties are ready
     if (loading || bannersLoading) {
         return (
@@ -280,11 +351,19 @@ const HomePage = () => {
                                                                     </div>
                                                                     <div className="form-group-2 form-style">
                                                                         <label>Location</label>
-                                                                        <div className="group-ip">
-                                                                            <input type="text" className="form-control" placeholder="Search Location" title="Search for" required="" />
-                                                                            <a href="#" className="icon icon-location"></a>
+                                                                        <div className="group-select">
+                                                                            <div className="nice-select" tabIndex="0">
+                                                                                <span className="current">Select Location</span>
+                                                                                <ul className="list">
+
+                                                                                    <li data-value="india" className="option">India</li>
+                                                                                    <li data-value="dubai" className="option">Dubai</li>
+                                                                                </ul>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
+
+
                                                                     <div className="form-group-3 form-style">
                                                                         <label>Type</label>
                                                                         <div className="group-select">
@@ -998,6 +1077,63 @@ const HomePage = () => {
                             </div>
                         </div>
                     </section>
+
+
+
+
+
+
+
+
+                    <section className="flat-section">
+                        <div className="container">
+                            <div className="row">
+                                {blogs.length === 0 && loading
+                                    ? renderSkeleton()
+                                    : blogs.map((blog) => (
+                                        <div className="col-lg-4 col-md-6" key={blog.blogId}>
+                                            <div
+                                                className="flat-blog-item hover-img"
+                                                onClick={() => navigate(`/blogoverview/${blog.blogId}`)}
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                <div className="img-style">
+                                                    <img
+                                                        src={api.imageUrl + blog.featured_image}
+                                                        alt={blog.title}
+                                                    />
+                                                    <span className="date-post">
+                                                        {new Date().toLocaleDateString("en-US", {
+                                                            month: "long",
+                                                            day: "2-digit",
+                                                            year: "numeric",
+                                                        })}
+                                                    </span>
+                                                </div>
+                                                <div className="content-box">
+                                                    <div className="post-author">
+                                                        <span>{blog.relatedTo || "Property"}</span>
+                                                    </div>
+                                                    <h6 className="title">{blog.title}</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+
+                                <div className="col-12 text-center mt-3">
+                                    <button
+                                        className="tf-btn size-1 primary"
+                                        onClick={() => navigate("/blogs")}
+                                    >
+                                        View More
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+
                     {/* <!-- End Benefit -->
                     {/* PROPERTIES */}
 
@@ -1134,23 +1270,24 @@ const HomePage = () => {
                                 </div>
 
                                 <div className="col-lg-9">
+
                                     <Swiper
                                         modules={[Navigation, Autoplay]}
-
                                         autoplay={{
                                             delay: 3000,
                                             disableOnInteraction: false,
                                         }}
                                         speed={1000}
                                         loop={true}
-                                        spaceBetween={30}
-                                        slidesPerView={1}
+                                        spaceBetween={30} // space between slides
+                                        slidesPerView={1} // default for mobile
                                         breakpoints={{
-                                            768: { slidesPerView: 2 },
-                                            1024: { slidesPerView: 2.6 },
+                                            768: { slidesPerView: 2, spaceBetween: 20 }, // tablet
+                                            1024: { slidesPerView: 2, spaceBetween: 30 }, // desktop
                                         }}
                                         className="tf-sw-testimonial"
                                     >
+                                    
                                         <SwiperSlide>
                                             <div className="box-tes-item">
                                                 <ul className="list-star">
@@ -1306,7 +1443,7 @@ const HomePage = () => {
                             <img
                                 src={`${api.imageUrl}${footerBannerUrl}`}
                                 alt="Footer Banner"
-                                style={{ maxWidth: "100%",minWidth:"500px", height: "auto" }}
+                                style={{ maxWidth: "100%", minWidth: "500px", height: "auto" }}
                             />
                         </div>
                     )}

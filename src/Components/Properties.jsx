@@ -24,7 +24,7 @@ const Properties = () => {
 
     const [email, setEmail] = useState(localStorage.getItem("email"));
     const [message, setMessage] = useState("I am Intersted!");
-const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
+    const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
     // inside Properties component
     const [liked, setLiked] = useState(false);
     const [hover, setHover] = useState(false);
@@ -140,6 +140,30 @@ const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
     useEffect(() => {
         fetchDetails();
     }, [id]);
+
+    const handleShare = async () => {
+    const shareData = {
+      title: "Check this out!",
+      text: "Have a look at this amazing property.",
+      url: window.location.href, // current page URL
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        console.log("Shared successfully");
+      } catch (err) {
+        console.error("Share failed:", err.message);
+      }
+    } else {
+      // Fallback (desktop browsers)
+      alert(
+        "Sharing not supported on this device. Copy the link manually:\n" +
+          window.location.href
+      );
+    }
+  };
+
 
     // Alternative: Bouncing cubes loader
     if (loading) {
@@ -483,13 +507,23 @@ const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
                                 </li>
 
                                 <li>
-                                    <a href="#" className="item">
-                                        <span className="fa-solid fa-share-from-square" style={{
-                                            fontSize: "20px",
-                                            color: "black",
-                                            cursor: "pointer",
-                                            transition: "color 0.3s ease",
-                                        }}></span>
+                                    <a
+                                        href="#"
+                                        className="item"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleShare();
+                                        }}
+                                    >
+                                        <span
+                                            className="fa-solid fa-share-from-square"
+                                            style={{
+                                                fontSize: "20px",
+                                                color: "black",
+                                                cursor: "pointer",
+                                                transition: "color 0.3s ease",
+                                            }}
+                                        ></span>
                                     </a>
                                 </li>
                                 {/* <li>
@@ -568,25 +602,44 @@ const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
                                     boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
                                 }}
                             >
-                                <h3 style={{ fontSize: "20px", fontWeight: "700", marginBottom: "20px", color: "#333" }}>
+                                <h3
+                                    style={{
+                                        fontSize: "20px",
+                                        fontWeight: "700",
+                                        marginBottom: "20px",
+                                        color: "#333",
+                                    }}
+                                >
                                     Amenities and Features
                                 </h3>
 
-                                <div
-                                    style={{
-                                        display: "grid",
-                                        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                                        gap: "20px",
-                                    }}
-                                >
+                                <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
                                     {amenitiesData.map(
                                         (cat, ci) =>
                                             cat.items.length > 0 && (
                                                 <div key={ci}>
-                                                    <h4 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "12px", color: "#444" }}>
+                                                    <h4
+                                                        style={{
+                                                            fontSize: "16px",
+                                                            fontWeight: "600",
+                                                            marginBottom: "12px",
+                                                            color: "#444",
+                                                        }}
+                                                    >
                                                         {cat.category}
                                                     </h4>
-                                                    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+
+                                                    {/* Items in horizontal row */}
+                                                    <ul
+                                                        style={{
+                                                            listStyle: "none",
+                                                            padding: 0,
+                                                            margin: 0,
+                                                            display: "flex",
+                                                            flexWrap: "wrap",
+                                                            gap: "15px",
+                                                        }}
+                                                    >
                                                         {cat.items.map((f, fi) => (
                                                             <li
                                                                 key={fi}
@@ -594,15 +647,20 @@ const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
                                                                     display: "flex",
                                                                     alignItems: "center",
                                                                     gap: "8px",
-                                                                    padding: "8px 0",
-                                                                    borderBottom: "1px dashed #e0e0e0",
                                                                     fontSize: "14px",
                                                                     color: "#555",
+                                                                    padding: "6px 10px",
+                                                                    background: "#fff",
+                                                                    border: "1px solid #e0e0e0",
+                                                                    borderRadius: "8px",
                                                                 }}
                                                             >
                                                                 <span
                                                                     className={`icon ${f.icon}`}
-                                                                    style={{ color: "#4a90e2", fontSize: "16px" }}
+                                                                    style={{
+                                                                        color: "#4a90e2",
+                                                                        fontSize: "16px",
+                                                                    }}
                                                                 ></span>
                                                                 {f.label}
                                                             </li>
@@ -613,6 +671,7 @@ const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
                                     )}
                                 </div>
                             </div>
+
 
 
                             {/* Map */}

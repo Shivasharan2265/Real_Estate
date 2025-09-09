@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import api from '../api/api';
 import "./MyFavorites.css"
 import easy from "../assets/easy.png"
+import toast from 'react-hot-toast';
 
 
 
@@ -66,15 +67,11 @@ const MyFavorites = () => {
             className: 'home',
             onClick: () => navigate('/home')
         },
-        {
-            label: 'Listing',
-            className: 'listing',
-            onClick: () => navigate('/listing')
-        },
+
         {
             label: 'Properties',
             className: 'Properties',
-            onClick: () => navigate('/Properties')
+            onClick: () => navigate('/listing')
         },
         {
             label: 'Pages',
@@ -84,7 +81,7 @@ const MyFavorites = () => {
                 { text: 'Contact Us', onClick: () => navigate('/contactus') },
                 { text: 'FAQs', onClick: () => navigate('/FAQ') },
                 { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
-                  { text: 'Blogs', onClick: () => navigate('/blogs') },
+                { text: 'Blogs', onClick: () => navigate('/blogs') },
             ]
         },
         {
@@ -149,25 +146,29 @@ const MyFavorites = () => {
         myFavoritesList();
     }, []);
 
-    const remove = async (id) => {
+    const remove = async (favoriteId,id) => {
+        console.log("Removing favorite:", favoriteId);
 
-        console.log("removing")
         const fd = new FormData();
         fd.append("programType", "removeFavorites");
         fd.append("authToken", localStorage.getItem("authToken"));
-        fd.append("favoriteId", id)
-        console.log(id)
+        fd.append("favoriteId", favoriteId);
+        fd.append("property_id", id);
+
 
         try {
-
             const response = await api.post("/properties/property", fd);
-            console.log(response)
+            console.log("Remove response:", response);
+
             if (response.data.success) {
-                setProperties([])
-                myPropertyList()
+                 toast.success("Favorite removed successfully!"); 
+                myFavoritesList();
+
+                // Option 2: Or remove it locally without API refetch
+                // setFavorites(prev => prev.filter(fav => fav.favoriteId !== favoriteId));
             }
         } catch (error) {
-            console.error("Property fetch error:", error);
+            console.error("Remove favorite error:", error);
         }
     };
 
@@ -199,11 +200,9 @@ const MyFavorites = () => {
                                                             <li className="home ms-4">
                                                                 <Link to="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}>Home</Link>
                                                             </li>
-                                                            <li className="listing">
-                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Listing</Link>
-                                                            </li>
+
                                                             <li className="Properties">
-                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/Properties'); }}>Properties</Link>
+                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Properties</Link>
                                                             </li>
                                                             <li
                                                                 className={`dropdown2 ${activeDropdown === 3 ? 'open' : ''}`}
@@ -233,7 +232,7 @@ const MyFavorites = () => {
                                                                 </ul>
                                                             </li>
                                                             <li className="myprofile">
-                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>Myprofile</Link>
+                                                                <Link to="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>My profile</Link>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -369,7 +368,7 @@ const MyFavorites = () => {
                             <ul className="box-menu-dashboard">
                                 <li className="nav-menu-item">
                                     <Link className="nav-menu-link" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-                                        <span className="icon icon-dashboard"></span> Dashboards
+                                        <span className="icon icon-dashboard"></span> Dashboard
                                     </Link>
                                 </li>
                                 <li className="nav-menu-item">
@@ -466,19 +465,23 @@ const MyFavorites = () => {
                                                                         </div>
                                                                     </div>
                                                                 </td>
-                                                                <td>
+                                                                {/* <td>
                                                                     <span>{new Date(fav.created_at).toLocaleDateString()}</span>
+                                                                </td> */}
+                                                                <td>
+                                                                    <span>DD/MM/YYYY</span>
                                                                 </td>
                                                                 <td>
                                                                     <ul className="list-action">
-
-                                                                        <li onClick={() => remove(property.id)}>
+                                                                        <li onClick={() => remove(fav.favoriteId)}>
                                                                             <Link className="remove-file item">
                                                                                 <i className="icon icon-trash"></i>Remove
                                                                             </Link>
                                                                         </li>
                                                                     </ul>
                                                                 </td>
+
+
                                                             </tr>
                                                         ))
                                                     ) : (

@@ -4,6 +4,8 @@ import React, { useState, useEffect, use } from 'react';
 import api from '../api/api';
 import "./Myproperties.css"
 import easy from "../assets/easy.png"
+import toast from 'react-hot-toast';
+
 
 
 const Myproperties = () => {
@@ -15,7 +17,7 @@ const Myproperties = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
- const [name, setName] = useState(localStorage.getItem("name"));
+    const [name, setName] = useState(localStorage.getItem("name"));
     console.log(name);
 
     const toggleDropdown = () => {
@@ -64,15 +66,11 @@ const Myproperties = () => {
             className: 'home',
             onClick: () => navigate('/home')
         },
-        {
-            label: 'Listing',
-            className: 'listing',
-            onClick: () => navigate('/listing')
-        },
+
         {
             label: 'Properties',
             className: 'Properties',
-            onClick: () => navigate('/Properties')
+            onClick: () => navigate('/listing')
         },
         {
             label: 'Pages',
@@ -82,18 +80,18 @@ const Myproperties = () => {
                 { text: 'Contact Us', onClick: () => navigate('/contactus') },
                 { text: 'FAQs', onClick: () => navigate('/FAQ') },
                 { text: 'Privacy Policy', onClick: () => navigate('/Privacy-Policy') },
-                  { text: 'Blogs', onClick: () => navigate('/blogs') },
+                { text: 'Blogs', onClick: () => navigate('/blogs') },
             ]
         },
-          {
-      label: 'Options', className: 'dropdown3',
-      submenu: [
-        { text: 'Dashboard', onClick: () => navigate('/dashboard') },
-        { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
-        { text: 'My Properties', onClick: () => navigate('/myproperties') },
-        { text: 'Reviews', onClick: () => navigate('/reviews') },
-      ]
-    },
+        {
+            label: 'Options', className: 'dropdown3',
+            submenu: [
+                { text: 'Dashboard', onClick: () => navigate('/dashboard') },
+                { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
+                { text: 'My Properties', onClick: () => navigate('/myproperties') },
+                { text: 'Reviews', onClick: () => navigate('/reviews') },
+            ]
+        },
         {
             label: 'My Profile',
             className: 'myprofile',
@@ -166,6 +164,75 @@ const Myproperties = () => {
 
 
 
+    const [stats, setStats] = useState({
+        active_properties: 0,
+        pending_properties: 0,
+        total_favorites: 0,
+        total_inquiries: 0,
+        total_properties: 0,
+    });
+    const [recentProperties, setRecentProperties] = useState([]);
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+
+
+    const dashboardList = async (from = "", to = "") => {
+        const fd = new FormData();
+        fd.append("programType", "userProfileDashboard");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        if (from && to) {
+            fd.append("fromDate", from);
+            fd.append("toDate", to);
+        }
+
+        try {
+            setLoading(true);
+            const response = await api.post("/properties/property", fd);
+            console.log("dashboard list ", response);
+
+            if (response.data?.data?.dashboard_stats) {
+                setStats(response.data.data.dashboard_stats);
+            }
+            if (response.data?.data?.recent_properties) {
+                setRecentProperties(response.data.data.recent_properties);
+            }
+        } catch (error) {
+            console.error("Dashboard fetch error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+
+
+    // Filter button handler
+    const handleFilter = () => {
+        if (!fromDate || !toDate) {
+            toast.error("Please select both From Date and To Date");
+            return;
+        }
+        dashboardList(fromDate, toDate);
+    };
+
+    useEffect(() => {
+        dashboardList();
+    }, []);
+
+
+    const [showModal, setShowModal] = useState(false);
+    const [selectedInquiry, setSelectedInquiry] = useState([]);
+
+
+
+
+    const handleInquiryClick = (inquiries) => {
+        console.log("Inquiry Data:", inquiries); // ✅ Shows full inquiry data in console
+        setSelectedInquiry(inquiries);
+        setShowModal(true);
+    };
+
 
     return (
         <div className={`body bg-surface ${menuVisible ? 'mobile-menu-visible' : ''}`}>
@@ -195,11 +262,9 @@ const Myproperties = () => {
                                                             <li className="home ms-4">
                                                                 <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}>Home</a>
                                                             </li>
-                                                            <li className="listing">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Listing</a>
-                                                            </li>
+
                                                             <li className="Properties">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/Properties'); }}>Properties</a>
+                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Properties</a>
                                                             </li>
                                                             <li
                                                                 className={`dropdown2 ${activeDropdown === 3 ? 'open' : ''}`}
@@ -229,7 +294,7 @@ const Myproperties = () => {
                                                                 </ul>
                                                             </li>
                                                             <li className="myprofile">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>Myprofile</a>
+                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>My profile</a>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -260,11 +325,11 @@ const Myproperties = () => {
                                                         <a className="dropdown-item" onClick={() => navigate('/reviews')}>Reviews</a>
                                                         <a className="dropdown-item" onClick={() => navigate('/myprofile')}>My Profile</a>
                                                         <a className="dropdown-item" onClick={(e) => {
-                                            e.preventDefault();
-                                            localStorage.removeItem("authToken"); // clear token
-                                            navigate("/home"); // redirect after logout
-                                            window.location.reload(); // reload so header updates
-                                        }}>Logout</a>
+                                                            e.preventDefault();
+                                                            localStorage.removeItem("authToken"); // clear token
+                                                            navigate("/home"); // redirect after logout
+                                                            window.location.reload(); // reload so header updates
+                                                        }}>Logout</a>
 
                                                     </div>
                                                 </div>
@@ -339,11 +404,11 @@ const Myproperties = () => {
                                             </div>
                                         </div>
                                         <div className="button-mobi-sell">
-                                                    <a className="tf-btn primary" onClick={(e) => {
-                                                        e.preventDefault();
-                                                        // Navigate to add property if logged in
-                                                        navigate("/addproperty");
-                                                    }}>Add Property</a>                                        </div>
+                                            <a className="tf-btn primary" onClick={(e) => {
+                                                e.preventDefault();
+                                                // Navigate to add property if logged in
+                                                navigate("/addproperty");
+                                            }}>Add Property</a>                                        </div>
                                         <div className="mobi-icon-box">
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-phone2"></span>
@@ -363,7 +428,7 @@ const Myproperties = () => {
                             <ul className="box-menu-dashboard">
                                 <li className="nav-menu-item">
                                     <a className="nav-menu-link" href="" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-                                        <span className="icon icon-dashboard"></span> Dashboards
+                                        <span className="icon icon-dashboard"></span> Dashboard
                                     </a>
                                 </li>
                                 <li className="nav-menu-item">
@@ -410,31 +475,38 @@ const Myproperties = () => {
                                     <span className="body-1">Show Dashboard</span>
                                 </div> */}
                                 <div className="row">
-                                    <div className="col-md-3">
-                                        <fieldset className="box-fieldset">
-                                            <label for="title">
-                                                Post Status:<span>*</span>
-                                            </label>
-                                            <div className="nice-select" tabindex="0"><span className="current">Select</span>
-                                                <ul className="list">
-                                                    <li data-value="1" className="option selected">Select</li>
-                                                    <li data-value="2" className="option">Publish</li>
-                                                    <li data-value="3" className="option">Pending</li>
-                                                    <li data-value="3" className="option">Hidden</li>
-                                                    <li data-value="3" className="option">Sold</li>
-                                                </ul>
-                                            </div>
-                                        </fieldset>
-                                    </div>
-                                    <div className="col-md-9">
-                                        <fieldset className="box-fieldset">
-                                            <label for="title">
-                                                Post Status:<span>*</span>
-                                            </label>
-                                            <input type="text" className="form-control style-1" placeholder="Search by title" />
-                                        </fieldset>
+                                    <div className="wd-filter" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                        <input
+                                            type="date"
+                                            id="datepicker1"
+                                            className="ip-datepicker icon"
+                                            placeholder="From Date"
+                                            value={fromDate}
+                                            onChange={(e) => setFromDate(e.target.value)}
+                                            style={{ width: "20ty0px", padding: "8px", borderRadius: "8px" }}
+                                        />
+
+                                        <input
+                                            type="date"
+                                            id="datepicker2"
+                                            className="ip-datepicker icon"
+                                            placeholder="To Date"
+                                            value={toDate}
+                                            onChange={(e) => setToDate(e.target.value)}
+                                            style={{ width: "200px", padding: "8px", borderRadius: "8px" }}
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className="tf-btn primary flex items-center gap-2"
+                                            style={{ padding: "8px 16px", borderRadius: "8px", whiteSpace: "nowrap" }}
+                                            onClick={handleFilter}
+                                        >
+                                            <i className="icon icon-filter"></i> Filter
+                                        </button>
                                     </div>
                                 </div>
+
                                 <div className="widget-box-2 wd-listing mt-3">
                                     <h6 className="title">My Properties</h6>
                                     <div className="wrap-table">
@@ -445,11 +517,11 @@ const Myproperties = () => {
                                                         <th>Title</th>
                                                         <th>Date Published</th>
                                                         <th>Status</th>
-                                                        <th>Feature</th>
+
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
+                                                {/* <tbody>
                                                     {loading ? (
                                                         // Show 3 skeleton rows while loading
                                                         [...Array(3)].map((_, idx) => (
@@ -521,7 +593,106 @@ const Myproperties = () => {
                                                             <td colSpan="5" style={{ textAlign: "center" }}>No properties found</td>
                                                         </tr>
                                                     )}
+                                                </tbody> */}
+
+
+
+
+
+
+                                                <tbody>
+                                                    {loading ? (
+                                                        Array.from({ length: 5 }).map((_, idx) => (
+                                                            <tr key={idx} className="file-delete" style={{ minHeight: "100px" }}>
+                                                                {/* Skeleton loader */}
+                                                            </tr>
+                                                        ))
+                                                    ) : recentProperties.length > 0 ? (
+                                                        recentProperties.map((property) => {
+                                                            // Status handling
+                                                            let statusLabel = "Pending";
+                                                            if (property.property_status === 1) statusLabel = "Approved";
+                                                            else if (property.property_status === 2) statusLabel = "Rejected";
+
+                                                            // Date Published handling
+                                                            const datePublished = property.approved_at
+                                                                ? property.approved_at.split(" ")[0]
+                                                                : "-----";
+
+                                                            // Image handling
+                                                            const defaultImg =
+                                                                "https://themesflat.co/html/homzen/images/home/house-1.jpg";
+                                                            const imageUrl = property.property_images
+                                                                ? property.property_images
+                                                                : defaultImg;
+
+                                                            return (
+                                                                <tr key={property.id} className="file-delete">
+                                                                    <td>
+                                                                        <div className="listing-box">
+                                                                            <div
+                                                                                className="images"
+                                                                                style={{ cursor: "pointer" }}
+                                                                                onClick={() => navigate(`/property/${property.id}`)}
+                                                                            >
+                                                                                <img src={imageUrl} alt={property.title} />
+                                                                            </div>
+                                                                            <div className="content">
+                                                                                <div className="title">
+                                                                                    <a href="#" className="link">
+                                                                                        {property.title}
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div className="text-date">
+                                                                                    <p className="fw-5">
+                                                                                        <span className="fw-4 text-variant-1">Posting date:</span>{" "}
+                                                                                        {property.created_at?.split(" ")[0]}
+                                                                                    </p>
+                                                                                </div>
+                                                                                <div className="text-1 fw-7">{property.property_type}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>{datePublished}</td>
+                                                                    <td>
+                                                                        <div className="status-wrap">
+                                                                            <a href="#" className="btn-status">
+                                                                                {statusLabel}
+                                                                            </a>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <ul className="list-action">
+                                                                            <li>
+                                                                                <a className="remove-file item btn-wrapper">
+                                                                                    <button className="btn edit-btn">Edit</button>
+                                                                                    <button
+                                                                                        className="btn inquiry-btn"
+                                                                                        onClick={() => handleInquiryClick(property.inquiry)}
+                                                                                    >
+                                                                                        Inquiry
+                                                                                    </button>
+
+                                                                                    <button className="btn review-btn">Review</button>
+                                                                                </a>
+
+
+                                                                            </li>
+                                                                        </ul>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan={4} className="text-center">
+                                                                No recent properties found.
+                                                            </td>
+                                                        </tr>
+                                                    )}
                                                 </tbody>
+                                                
+
 
 
                                             </table>
@@ -586,6 +757,38 @@ const Myproperties = () => {
                                 </svg>
                             </div>
                         </div>
+
+                        {showModal && (
+  <div className="modal-overlay">
+    <div className="modal-box">
+      <h3>Inquiry Details</h3>
+
+      {selectedInquiry && selectedInquiry.length > 0 ? (
+        <ul>
+          {selectedInquiry.map((inq) => (
+            <li key={inq.id} className="inquiry-item">
+              <p><strong>Name:</strong> {inq.name}</p>
+              <p><strong>Email:</strong> {inq.email}</p>
+              <p><strong>Phone:</strong> {inq.phone}</p>
+              <p><strong>Message:</strong> {inq.message}</p>
+              <p><strong>Status:</strong> {inq.status}</p>
+              <p><strong>Date:</strong> {inq.created_at?.split(" ")[0] || "N/A"}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No inquiries found for this property.</p>
+      )}
+
+      <div className="modal-actions">
+        <button className="btn cancel-btn" onClick={() => setShowModal(false)}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
                     </div>
                 </div>
             </div>

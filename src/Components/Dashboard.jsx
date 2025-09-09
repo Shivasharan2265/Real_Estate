@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/api';
 import "./Dashboard.css"
 import easy from "../assets/easy.png"
+import toast from 'react-hot-toast';
+
 
 
 const Dashboard = () => {
@@ -13,6 +15,9 @@ const Dashboard = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+
+
 
     const [name, setName] = useState(localStorage.getItem("name"));
     console.log(name);
@@ -64,15 +69,11 @@ const Dashboard = () => {
             className: 'home',
             onClick: () => navigate('/home')
         },
-        {
-            label: 'Listing',
-            className: 'listing',
-            onClick: () => navigate('/listing')
-        },
+
         {
             label: 'Properties',
             className: 'Properties',
-            onClick: () => navigate('/Properties')
+            onClick: () => navigate('/listing')
         },
         {
             label: 'Pages',
@@ -85,15 +86,15 @@ const Dashboard = () => {
                 { text: 'Blogs', onClick: () => navigate('/blogs') },
             ]
         },
-          {
-      label: 'Options', className: 'dropdown3',
-      submenu: [
-        { text: 'Dashboard', onClick: () => navigate('/dashboard') },
-        { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
-        { text: 'My Properties', onClick: () => navigate('/myproperties') },
-        { text: 'Reviews', onClick: () => navigate('/reviews') },
-      ]
-    },
+        {
+            label: 'Options', className: 'dropdown3',
+            submenu: [
+                { text: 'Dashboard', onClick: () => navigate('/dashboard') },
+                { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
+                { text: 'My Properties', onClick: () => navigate('/myproperties') },
+                { text: 'Reviews', onClick: () => navigate('/reviews') },
+            ]
+        },
         {
             label: 'My Profile',
             className: 'myprofile',
@@ -166,6 +167,86 @@ const Dashboard = () => {
         myPropertyList(page);
     }, [page]);
 
+
+
+
+
+
+    const [stats, setStats] = useState({
+        active_properties: 0,
+        pending_properties: 0,
+        total_favorites: 0,
+        total_inquiries: 0,
+        total_properties: 0,
+    });
+
+    const [recentProperties, setRecentProperties] = useState([]);
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+
+
+    const dashboardList = async (from = "", to = "") => {
+        const fd = new FormData();
+        fd.append("programType", "userProfileDashboard");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        if (from && to) {
+            fd.append("fromDate", from);
+            fd.append("toDate", to);
+        }
+
+        try {
+            setLoading(true);
+            const response = await api.post("/properties/property", fd);
+            console.log("dashboard list ", response);
+
+            if (response.data?.data?.dashboard_stats) {
+                setStats(response.data.data.dashboard_stats);
+            }
+            if (response.data?.data?.recent_properties) {
+                setRecentProperties(response.data.data.recent_properties);
+            }
+        } catch (error) {
+            console.error("Dashboard fetch error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Filter button handler
+    const handleFilter = () => {
+        if (!fromDate || !toDate) {
+            toast.error("Please select both From Date and To Date");
+            return;
+        }
+        dashboardList(fromDate, toDate);
+    };
+
+    useEffect(() => {
+        dashboardList();
+    }, []);
+
+    // ================= Status Mapping =================
+    const getStatusText = (status) => {
+        if (status === 0) return "Pending";
+        if (status === 1) return "Approved";
+        if (status === 2) return "Rejected";
+        return "Unknown";
+    };
+
+    const getStatusClass = (status) => {
+        if (status === 0) return "btn-status pending";
+        if (status === 1) return "btn-status approved";
+        if (status === 2) return "btn-status rejected";
+        return "btn-status";
+    };
+
+
+
+
+
+
+
     return (
 
         <div className={`body bg-surface ${menuVisible ? 'mobile-menu-visible' : ''}`}>
@@ -195,11 +276,9 @@ const Dashboard = () => {
                                                             <li className="home ms-4">
                                                                 <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}>Home</a>
                                                             </li>
-                                                            <li className="listing">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Listing</a>
-                                                            </li>
+
                                                             <li className="Properties">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/Properties'); }}>Properties</a>
+                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Properties</a>
                                                             </li>
                                                             <li
                                                                 className={`dropdown2 ${activeDropdown === 3 ? 'open' : ''}`}
@@ -226,11 +305,11 @@ const Dashboard = () => {
                                                                     <li><a href="contactus" onClick={(e) => { e.preventDefault(); navigate('/contactus'); }}>Contact Us</a></li>
                                                                     <li><a href="faq" onClick={(e) => { e.preventDefault(); navigate('/FAQ'); }}>FAQs</a></li>
                                                                     <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/Privacy-Policy'); }}>Privacy Policy</a></li>
-                                                                       <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/blogs'); }}>Blogs</a></li>
+                                                                    <li><a href="" onClick={(e) => { e.preventDefault(); navigate('/blogs'); }}>Blogs</a></li>
                                                                 </ul>
                                                             </li>
-                                                            <li className="myprofile">
-                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>Myprofile</a>
+                                                            <li className="my profile">
+                                                                <a href="" onClick={(e) => { e.preventDefault(); navigate('/myprofile'); }}>My profile</a>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -342,11 +421,11 @@ const Dashboard = () => {
                                             </div>
                                         </div>
                                         <div className="button-mobi-sell">
-                                                    <a className="tf-btn primary" onClick={(e) => {
-                                                        e.preventDefault();
-                                                        // Navigate to add property if logged in
-                                                        navigate("/addproperty");
-                                                    }}>Add Property</a>                                        </div>
+                                            <a className="tf-btn primary" onClick={(e) => {
+                                                e.preventDefault();
+                                                // Navigate to add property if logged in
+                                                navigate("/addproperty");
+                                            }}>Add Property</a>                                        </div>
                                         <div className="mobi-icon-box">
                                             <div className="box d-flex align-items-center">
                                                 <span className="icon icon-phone2"></span>
@@ -366,7 +445,7 @@ const Dashboard = () => {
                             <ul className="box-menu-dashboard">
                                 <li className="nav-menu-item">
                                     <a className="nav-menu-link" href="" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-                                        <span className="icon icon-dashboard"></span> Dashboards
+                                        <span className="icon icon-dashboard"></span> Dashboard
                                     </a>
                                 </li>
                                 <li className="nav-menu-item">
@@ -407,80 +486,105 @@ const Dashboard = () => {
                                     <span className="body-1">Show Dashboard</span>
                                 </div> */}
                                 <div className="flat-counter-v2 tf-counter">
+
+
+
+
+                                    {/* Active Properties */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
                                             <span className="icon icon-list-dashes"></span>
                                         </div>
                                         <div className="content-box">
-                                            <div className="title-count">your Listing</div>
-                                            <div className="d-flex align-items-end">
-                                                <h6 className="number" data-speed="2000" data-to="17" data-inviewport="yes">17</h6>
-                                                <span className="fw-7 text-variant-2">/17 remaining</span>
-                                            </div>
-
+                                            <div className="title-count">Active Properties</div>
+                                            <h6 className="number">{stats.active_properties}</h6>
                                         </div>
                                     </div>
+
+                                    {/* Pending Properties */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
                                             <span className="icon icon-clock-countdown"></span>
                                         </div>
                                         <div className="content-box">
-                                            <div className="title-count">Pending</div>
-                                            <div className="d-flex align-items-end">
-                                                <h6 className="number" data-speed="2000" data-to="0" data-inviewport="yes">0</h6>
-                                            </div>
-
+                                            <div className="title-count">Pending Properties</div>
+                                            <h6 className="number">{stats.pending_properties}</h6>
                                         </div>
                                     </div>
+
+                                    {/* Total Favorites */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
                                             <span className="icon icon-bookmark"></span>
                                         </div>
                                         <div className="content-box">
-                                            <div className="title-count">Favorite</div>
-                                            <div className="d-flex align-items-end">
-                                                <h6 className="number" data-speed="2000" data-to="1" data-inviewport="yes">1</h6>
-                                            </div>
-
+                                            <div className="title-count">Total Favorites</div>
+                                            <h6 className="number">{stats.total_favorites}</h6>
                                         </div>
                                     </div>
+
+                                    {/* Total Inquiries */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
                                             <span className="icon icon-review"></span>
                                         </div>
                                         <div className="content-box">
-                                            <div className="title-count">Reviews</div>
-                                            <div className="d-flex align-items-end">
-                                                <h6 className="number" data-speed="2000" data-to="17" data-inviewport="yes">0</h6>
-                                            </div>
-
+                                            <div className="title-count">Total Inquiries</div>
+                                            <h6 className="number">{stats.total_inquiries}</h6>
                                         </div>
                                     </div>
+
+                                    {/* Total Properties */}
+                                    <div className="counter-box">
+                                        <div className="box-icon w-68 round">
+                                            <span className="icon icon-home"></span>
+                                        </div>
+                                        <div className="content-box">
+                                            <div className="title-count">Total Properties</div>
+                                            <h6 className="number">{stats.total_properties}</h6>
+                                        </div>
+                                    </div>
+
+
+
                                 </div>
                                 <div className="wrapper-content row">
                                     <div className="col-xl-9">
                                         <div className="widget-box-2 wd-listing">
                                             <h6 className="title">New Listing</h6>
                                             <div className="wd-filter">
+                                                <div className="">
+                                                    <input
+                                                        type="date"
+                                                        id="datepicker1"
+                                                        className="ip-datepicker icon"
+                                                        placeholder="From Date"
+                                                        value={fromDate}
+                                                        onChange={(e) => setFromDate(e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="">
+                                                    <input
+                                                        type="date"
+                                                        id="datepicker2"
+                                                        className="ip-datepicker icon"
+                                                        placeholder="To Date"
+                                                        value={toDate}
+                                                        onChange={(e) => setToDate(e.target.value)}
+                                                    />
+                                                </div>
                                                 <div className="ip-group">
-                                                    <input type="text" placeholder="Search" />
-                                                </div>
-                                                <div className="ip-group icon">
-                                                    <input type="text" id="datepicker1" className="ip-datepicker icon" placeholder="From Date" />
-                                                </div>
-                                                <div className="ip-group icon">
-                                                    <input type="text" id="datepicker2" className="ip-datepicker icon" placeholder="To Date" />
-                                                </div>
-                                                <div className="ip-group">
-                                                    <div className="nice-select" tabindex="0"><span className="current">Select</span>
-                                                        <ul className="list">
-                                                            <li data-value="1" className="option selected">Select</li>
-                                                            <li data-value="2" className="option">Today</li>
-                                                            <li data-value="3" className="option">Yesterday</li>
-                                                        </ul>
-                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        className="tf-btn primary flex items-center gap-2"
+                                                        style={{ padding: "8px 16px", borderRadius: "8px" }}
+                                                        onClick={handleFilter}
+                                                    >
+                                                        <i className="icon icon-filter"></i> Filter
+                                                    </button>
                                                 </div>
                                             </div>
+
                                             <div className="d-flex gap-4"><span className="text-primary fw-7">17</span><span className="text-variant-1">Results found</span></div>
                                             <div className="wrap-table">
                                                 <div className="table-responsive">
@@ -493,84 +597,88 @@ const Dashboard = () => {
                                                                 <th>Action</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                            {loading
-                                                                ? Array.from({ length: 5 }).map((_, idx) => (
-                                                                    <tr key={idx} className="file-delete" style={{ minHeight: "100px" }}>
-                                                                        <td>
-                                                                            <div className="listing-box" style={{ display: "flex", gap: "15px", alignItems: "center" }}>
-                                                                                <div className="images">
-                                                                                    <div className="skeleton skeleton-img"></div>
-                                                                                </div>
-                                                                                <div className="content" style={{ flex: 1 }}>
-                                                                                    <div className="skeleton skeleton-text title"></div>
+                                                       
 
-                                                                                </div>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td>
-                                                                            <div className="status-wrap">
-                                                                                <div className="skeleton skeleton-btn"></div>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td>
-                                                                            <ul className="list-action" style={{ display: "flex", gap: "10px" }}>
-                                                                                <li><div className="skeleton skeleton-action"></div></li>
-                                                                                <li><div className="skeleton skeleton-action"></div></li>
-                                                                                <li><div className="skeleton skeleton-action"></div></li>
-                                                                            </ul>
-                                                                        </td>
+
+                                                        <tbody>
+                                                            {loading ? (
+                                                                Array.from({ length: 5 }).map((_, idx) => (
+                                                                    <tr key={idx} className="file-delete" style={{ minHeight: "100px" }}>
+                                                                        {/* Skeleton loader */}
                                                                     </tr>
                                                                 ))
-                                                                : properties.length > 0
-                                                                    ? properties.map((property) => (
+                                                            ) : recentProperties.length > 0 ? (
+                                                                recentProperties.map((property) => {
+                                                                    // Status handling
+                                                                    let statusLabel = "Pending";
+                                                                    if (property.property_status === 1) statusLabel = "Approved";
+                                                                    else if (property.property_status === 2) statusLabel = "Rejected";
+
+                                                                    // Image handling
+                                                                    const defaultImg =
+                                                                        "https://themesflat.co/html/homzen/images/home/house-1.jpg";
+                                                                    const imageUrl = property.property_images
+                                                                        ? property.property_images // <-- backend image
+                                                                        : defaultImg; // <-- fallback
+
+                                                                    return (
                                                                         <tr key={property.id} className="file-delete">
                                                                             <td>
                                                                                 <div className="listing-box">
-                                                                                    <div className="images">
-                                                                                        <img
-                                                                                            src="https://themesflat.co/html/homzen/images/home/house-1.jpg"
-                                                                                            alt={property.title}
-                                                                                        />
+                                                                                    <div
+                                                                                        className="images"
+                                                                                        style={{ cursor: "pointer" }}
+                                                                                        onClick={() => navigate(`/property/${property.id}`)}
+                                                                                    >
+                                                                                        <img src={imageUrl} alt={property.title} />
                                                                                     </div>
                                                                                     <div className="content">
                                                                                         <div className="title">
-                                                                                            <a href={``} className="link">{property.title}</a>
+                                                                                            <a href="#" className="link">
+                                                                                                {property.title}
+                                                                                            </a>
                                                                                         </div>
                                                                                         <div className="text-date">
                                                                                             <p className="fw-5">
-                                                                                                <span className="fw-4 text-variant-1">Posting date:</span> {property.created_at?.split(" ")[0]}
+                                                                                                <span className="fw-4 text-variant-1">
+                                                                                                    Posting date:
+                                                                                                </span>{" "}
+                                                                                                {property.created_at?.split(" ")[0]}
                                                                                             </p>
                                                                                         </div>
-                                                                                        <div className="text-1 fw-7">
-                                                                                            {property.expected_price && property.expected_price !== "0.00"
-                                                                                                ? `$${property.expected_price}`
-                                                                                                : `$${property.expected_rent}`}
-                                                                                        </div>
+                                                                                        <div className="text-1 fw-7">{property.property_type}</div>
                                                                                     </div>
                                                                                 </div>
                                                                             </td>
                                                                             <td>
                                                                                 <div className="status-wrap">
                                                                                     <a href="#" className="btn-status">
-                                                                                        {property.status === "active" ? "Approved" : "Pending"}
+                                                                                        {statusLabel}
                                                                                     </a>
                                                                                 </div>
                                                                             </td>
                                                                             <td>
                                                                                 <ul className="list-action">
-
-                                                                                    <li onClick={() => remove(property.id)}><a className="remove-file item"><i className="icon icon-trash"></i>Remove</a></li>
+                                                                                    <li>
+                                                                                        <a className="remove-file item">
+                                                                                            <p>Edit</p>
+                                                                                        </a>
+                                                                                    </li>
                                                                                 </ul>
                                                                             </td>
                                                                         </tr>
-                                                                    ))
-                                                                    : (
-                                                                        <tr>
-                                                                            <td colSpan={3} className="text-center">No properties found.</td>
-                                                                        </tr>
-                                                                    )}
+                                                                    );
+                                                                })
+                                                            ) : (
+                                                                <tr>
+                                                                    <td colSpan={3} className="text-center">
+                                                                        No recent properties found.
+                                                                    </td>
+                                                                </tr>
+                                                            )}
                                                         </tbody>
+
+
 
 
                                                     </table>
@@ -609,10 +717,7 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                     <div className="col-xl-3">
-                                        <div className="widget-box-3 mess-box">
-                                            <h6>Messages</h6>
-                                            <span className="text-variant-1">No message</span>
-                                        </div>
+
                                         <div className="widget-box-3 recent-box">
                                             <h6>Recent Reviews</h6>
                                             <div className="box-tes-item">
