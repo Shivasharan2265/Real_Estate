@@ -26,6 +26,11 @@ const HomePage = () => {
     const [bannersLoading, setBannersLoading] = useState(true); // 👈 new state
     const [showPopup, setShowPopup] = useState(false);
 
+    const [showSticky, setShowSticky] = useState(false);
+
+    const authToken = localStorage.getItem("authToken") || "Guest";
+    localStorage.setItem("authToken", authToken);
+
 
     const [blogs, setBlogs] = useState([]);
 
@@ -34,15 +39,36 @@ const HomePage = () => {
 
     console.log("image ", api.imageUrl)
 
+
     useEffect(() => {
-        const authToken = localStorage.getItem("authToken");
-        if (popupBanner && authToken) {
-            const timer = setTimeout(() => {
-                setShowPopup(true);
-            }, 10000);
-            return () => clearTimeout(timer);
+        if (popupBanner) {
+            const hasSeenPopup = localStorage.getItem("hasSeenPopup");
+
+            if (!hasSeenPopup) {
+                const timer = setTimeout(() => {
+                    setShowPopup(true);
+                    localStorage.setItem("hasSeenPopup", "true"); // mark as shown
+                }, 10000);
+
+                return () => clearTimeout(timer);
+            }
         }
     }, [popupBanner]);
+
+    useEffect(() => {
+        if (stickyBanner) {
+            const hasSeenSticky = localStorage.getItem("hasSeenSticky");
+
+            if (!hasSeenSticky) {
+                setShowSticky(true);
+                localStorage.setItem("hasSeenSticky", "true"); // mark as shown
+            }
+        }
+    }, [stickyBanner]);
+
+
+
+
 
 
     useEffect(() => {
@@ -72,7 +98,7 @@ const HomePage = () => {
 
         const fd = new FormData();
         fd.append("programType", "getProperties");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
 
         // send filter if not "View All"
         if (tab && tab !== "View All") {
@@ -82,6 +108,7 @@ const HomePage = () => {
 
         try {
             const response = await api.post("/properties/property", fd);
+            console.log("rr")
 
             const mapped = response.data.data.properties.map((item) => {
                 let priceValue = "N/A";
@@ -132,13 +159,11 @@ const HomePage = () => {
     };
 
 
-
-
     const bannerList = async () => {
         setBannersLoading(true);
         const fd = new FormData();
         fd.append("programType", "getBannerDetails");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
 
         try {
             const response = await api.post("properties/preRequirements", fd);
@@ -879,12 +904,12 @@ const HomePage = () => {
                                                 color: "#fff"
                                             }}
                                         >
-                                            <span
+                                            {/* <span
                                                 className="sub-title"
                                                 style={{ display: "block", fontSize: "14px", marginBottom: "4px" }}
                                             >
                                                 321 Property
-                                            </span>
+                                            </span> */}
                                             <h6
                                                 className="title"
                                                 style={{ fontSize: "18px", margin: 0, fontWeight: "600" }}
@@ -896,7 +921,7 @@ const HomePage = () => {
 
                                     {/* Card 2 */}
                                     <a
-                                        href="l"
+                                        href=""
                                         className="box-location"
                                         style={{
                                             display: "block",
@@ -943,12 +968,7 @@ const HomePage = () => {
                                                 color: "#fff"
                                             }}
                                         >
-                                            <span
-                                                className="sub-title"
-                                                style={{ display: "block", fontSize: "14px", marginBottom: "4px" }}
-                                            >
-                                                321 Property
-                                            </span>
+
                                             <h6
                                                 className="title"
                                                 style={{ fontSize: "18px", margin: 0, fontWeight: "600" }}
@@ -1447,6 +1467,127 @@ const HomePage = () => {
                             />
                         </div>
                     )}
+
+
+                    {/* ✅ Popup Banner Modal */}
+                    {showPopup && popupBanner && (
+                        <div className="popup-overlay">
+                            <div className="popup-container">
+                                <button className="popup-close" style={{ zIndex: "999" }} onClick={() => setShowPopup(false)}>
+                                    ✖
+                                </button>
+                                <img
+                                    src={`${api.imageUrl}${popupBanner}`}
+                                    alt="Popup Banner"
+                                    className="popup-img"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <style>{`
+        .popup-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0,0,0,0.6);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          animation: fadeIn 0.5s ease-in-out;
+        }
+        .popup-container {
+          position: relative;
+          background: #fff;
+          padding: 10px;
+          border-radius: 12px;
+          box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+          animation: scaleUp 0.4s ease-in-out;
+          max-width: 600px;
+          width: 90%;
+        }
+        .popup-img {
+          width: 100%;
+          height: auto;
+          border-radius: 10px;
+        }
+        .popup-close {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: #ec2126;
+          border: none;
+          color: #fff;
+          font-size: 18px;
+          font-weight: bold;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          cursor: pointer;
+          transition: 0.3s;
+        }
+        .popup-close:hover {
+          background: #b8161a;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleUp {
+          from { transform: scale(0.8); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+
+
+                    {showSticky && stickyBanner && (
+                        <div
+                            style={{
+                                position: "fixed",
+                                bottom: "20px",
+                                left: "20px",
+                                zIndex: 9999,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    position: "relative",
+                                    background: "#fff",
+                                    borderRadius: "12px",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                    overflow: "hidden",
+                                    maxWidth: "280px",
+                                    animation: "slideUp 0.5s ease-out",
+                                }}
+                            >
+                                {/* Close Button */}
+                                <button className="popup-close" style={{ zIndex: "999" }} onClick={() => {
+                                    setShowSticky(false);
+                                    localStorage.setItem("hasSeenSticky", "true"); // mark dismissed
+                                }}>
+                                    ✖
+                                </button>
+
+                                {/* Banner Image */}
+                                <img
+                                    src={`${api.imageUrl}${stickyBanner}`}
+                                    alt="Sticky Banner"
+                                    style={{
+                                        display: "block",
+                                        width: "100%",
+                                        height: "auto",
+                                        borderRadius: "12px",
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+
+
 
 
 

@@ -473,7 +473,12 @@ const MyFavorites = () => {
                                                                 </td>
                                                                 <td>
                                                                     <ul className="list-action">
+
+
+                                                                        <li onClick={() => remove(fav.id)}>
+
                                                                         <li onClick={() => remove(fav.favoriteId)}>
+
                                                                             <Link className="remove-file item">
                                                                                 <i className="icon icon-trash"></i>Remove
                                                                             </Link>

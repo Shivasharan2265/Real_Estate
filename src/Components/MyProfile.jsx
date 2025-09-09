@@ -19,6 +19,10 @@ const MyProfile = () => {
 
     const [btnLoading, setBtnLoading] = useState(false);
 
+    
+    const authToken = localStorage.getItem("authToken") || "Guest";
+localStorage.setItem("authToken", authToken);
+
 
     const [name, setName] = useState(localStorage.getItem("name"));
     console.log(name);
@@ -35,6 +39,16 @@ const MyProfile = () => {
         postalCode: "",
         file: null,
     });
+
+    useEffect(() => {
+  const authToken = localStorage.getItem("authToken");
+
+  if (!authToken || authToken === "Guest") {
+    toast.error("Please Login");
+    navigate("/", { replace: true }); // redirect to homepage
+  }
+}, [navigate]);
+
 
 
 
@@ -131,7 +145,7 @@ const MyProfile = () => {
     const getCustomerDetails = async () => {
         const fd = new FormData();
         fd.append("programType", "getPersonalDetailsOfCustomer");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
 
         try {
             setLoading(true);
@@ -167,7 +181,7 @@ const MyProfile = () => {
     const updateCustomerDetails = async () => {
         const fd = new FormData();
         fd.append("programType", "updateCustomer");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
         fd.append("firstName", customer.firstName);
         fd.append("lastName", customer.lastName);
         fd.append("email", customer.email);
@@ -180,6 +194,11 @@ const MyProfile = () => {
         if (customer.file) {
             fd.append("file", customer.file);
         }
+
+         console.log("Submitting form data:");
+    for (let pair of fd.entries()) {
+      console.log(pair[0], pair[1]); // Logs each key-value pair
+    }
 
         try {
             setBtnLoading(true); // start button loader
@@ -220,7 +239,7 @@ const MyProfile = () => {
     const getAgentDetails = async () => {
         const fd = new FormData();
         fd.append("programType", "getPersonalDetailsOfAgent");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
 
         try {
             setLoading(true);
@@ -270,7 +289,7 @@ const MyProfile = () => {
     const updateAgentDetails = async () => {
         const fd = new FormData();
         fd.append("programType", "updateAgent");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
         fd.append("firstName", customer.firstName);
         fd.append("lastName", customer.lastName);
         fd.append("email", customer.email);
@@ -334,7 +353,7 @@ const MyProfile = () => {
     const kycDetails = async () => {
         const fd = new FormData();
         fd.append("programType", "displayRequestedKycDetails");
-        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("authToken", authToken);
 
         try {
             const response = await api.post("agents/agentProfile", fd);
@@ -373,7 +392,7 @@ const MyProfile = () => {
 
         const formData = new FormData();
         formData.append("programType", "uploadKycDetailsOfAgent");
-        formData.append("authToken", localStorage.getItem("authToken"));
+        formData.append("authToken", authToken);
         formData.append("kycId", kycId);
         formData.append("file", fileMap[kycId]);
 

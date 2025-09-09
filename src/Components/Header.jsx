@@ -178,7 +178,7 @@ const Header = () => {
         toast.success(response.data.message)
 
 
-        localStorage.setItem("authToken", response.data.data.authToken);
+        localStorage.setItem("authToken", response.data.data.authToken || "Guest");
 
 
         localStorage.setItem("mobile", response.data.data.mobile);
@@ -406,7 +406,7 @@ const Header = () => {
         // ✅ Save agent session details
         toast.success(response.data.message)
 
-        localStorage.setItem("authToken", response.data.data.authToken);
+        localStorage.setItem("authToken", response.data.data.authToken || "Guest");
 
         localStorage.setItem("mobile", response.data.data.mobile);
         localStorage.setItem("name", response.data.data.firstName);
@@ -522,6 +522,70 @@ const Header = () => {
   };
 
 
+const [isToggled, setIsToggled] = useState(false);
+
+const toggleStyle = {
+  display: "flex",
+  justifyContent: "center",
+  padding: "8px 0",
+};
+
+const labelStyle = {
+  display: "flex",
+  alignItems: "center",
+  borderRadius: "50px",
+  padding: "6px",
+  cursor: "pointer",
+  position: "relative",
+  transition: "all 0.3s ease",
+};
+
+const toggleHandleStyle = {
+  width: "72px",
+  height: "30px",
+  borderRadius: "50px",
+  position: "relative",
+  overflow: "hidden", // so flags don’t overflow
+  boxShadow:
+    "inset 3px 3px 5px rgba(0, 0, 0, 0.1), inset -3px -3px 5px rgba(255, 255, 255, 0.7)",
+};
+
+const flagBackgroundStyle = {
+  position: "absolute",
+  top: 0,
+  left: "-10px",
+  width: "100%",
+  height: "100%",
+  objectFit: "contain",
+  transition: "opacity 0.4s ease",
+};
+
+const flagBackgroundStyles = {
+  position: "absolute",
+  top: 0,
+  left: "10px",
+  width: "100%",
+  height: "100%",
+  objectFit: "contain",
+  transition: "opacity 0.4s ease",
+};
+
+const handleKnobStyle = (isToggled) => ({
+  position: "absolute",
+  top: "3px",
+  left: isToggled ? "calc(100% - 27px)" : "3px",
+  width: "24px",
+  height: "24px",
+  background: "white",
+  borderRadius: "50%",
+  transition: "all 0.3s ease",
+  boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
+  zIndex: 2,
+});
+
+const handleToggle = () => {
+  setIsToggled((prev) => !prev);
+};
 
   return (
     <>
@@ -592,9 +656,11 @@ const Header = () => {
                   </nav>
                 </div>
 
+
+
                 {/* login/register */}
                 <div className="header-account">
-                  {!localStorage.getItem("authToken") ? (
+                  {!localStorage.getItem("authToken") || localStorage.getItem("authToken") === "Guest" ? (
                     <>
                       <div className="register">
                         <ul className="d-flex">
@@ -630,7 +696,42 @@ const Header = () => {
                   ) : (
                     <>
                       <ul className="d-flex">
-                        <li>
+                        <li style={{ marginRight: "20px" }}>
+    <div style={toggleStyle}>
+      <div
+        style={labelStyle}
+        onClick={handleToggle}
+        onKeyPress={(e) => e.key === "Enter" && handleToggle()}
+        tabIndex={0}
+        role="button"
+        aria-label="Toggle between flags"
+      >
+        <div style={toggleHandleStyle}>
+          {/* Background flag images */}
+          <img
+            src="/images/logo/flag.png"
+            alt="flag1"
+            style={{
+              ...flagBackgroundStyles,
+              opacity: isToggled ? 0 : 1,
+            }}
+          />
+          <img
+            src="/images/logo/flag (1).png"
+            alt="flag2"
+            style={{
+              ...flagBackgroundStyle,
+              opacity: isToggled ? 1 : 0,
+            }}
+          />
+
+          {/* Knob */}
+          <div style={handleKnobStyle(isToggled)}></div>
+        </div>
+      </div>
+    </div>
+  </li>
+                        <li style={{display:"flex", alignItems:"center"}}>
                           <a
                             href="#"
                             onClick={(e) => {
@@ -661,6 +762,8 @@ const Header = () => {
 
 
 
+
+
                 <div className="mobile-nav-toggler mobile-button" onClick={toggleMobileMenu}>
                   <span></span>
                 </div>
@@ -683,7 +786,7 @@ const Header = () => {
             </div>
             <div className="bottom-canvas">
               <div className="login-box flex align-items-center">
-                {!localStorage.getItem("authToken") ? (
+                {!localStorage.getItem("authToken") || localStorage.getItem("authToken") === "Guest" ? (
                   <>
                     <a
                       href="#"
@@ -757,10 +860,14 @@ const Header = () => {
                   </ul>
                 </div>
               </div>
+              {!localStorage.getItem("authToken") || localStorage.getItem("authToken") === "Guest" ? (
+                <></>
 
-              <div className="button-mobi-sell">
-                <a className="tf-btn primary" onClick={() => navigate('/addproperty')}>Add Property</a>
-              </div>
+              ) : (
+                <div className="button-mobi-sell">
+                  <a className="tf-btn primary" onClick={() => navigate('/addproperty')}>Add Property</a>
+                </div>
+              )}
 
               <div className="mobi-icon-box">
                 <div className="box d-flex align-items-center">
