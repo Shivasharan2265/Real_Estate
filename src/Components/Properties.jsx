@@ -8,8 +8,30 @@ import Header from "./Header";
 import Footer from "./Footer";
 import api from "../api/api";
 import toast from "react-hot-toast";
+import download from  '/src/assets/download.png'
 
 const Properties = () => {
+
+    const [rating, setRating] = useState(0); // selected rating
+    const [hovers, setHovers] = useState(0);   // hover preview
+    const [loadingReview, setLoadingReview] = useState(false);
+    const [showAllReviews, setShowAllReviews] = useState(false);
+
+
+
+    const [profileImg, setProfileImg] = useState(
+        localStorage.getItem("userProfile") ||
+        "https://static.vecteezy.com/system/resources/previews/044/245/684/non_2x/smiling-real-estate-agent-holding-a-house-shaped-keychain-png.png"
+    );
+    const [profileName, setProfileName] = useState(localStorage.getItem("userName") || "Guest User");
+    const [profileEmail, setProfileEmail] = useState(localStorage.getItem("userEmail") || "");
+    const [profileMobile, setProfileMobile] = useState(localStorage.getItem("userMobile") || "");
+
+
+
+
+
+
     const { id } = useParams();
     const navigate = useNavigate()
     const [propertyData, setPropertyData] = useState(null);
@@ -114,6 +136,7 @@ const Properties = () => {
         fd.append("name", name);
         fd.append("email", email);
 
+
         fd.append("phone", mobile);
 
         fd.append("message", message);
@@ -213,6 +236,63 @@ const Properties = () => {
             );
         }
     };
+
+
+
+
+
+
+    const [star, setStar] = useState("");
+    const [review, setReview] = useState();
+
+
+
+    const reviewAdd = async (e) => {
+        if (e) e.preventDefault();
+
+        if (!rating) {
+            toast.error("Please select a star rating");
+            return;
+        }
+        if (!review || review.trim() === "") {
+            toast.error("Please write a review message");
+            return;
+        }
+
+        setLoadingReview(true); // start loader
+
+        const fd = new FormData();
+        fd.append("programType", "addReviewOnProperty");
+        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("property_id", id);
+        fd.append("message", review);
+        fd.append("star", rating);
+
+
+        try {
+            const response = await api.post("/properties/property", fd);
+            console.log("Review Response:", response);
+
+            if (response.data.success) {
+                toast.success("Review submitted successfully!");
+                setReview("");
+                setRating(0);
+            } else {
+                toast.error(response.data.message || "Failed to submit review");
+            }
+        } catch (error) {
+            console.error("Error submitting review:", error);
+            toast.error("Something went wrong");
+        } finally {
+            setLoadingReview(false); // stop loader
+        }
+    };
+
+
+
+
+
+
 
 
     // Alternative: Bouncing cubes loader
@@ -934,37 +1014,62 @@ const Properties = () => {
                             <div className="single-property-element single-wrapper-review">
                                 <div className="box-title-review d-flex justify-content-between align-items-center flex-wrap gap-20">
                                     <div className="h7 fw-7">Guest Reviews</div>
-                                    <a href="#" className="tf-btn">View All Reviews</a>
+                                    {propertyData?.review?.length > 1 && (
+                                        <button
+                                            type="button"
+                                            className="tf-btn"
+                                            onClick={() => setShowAllReviews(!showAllReviews)}
+                                        >
+                                            {showAllReviews ? "Show Latest Review" : "View All Reviews"}
+                                        </button>
+                                    )}
                                 </div>
+
                                 <div className="wrap-review">
                                     <ul className="box-review">
-                                        <li className="list-review-item">
-                                            <div className="avatar avt-60 round">
-                                                <img src="https://themesflat.co/html/homzen/images/avatar/avt-3.jpg" alt="avatar" />
-                                            </div>
-                                            <div className="content">
-                                                <div className="name h7 fw-7 text-black">Pooja</div>
-                                                <span className="mt-4 d-inline-block date body-3 text-variant-2">2 weeks ago</span>
-                                                <ul className="mt-8 list-star">
-                                                    <li className="icon-star"></li>
-                                                    <li className="icon-star"></li>
-                                                    <li className="icon-star"></li>
-                                                    <li className="icon-star"></li>
-                                                    <li className="icon-star"></li>
-                                                </ul>
-                                                <p className="mt-12 body-2 text-black">Great property with amazing amenities. The location is perfect and the views are stunning.</p>
-                                                <ul className="box-img-review">
-                                                    <li><a href="#" className="img-review"><img src="https://themesflat.co/html/homzen/images/blog/review1.jpg" alt="img-review" /></a></li>
-                                                    <li><a href="#" className="img-review"><img src="https://themesflat.co/html/homzen/images/blog/review1.jpg" alt="img-review" /></a></li>
-                                                    <li><a href="#" className="img-review"><span className="fw-7">+5</span></a></li>
-                                                </ul>
-                                                <a href="#" className="view-question">
-                                                    See more answered questions (3)
-                                                </a>
-                                            </div>
-                                        </li>
+                                        {propertyData?.review?.length > 0 ? (
+                                            (showAllReviews
+                                                ? propertyData.review   // show all
+                                                : [propertyData.review[propertyData.review.length - 1]] // show only latest
+                                            ).map((rev) => (
+                                                <li className="list-review-item" key={rev.id}>
+                                                    <div className="avatar avt-60 round">
+                                                        <img src={download} alt="avatar" />
+                                                       
+                                                    </div>
+                                                    <div className="content">
+                                                        <div className="name h7 fw-7 text-black">{rev.user_name || "Guest"}</div>
+                                                        <span className="mt-4 d-inline-block date body-3 text-variant-2">
+                                                            {new Date(rev.created_at).toLocaleDateString("en-GB", {
+                                                                day: "2-digit",
+                                                                month: "2-digit",
+                                                                year: "numeric",
+                                                            })}
+                                                        </span>
+                                                        <ul className="mt-8 list-star">
+                                                            {[1, 2, 3, 4, 5].map((s) => (
+                                                                <li
+                                                                    key={s}
+                                                                    className={s <= rev.star ? "icon-star" : "icon-star text-muted"}
+                                                                ></li>
+                                                            ))}
+                                                        </ul>
+                                          
+
+                                                        <p className="mt-12 body-2 text-black" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                                                            {rev.message}
+                                                        </p>
+
+                                                    </div>
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li>No reviews yet. Be the first to comment!</li>
+                                        )}
                                     </ul>
+
                                 </div>
+
 
                                 <div className="wrap-form-comment">
                                     <div className="h7">Leave A Reply</div>
@@ -974,28 +1079,69 @@ const Properties = () => {
                                                 action="https://themesflat.co/html/homzen/contact/contact-process.php" acceptCharset="utf-8"
                                                 noValidate="novalidate">
 
-                                                <div className="form-wg group-ip">
-                                                    <fieldset>
-                                                        <label className="sub-ip">Name</label>
-                                                        <input type="text" className="form-control" name="text" placeholder="Your name" required="" />
-                                                    </fieldset>
-                                                    <fieldset>
-                                                        <label className="sub-ip">Email</label>
-                                                        <input type="email" className="form-control" name="email" placeholder="Your email" required="" />
-                                                    </fieldset>
-                                                </div>
-                                                <fieldset className="form-wg d-flex align-items-center gap-8">
-                                                    <input type="checkbox" className="tf-checkbox" id="cb-ip" style={{ accentColor: "#ED2027" }} />
-                                                    <label htmlFor="cb-ip" className="text-black text-checkbox">Save your name, email for the next time review </label>
+
+
+
+
+
+
+
+                                                <fieldset className="form-wg">
+                                                    <label className="sub-ip">Your Rating</label>
+                                                    <div className="star-rating d-flex gap-2">
+                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                            <span
+                                                                key={star}
+                                                                className="star"
+                                                                onClick={() => setRating(star)}
+                                                                onMouseEnter={() => setHovers(star)}
+                                                                onMouseLeave={() => setHovers(0)}
+                                                                style={{
+                                                                    fontSize: "28px",
+                                                                    cursor: "pointer",
+                                                                    color:
+                                                                        star <= (hovers || rating) ? "#f5c518" : "#ccc",
+                                                                }}
+                                                            >
+                                                                {star <= (hovers || rating) ? "★" : "☆"}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                    <input type="hidden" name="rating" value={rating} />
                                                 </fieldset>
+
                                                 <fieldset className="form-wg">
                                                     <label className="sub-ip">Review</label>
-                                                    <textarea id="comment-message" name="message" rows="4" tabIndex="4"
-                                                        placeholder="Write comment " aria-required="true"></textarea>
+                                                    <textarea
+
+                                                        value={review}
+                                                        onChange={(e) => setReview(e.target.value)}
+                                                        rows="4"
+                                                        placeholder="Write comment "
+                                                        aria-required="true"
+                                                    ></textarea>
                                                 </fieldset>
-                                                <button className="form-wg tf-btn primary" name="submit" type="submit">
-                                                    <span>Post Comment</span>
+
+
+                                                <button
+                                                    className="form-wg tf-btn primary"
+                                                    onClick={reviewAdd}
+                                                    disabled={loadingReview}
+                                                >
+                                                    {loadingReview ? (
+                                                        <span>
+                                                            <i className="fa fa-spinner fa-spin" style={{ marginRight: "8px" }}></i>
+                                                            Posting...
+                                                        </span>
+                                                    ) : (
+                                                        <span>Post Comment</span>
+                                                    )}
                                                 </button>
+
+
+
+
+
                                             </form>
                                         </div>
                                     </div>
@@ -1003,40 +1149,80 @@ const Properties = () => {
                             </div>
                         </div>
 
+
+
+
                         {/* Sidebar */}
                         <div className="col-lg-4">
                             <div className="widget-sidebar fixed-sidebar wrapper-sidebar-right">
                                 {/* Contact Seller */}
+
+
+
+
+
+
                                 <div className="widget-box single-property-contact bg-surface">
                                     <div className="h7 title fw-7">Contact Seller</div>
                                     <div className="box-avatar">
                                         <div className="avatar avt-100 round">
-                                            <img src="https://static.vecteezy.com/system/resources/previews/044/245/684/non_2x/smiling-real-estate-agent-holding-a-house-shaped-keychain-png.png" alt="avatar" />
+                                            <img src={profileImg} alt="avatar" />
                                         </div>
                                         <div className="info">
-                                            <div className="text-1 name">{contactSellerData.name}</div>
-                                            <span>{contactSellerData.phone} {contactSellerData.email}</span>
+                                            <div className="text-1 name">{profileName}</div>
+                                            <span>
+                                                {profileMobile} {profileEmail}
+                                            </span>
                                         </div>
                                     </div>
+
                                     {/* Contact form */}
                                     <form action="#" className="contact-form">
                                         <div className="ip-group">
                                             <label>Full Name:</label>
-                                            <input type="text" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} className="form-control" />
+                                            <input
+                                                type="text"
+                                                placeholder="Your Name"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                                className="form-control"
+                                            />
                                         </div>
                                         <div className="ip-group">
                                             <label>Phone Number:</label>
-                                            <input type="text" placeholder="ex 0123456789" value={mobile} onChange={(e) => setMobile(e.target.value)} className="form-control" />
+                                            <input
+                                                type="text"
+                                                placeholder="ex 0123456789"
+                                                value={mobile}
+                                                onChange={(e) => setMobile(e.target.value)}
+                                                className="form-control"
+                                            />
                                         </div>
                                         <div className="ip-group">
                                             <label>Email Address:</label>
-                                            <input type="text" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="form-control" />
+                                            <input
+                                                type="text"
+                                                placeholder="your@email.com"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                className="form-control"
+                                            />
                                         </div>
                                         <div className="ip-group">
                                             <label>Your Message:</label>
-                                            <textarea name="message" rows="4" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message" aria-required="true" className="form-control"></textarea>
+                                            <textarea
+                                                name="message"
+                                                rows="4"
+                                                value={message}
+                                                onChange={(e) => setMessage(e.target.value)}
+                                                placeholder="Message"
+                                                aria-required="true"
+                                                className="form-control"
+                                            ></textarea>
                                         </div>
-                                        <button className="tf-btn primary w-100" onClick={handleAddEnquiry}>Send Message</button>
+                                        <button className="tf-btn primary w-100" onClick={handleAddEnquiry}>
+                                            Send Message
+                                        </button>
                                     </form>
                                 </div>
 

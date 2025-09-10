@@ -18,6 +18,8 @@ const Myproperties = () => {
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [name, setName] = useState(localStorage.getItem("name"));
+    const [avatar, setAvatar] = useState(localStorage.getItem("userProfile"));
+
     console.log(name);
 
     const toggleDropdown = () => {
@@ -223,12 +225,27 @@ const Myproperties = () => {
 
     const [showModal, setShowModal] = useState(false);
     const [selectedInquiry, setSelectedInquiry] = useState([]);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+
+
+
+    const [selectedReview, setSelectedReview] = useState([]);
+    const [selectedPropertyTitle, setSelectedPropertyTitle] = useState("");
 
 
 
 
-    const handleInquiryClick = (inquiries) => {
-        console.log("Inquiry Data:", inquiries); // ✅ Shows full inquiry data in console
+    const handleReviewClick = (reviews, propertyTitle) => {
+        setSelectedReview(reviews);
+        setSelectedPropertyTitle(propertyTitle); // store the property title
+        setShowReviewModal(true);
+    };
+
+
+
+    const handleInquiryClick = (inquiries, propertyTitle) => {
+        console.log("Inquiry Data:", inquiries);
+        setSelectedPropertyTitle(propertyTitle); // ✅ Shows full inquiry data in console
         setSelectedInquiry(inquiries);
         setShowModal(true);
     };
@@ -307,7 +324,9 @@ const Myproperties = () => {
                                                     style={{ position: 'relative' }}
                                                 >
                                                     <div className="avatar avt-40 round">
-                                                        <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
+                                                        {/* <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" /> */}
+                                                        <img src={avatar || "fallback.png"} alt="avt" />
+
                                                     </div>
                                                     <p className="name" style={{ cursor: "pointer" }}> {name}<span className="icon icon-arr-down"></span></p>
                                                     <div
@@ -483,7 +502,7 @@ const Myproperties = () => {
                                             placeholder="From Date"
                                             value={fromDate}
                                             onChange={(e) => setFromDate(e.target.value)}
-                                            style={{ width: "20ty0px", padding: "8px", borderRadius: "8px" }}
+                                            style={{ width: "200px", padding: "8px", borderRadius: "8px" }}
                                         />
 
                                         <input
@@ -502,8 +521,18 @@ const Myproperties = () => {
                                             style={{ padding: "8px 16px", borderRadius: "8px", whiteSpace: "nowrap" }}
                                             onClick={handleFilter}
                                         >
-                                            <i className="icon icon-filter"></i> Filter
+                                            <img
+                                                src="/edit.png"
+                                                alt="Edit Icon"
+                                                style={{ width: "20px", height: "25px", marginRight: "10px" }}
+                                            />
+                                            Filter
+
                                         </button>
+
+
+
+
                                     </div>
                                 </div>
 
@@ -521,80 +550,6 @@ const Myproperties = () => {
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
-                                                {/* <tbody>
-                                                    {loading ? (
-                                                        // Show 3 skeleton rows while loading
-                                                        [...Array(3)].map((_, idx) => (
-                                                            <tr key={idx}>
-                                                                <td>
-                                                                    <div className="listing-box d-flex align-items-center">
-                                                                        <div className="images skeleton-box" style={{ width: "80px", height: "60px" }}></div>
-                                                                        <div className="content ms-2">
-                                                                            <div className="skeleton-line" style={{ width: "150px", height: "14px" }}></div>
-                                                                            <div className="skeleton-line mt-2" style={{ width: "100px", height: "12px" }}></div>
-                                                                            <div className="skeleton-line mt-2" style={{ width: "80px", height: "12px" }}></div>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td><div className="skeleton-line" style={{ width: "100px", height: "12px" }}></div></td>
-                                                                <td><div className="skeleton-line" style={{ width: "80px", height: "12px" }}></div></td>
-                                                                <td><div className="skeleton-line" style={{ width: "50px", height: "12px" }}></div></td>
-                                                                <td><div className="skeleton-line" style={{ width: "120px", height: "12px" }}></div></td>
-                                                            </tr>
-                                                        ))
-                                                    ) : properties.length > 0 ? (
-                                                        properties.map((property) => (
-                                                            <tr key={property.id} className="file-delete">
-                                                                <td>
-                                                                    <div className="listing-box">
-                                                                        <div className="images">
-                                                                            <img
-                                                                                src="https://themesflat.co/html/homzen/images/home/house-1.jpg"
-                                                                                alt={property.title}
-                                                                            />
-                                                                        </div>
-                                                                        <div className="content">
-                                                                            <div className="title">
-                                                                                <a href={`/property-details/${property.slug}`} className="link">
-                                                                                    {property.title}
-                                                                                </a>
-                                                                            </div>
-                                                                            <div className="text-date">{property.location}</div>
-                                                                            <div className="text-1 fw-7">
-                                                                                {property.listing_type === "rent"
-                                                                                    ? `₹${property.expected_rent}`
-                                                                                    : `₹${property.expected_price}`}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <span>{new Date(property.created_at).toLocaleDateString()}</span>
-                                                                </td>
-                                                                <td>
-                                                                    <div className="status-wrap">
-                                                                        <a href="#" className="btn-status">
-                                                                            {property.status === "active" ? "Published" : "Pending"}
-                                                                        </a>
-                                                                    </div>
-                                                                </td>
-                                                                <td><span>{property.featured ? "Yes" : "No"}</span></td>
-                                                                <td>
-                                                                    <ul className="list-action">
-                                                                        <li><a className="item"><i className="icon icon-edit"></i>Edit</a></li>
-                                                                        <li><a className="item"><i className="icon icon-sold"></i>Sold</a></li>
-                                                                        <li><a className="remove-file item"><i className="icon icon-trash"></i>Delete</a></li>
-                                                                    </ul>
-                                                                </td>
-                                                            </tr>
-                                                        ))
-                                                    ) : (
-                                                        <tr>
-                                                            <td colSpan="5" style={{ textAlign: "center" }}>No properties found</td>
-                                                        </tr>
-                                                    )}
-                                                </tbody> */}
-
 
 
 
@@ -609,22 +564,39 @@ const Myproperties = () => {
                                                         ))
                                                     ) : recentProperties.length > 0 ? (
                                                         recentProperties.map((property) => {
-                                                            // Status handling
+                                                            // ✅ Status handling
                                                             let statusLabel = "Pending";
-                                                            if (property.property_status === 1) statusLabel = "Approved";
-                                                            else if (property.property_status === 2) statusLabel = "Rejected";
+                                                            if (property.status === "approved" || property.property_status === 1)
+                                                                statusLabel = "Approved";
+                                                            else if (property.status === "rejected" || property.property_status === 2)
+                                                                statusLabel = "Rejected";
 
-                                                            // Date Published handling
-                                                            const datePublished = property.approved_at
-                                                                ? property.approved_at.split(" ")[0]
-                                                                : "-----";
+
+
+                                                            // ✅ Date Published handling based on status
+                                                            const datePublished =
+                                                                statusLabel === "Approved" && property.created_at
+                                                                    ? (() => {
+                                                                        const d = new Date(property.created_at);
+                                                                        const day = String(d.getDate()).padStart(2, "0");
+                                                                        const month = String(d.getMonth() + 1).padStart(2, "0");
+                                                                        const year = d.getFullYear();
+                                                                        return `${day}-${month}-${year}`;
+                                                                    })()
+                                                                    : "-----";
+
+
+
 
                                                             // Image handling
                                                             const defaultImg =
                                                                 "https://themesflat.co/html/homzen/images/home/house-1.jpg";
                                                             const imageUrl = property.property_images
-                                                                ? property.property_images
-                                                                : defaultImg;
+                                                                ? property.property_images // <-- backend image
+                                                                : defaultImg; // <-- fallback
+
+
+
 
                                                             return (
                                                                 <tr key={property.id} className="file-delete">
@@ -653,7 +625,11 @@ const Myproperties = () => {
                                                                             </div>
                                                                         </div>
                                                                     </td>
+
+                                                                    {/* ✅ Date Published column */}
                                                                     <td>{datePublished}</td>
+
+                                                                    {/* ✅ Status column */}
                                                                     <td>
                                                                         <div className="status-wrap">
                                                                             <a href="#" className="btn-status">
@@ -661,6 +637,10 @@ const Myproperties = () => {
                                                                             </a>
                                                                         </div>
                                                                     </td>
+
+                                                                    {/* ✅ Action column */}
+
+
                                                                     <td>
                                                                         <ul className="list-action">
                                                                             <li>
@@ -668,18 +648,22 @@ const Myproperties = () => {
                                                                                     <button className="btn edit-btn">Edit</button>
                                                                                     <button
                                                                                         className="btn inquiry-btn"
-                                                                                        onClick={() => handleInquiryClick(property.inquiry)}
+                                                                                        onClick={() => handleInquiryClick(property.inquiry, property.title)}
                                                                                     >
                                                                                         Inquiry
                                                                                     </button>
+                                                                                    <button
+                                                                                        className="btn review-btn"
+                                                                                        onClick={() => handleReviewClick(property.review, property.title)}
+                                                                                    >
+                                                                                        Review
+                                                                                    </button>
 
-                                                                                    <button className="btn review-btn">Review</button>
                                                                                 </a>
-
-
                                                                             </li>
                                                                         </ul>
                                                                     </td>
+
                                                                 </tr>
                                                             );
                                                         })
@@ -691,13 +675,29 @@ const Myproperties = () => {
                                                         </tr>
                                                     )}
                                                 </tbody>
-                                                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
                                             </table>
                                         </div>
-                                        <ul className="wd-navigation">
+                                        {/* <ul className="wd-navigation">
                                             <li>
                                                 <a
                                                     href="#"
@@ -738,7 +738,7 @@ const Myproperties = () => {
                                                     <i className="icon icon-arr-r"></i>
                                                 </a>
                                             </li>
-                                        </ul>
+                                        </ul> */}
 
                                     </div>
                                 </div>
@@ -758,36 +758,184 @@ const Myproperties = () => {
                             </div>
                         </div>
 
+                        {/* {showModal && (
+                            <div className="modal-overlay">
+                                <div className="modal-box">
+                                    <h3>Inquiry Details</h3>
+
+                                    {selectedInquiry && selectedInquiry.length > 0 ? (
+                                        <ul>
+                                            {selectedInquiry.map((inq) => (
+                                                <li key={inq.id} className="inquiry-item">
+                                                    <p><strong>Name:</strong> {inq.name}</p>
+                                                    <p><strong>Email:</strong> {inq.email}</p>
+                                                    <p><strong>Phone:</strong> {inq.phone}</p>
+                                                    <p><strong>Message:</strong> {inq.message}</p>
+                                                    <p><strong>Status:</strong> {inq.status}</p>
+                                                    <p><strong>Date:</strong> {inq.created_at?.split(" ")[0] || "N/A"}</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p>No inquiries found for this property.</p>
+                                    )}
+
+                                    <div className="modal-actions">
+                                        <button className="btn cancel-btn" onClick={() => setShowModal(false)}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )} */}
+
+
+
+
+
+
                         {showModal && (
-  <div className="modal-overlay">
-    <div className="modal-box">
-      <h3>Inquiry Details</h3>
+                            <div className="modal-overlay">
+                                <div className="modal-box">
+                                    <h3 style={{ marginBottom: "35px" }}>Inquiry Details</h3>
 
-      {selectedInquiry && selectedInquiry.length > 0 ? (
-        <ul>
-          {selectedInquiry.map((inq) => (
-            <li key={inq.id} className="inquiry-item">
-              <p><strong>Name:</strong> {inq.name}</p>
-              <p><strong>Email:</strong> {inq.email}</p>
-              <p><strong>Phone:</strong> {inq.phone}</p>
-              <p><strong>Message:</strong> {inq.message}</p>
-              <p><strong>Status:</strong> {inq.status}</p>
-              <p><strong>Date:</strong> {inq.created_at?.split(" ")[0] || "N/A"}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No inquiries found for this property.</p>
-      )}
+                                    {/* <small>Property name :</small> <span> <h6>  {selectedPropertyTitle || "Property"}</h6> </span> */}
 
-      <div className="modal-actions">
-        <button className="btn cancel-btn" onClick={() => setShowModal(false)}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                                    <span><small>Property name :</small>  <b>{selectedPropertyTitle || "Property"}</b>  </span>
+
+                                    {selectedInquiry && selectedInquiry.length > 0 ? (
+                                        <table className="inquiry-details-table" style={{ marginTop: "10px" }}>
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th>Phone</th>
+                                                    <th>Message</th>
+                                                    <th>Status</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {selectedInquiry.map((inq) => (
+                                                    <tr key={inq.id}>
+                                                        <td>{inq.name}</td>
+                                                        <td>{inq.email}</td>
+                                                        <td>{inq.phone}</td>
+
+
+
+                                                        <td
+                                                            style={{
+                                                                whiteSpace: "pre-wrap",
+                                                                wordBreak: "break-word",
+                                                                maxWidth: "300px", // 👈 adjust width as per your design
+                                                            }}
+                                                        >
+                                                            {inq.message}
+                                                        </td>
+                                                        <td>{inq.status}</td>
+
+                                                        <td>
+                                                            {inq.created_at
+                                                                ? inq.created_at.split(" ")[0].split("-").reverse().join("-")
+                                                                : "N/A"}
+                                                        </td>
+
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className="no-inquiries">
+                                            <p>No inquiries found for this property.</p>
+                                        </div>
+                                    )}
+
+
+                                    <div className="modal-actions">
+                                        <button className="btn cancel-btn" onClick={() => setShowModal(false)}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+
+
+                        {showReviewModal && (
+                            <div className="modal-overlay">
+                                <div className="modal-box">
+                                    {/* Display Property Title */}
+                                    <h3>Reviews for</h3>
+
+
+                                    <h6> Property name : {selectedPropertyTitle || "Property"}</h6>
+
+                                    
+                                      <span><small>Property name :</small>  <b>{selectedPropertyTitle || "Property"}</b>  </span>
+
+                                    {selectedReview && selectedReview.length > 0 ? (
+                                        <table className="inquiry-details-table" style={{ marginTop: "-20px" }}>
+                                            <thead>
+                                                <tr>
+                                                    <th>User Name</th>
+                                                    <th>Message</th>
+                                                    <th>Star</th>
+                                                    <th>User Type</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {selectedReview.map((rev) => (
+                                                    <tr key={rev.id}>
+                                                        <td>{rev.user_name || rev.username}</td>
+                                                        
+
+                                                        <td
+                                                            style={{
+                                                                whiteSpace: "pre-wrap",
+                                                                wordBreak: "break-word",
+                                                                maxWidth: "300px", // 👈 keeps fixed width
+                                                            }}
+                                                        >
+                                                            {rev.message}
+                                                        </td>
+                                                        {/* Display stars instead of number */}
+                                                        <td>
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <span key={i} style={{ color: i < Number(rev.star) ? "#f5c518" : "#ccc" }}>
+                                                                    ★
+                                                                </span>
+                                                            ))}
+                                                        </td>
+                                                        <td>{rev.userType}</td>
+                                                        <td>
+                                                            {rev.created_at
+                                                                ? rev.created_at.split(" ")[0].split("-").reverse().join("-")
+                                                                : "N/A"}
+                                                        </td>
+
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className="no-inquiries">
+                                            <p>No reviews found for this property.</p>
+                                        </div>
+                                    )}
+
+                                    <div className="modal-actions">
+                                        <button className="btn cancel-btn" onClick={() => setShowReviewModal(false)}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+
 
                     </div>
                 </div>

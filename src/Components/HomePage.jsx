@@ -1022,7 +1022,7 @@ const HomePage = () => {
                                     <div className="content">
                                         <h6 className="title">Buy A New Home</h6>
                                         <p className="description">Discover your dream home effortlessly. Explore diverse properties and expert guidance for a seamless buying experience.</p>
-                                        <a href="#" className="btn-view style-1"><span className="text">Learn More</span> <span className="icon icon-arrow-right2"></span> </a>
+                                        
                                     </div>
                                 </div>
                                 <div className="box-service hover-btn-view">
@@ -1032,7 +1032,7 @@ const HomePage = () => {
                                     <div className="content">
                                         <h6 className="title">Rent a home</h6>
                                         <p className="description">Discover your perfect rental effortlessly. Explore a diverse variety of listings tailored precisely to suit your unique lifestyle needs.</p>
-                                        <a href="#" className="btn-view style-1"><span className="text">Learn More</span> <span className="icon icon-arrow-right2"></span> </a>
+                                        
                                     </div>
                                 </div>
                                 <div className="box-service hover-btn-view">
@@ -1042,7 +1042,6 @@ const HomePage = () => {
                                     <div className="content">
                                         <h6 className="title">Sell a home</h6>
                                         <p className="description">Sell confidently with expert guidance and effective strategies, showcasing your property's best features for a successful sale.</p>
-                                        <a href="#" className="btn-view style-1"><span className="text">Learn More</span> <span className="icon icon-arrow-right2"></span> </a>
                                     </div>
                                 </div>
                             </div>
@@ -1119,8 +1118,10 @@ const HomePage = () => {
 
 
 
-
-
+ <div className="box-title text-center wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
+                                <div className="text-subtitle text-primary">Blogs</div>
+                                <h4 className="mt-4">check the blogs </h4>
+                         
                     <section className="flat-section">
                         <div className="container">
                             <div className="row">
@@ -1168,7 +1169,10 @@ const HomePage = () => {
 
                             </div>
                         </div>
+                        
                     </section>
+                       </div>
+
 
                     {/* <!-- End Benefit -->
                     {/* PROPERTIES */}
@@ -1475,7 +1479,7 @@ const HomePage = () => {
                     </section> */}
 
                     {footerBannerUrl && (
-                        <div className="footer-banner text-center my-4">
+                        <div className="footer-banner text-center ">
                             <img
                                 src={`${api.imageUrl}${footerBannerUrl}`}
                                 alt="Footer Banner"

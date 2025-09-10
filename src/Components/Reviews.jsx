@@ -15,6 +15,8 @@ const Reviews = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+     const [avatar, setAvatar] = useState(localStorage.getItem("userProfile"));
+
 
     const [name, setName] = useState(localStorage.getItem("name"));
     console.log(name);
@@ -184,7 +186,9 @@ const Reviews = () => {
                                                     style={{ position: 'relative' }}
                                                 >
                                                     <div className="avatar avt-40 round">
-                                                        <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
+                                                        {/* <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" /> */}
+                                                         <img src={avatar || "fallback.png"} alt="avt" />
+
                                                     </div>
                                                     <p className="name" style={{ cursor: "pointer" }}>{name}<span className="icon icon-arr-down"></span></p>
                                                     <div

@@ -11,9 +11,17 @@
 }
 
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 
@@ -21,13 +29,15 @@
 
 .btn-wrapper {
   display: flex;
-  flex-direction: column; /* stack buttons one by one */
+  flex-direction: column;
+  /* stack buttons one by one */
   align-items: flex-start;
   gap: 10px;
 }
 
 .btn {
-  width: 140px; /* same width for all */
+  width: 140px;
+  /* same width for all */
   padding: 10px 18px;
   border: none;
   border-radius: 8px;
@@ -39,18 +49,23 @@
   text-align: center;
 }
 
-/* Gradient styles */
+/* Edit button -> red */
 .edit-btn {
-  background: linear-gradient(135deg, #36d1dc, #5b86e5);
+  background: #ED2027;   /* solid red */
 }
 
+/* Inquiry button -> grey */
 .inquiry-btn {
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background: #666EB2;   /* Bootstrap neutral grey */
 }
 
+/* Review button -> yellowish / amber */
 .review-btn {
-  background: linear-gradient(135deg, #ff512f, #dd2476);
+  background:#D7A342
+;   /* Bootstrap warning yellow */
+  color: #000;           /* dark text for readability */
 }
+
 
 /* Hover Effect */
 .btn:hover {
@@ -71,19 +86,27 @@
   z-index: 999;
 }
 
+
+
 .modal-box {
   background: #fff;
   padding: 20px;
   border-radius: 8px;
-  width: 400px;
+  width: 800px;        /* fixed width */
+  min-height: 400px;   /* consistent height */
   max-height: 80vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* push cancel button down */
 }
 
 .modal-actions {
-  margin-top: 20px;
-  text-align: right;
+  margin-top: 15px;
+  display: flex;
+  justify-content: center; /* center horizontally */
 }
+
+
 
 .cancel-btn {
   background: #dc3545;
@@ -97,5 +120,46 @@
 .inquiry-item {
   border-bottom: 1px solid #ddd;
   padding: 10px 0;
+}
+
+
+
+
+.inquiry-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.inquiry-details-table th,
+.inquiry-details-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.inquiry-details-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+
+
+.no-inquiries {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px;       /* adjust as needed */
+  width: 100%;         /* full width inside modal */
+  text-align: center;
+}
+
+.no-inquiries p {
+  font-size: 20px;     /* increase font size */
+  font-weight: bold;   /* bold text */
+  color: #333;         /* darker text */
+  width: 100%;         /* stretch across container */
 }
 

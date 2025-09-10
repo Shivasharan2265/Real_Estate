@@ -175,12 +175,12 @@ const Listing = () => {
                                                         <div className="inner-group inner-filter">
                                                             <div className="form-style">
                                                                 <label className="title-select">Keyword</label>
-                                                                <input type="text" className="form-control" placeholder="Search Keyword." value="" name="s" title="Search for" required="" />
+                                                                <input type="text" className="form-control" placeholder="Search Keyword."  required="" />
                                                             </div>
                                                             <div className="form-style">
                                                                 <label className="title-select">Location</label>
                                                                 <div className="group-ip ip-icon">
-                                                                    <input type="text" className="form-control" placeholder="Search Location" value="" name="s" title="Search for" required="" />
+                                                                    <input type="text" className="form-control" placeholder="Search Location"  required="" />
                                                                     <a href="#" className="icon-right icon-location"></a>
                                                                 </div>
                                                             </div>

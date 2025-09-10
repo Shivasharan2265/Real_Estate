@@ -8,7 +8,14 @@ import './Myprofile.css';
 
 
 
+
+
 const MyProfile = () => {
+
+
+
+    const [avatar, setAvatar] = useState(localStorage.getItem("userProfile"));
+
     const navigate = useNavigate();
     const [menuVisible, setMenuVisible] = useState(false);
     const [isMobileView, setIsMobileView] = useState(false);
@@ -16,12 +23,15 @@ const MyProfile = () => {
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [loading, setLoading] = useState(true); // 👈 loader state
+    
+
+
 
     const [btnLoading, setBtnLoading] = useState(false);
 
-    
+
     const authToken = localStorage.getItem("authToken") || "Guest";
-localStorage.setItem("authToken", authToken);
+    localStorage.setItem("authToken", authToken);
 
 
     const [name, setName] = useState(localStorage.getItem("name"));
@@ -41,13 +51,13 @@ localStorage.setItem("authToken", authToken);
     });
 
     useEffect(() => {
-  const authToken = localStorage.getItem("authToken");
+        const authToken = localStorage.getItem("authToken");
 
-  if (!authToken || authToken === "Guest") {
-    toast.error("Please Login");
-    navigate("/", { replace: true }); // redirect to homepage
-  }
-}, [navigate]);
+        if (!authToken || authToken === "Guest") {
+            toast.error("Please Login");
+            navigate("/", { replace: true }); // redirect to homepage
+        }
+    }, [navigate]);
 
 
 
@@ -98,7 +108,7 @@ localStorage.setItem("authToken", authToken);
             className: 'home',
             onClick: () => navigate('/home')
         },
-       
+
         {
             label: 'Properties',
             className: 'Properties',
@@ -169,6 +179,32 @@ localStorage.setItem("authToken", authToken);
                 }));
             }
 
+
+
+
+
+
+
+
+            if (response.data?.success) {
+                const user = response.data.data;
+
+                const profileUrl = user.profile
+                    ? user.profile.startsWith("http")
+                        ? user.profile
+                        : `${api.imageUrl}/${user.profile}`
+                    : "https://static.vecteezy.com/system/resources/previews/044/245/684/non_2x/smiling-real-estate-agent-holding-a-house-shaped-keychain-png.png";
+
+                // ✅ Save to localStorage for Properties.jsx
+                localStorage.setItem("userProfile", profileUrl);
+                localStorage.setItem("userName", user.firstName || user.agentName || "Guest User");
+                localStorage.setItem("userEmail", user.email || "");
+                localStorage.setItem("userMobile", user.mobile || user.mobileNo || "");
+            }
+
+
+
+
         } catch (error) {
             console.error("customer error:", error);
         } finally {
@@ -195,18 +231,29 @@ localStorage.setItem("authToken", authToken);
             fd.append("file", customer.file);
         }
 
-         console.log("Submitting form data:");
-    for (let pair of fd.entries()) {
-      console.log(pair[0], pair[1]); // Logs each key-value pair
-    }
+        console.log("Submitting form data:");
+        for (let pair of fd.entries()) {
+            console.log(pair[0], pair[1]); // Logs each key-value pair
+        }
 
         try {
             setBtnLoading(true); // start button loader
             const response = await api.post("customers/customerProfile", fd);
             console.log("Update response:", response.data);
+
+
+
+
+
             if (response.data.success) {
-                toast.success(response.data.message)
+                toast.success(response.data.message);
+
+                // ✅ Update localStorage + state for header display
+                const updatedName = customer.firstName || "Guest User";
+                localStorage.setItem("name", updatedName);
+                setName(updatedName);
             }
+
         } catch (error) {
             console.error("customer error:", error);
             alert("Something went wrong while updating profile!");
@@ -254,6 +301,10 @@ localStorage.setItem("authToken", authToken);
                         ? agent.profile
                         : `${api.imageUrl}/${agent.profile}`
                     : "http://192.168.1.103/projects/easyAcers/admin/api/images/avatar/avt-2.jpg";
+
+
+
+                    
 
                 setCustomer({
                     firstName: agent.agentName || "",
@@ -308,9 +359,20 @@ localStorage.setItem("authToken", authToken);
             const response = await api.post("agents/agentProfile", fd);
             console.log("Agent Update response:", response.data);
 
+
+
+
             if (response.data.success) {
                 toast.success(response.data.message || "Agent profile updated successfully!");
-            } else {
+
+                // ✅ Update localStorage + state for header display
+                const updatedName = customer.firstName || "Guest User";
+                localStorage.setItem("name", updatedName);
+                setName(updatedName);
+            }
+
+
+            else {
                 toast.error(response.data.message || "Failed to update agent profile.");
             }
         } catch (error) {
@@ -506,7 +568,7 @@ localStorage.setItem("authToken", authToken);
                                                             <li className="home ms-4">
                                                                 <a href="" onClick={(e) => { e.preventDefault(); navigate('/home'); }}>Home</a>
                                                             </li>
-                                                           
+
                                                             <li className="Properties">
                                                                 <a href="" onClick={(e) => { e.preventDefault(); navigate('/listing'); }}>Properties</a>
                                                             </li>
@@ -548,28 +610,7 @@ localStorage.setItem("authToken", authToken);
                                                     onClick={toggleDropdown}
                                                     style={{ position: 'relative' }}
                                                 >
-                                                    {/* <div className="avatar avt-40 round">
-                                                        <img src="images/avatar/avt-2.jpg" alt="avt" />
-                                                    </div>
-                                                    <p className="name" style={{ cursor: "pointer" }}>Tony Nguyen<span className="icon icon-arr-down"></span></p>
-                                                    <div
-                                                        className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`}
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: '100%',
-                                                            right: 0,
-                                                            zIndex: 1000,
-                                                            marginTop: '0.5rem'
-                                                        }}
-                                                    >
-                                                        <a className="dropdown-item" onClick={() => navigate('/myproperties')}>My Properties</a>
-                                                        <a className="dropdown-item" onClick={() => navigate('/myfavorites')}>My Favorites</a>
-                                                        <a className="dropdown-item" onClick={() => navigate('/reviews')}>Reviews</a>
-                                                        <a className="dropdown-item" onClick={() => navigate('/myprofile')}>My Profile</a>
-                                                        <a className="dropdown-item" onClick={() => navigate('/logout')}>Logout</a>
 
-                                                    </div>
-                                                     */}
 
 
 
@@ -585,8 +626,15 @@ localStorage.setItem("authToken", authToken);
                                                             className="avatar avt-40 round"
                                                             style={{ display: "inline-block", verticalAlign: "middle" }}
                                                         >
-                                                            <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
+                                                            <img src={avatar || "fallback.png"} alt="avt" />
+
+                                                            {/* <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" /> */}
                                                         </div>
+
+
+
+
+                                                        
 
                                                         {!isMobileView && (
                                                             <p

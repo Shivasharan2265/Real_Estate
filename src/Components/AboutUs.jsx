@@ -237,7 +237,7 @@ const AboutUs = () => {
                     </div>
                  
                 </div>
-            </section>
+            </section>Our Teams
             {/* <!-- End Testimonial -->
             <!-- Contact --> */}
             <section className="flat-section-v3 flat-slider-contact">
@@ -280,7 +280,7 @@ const AboutUs = () => {
             </section>
             {/* <!-- End Contact -->
             <!-- Agents --> */}
-            <section className="flat-section flat-agents">
+            {/* <section className="flat-section flat-agents">
                 <div className="container">
                     <div className="box-title text-center">
                         <div className="text-subtitle text-primary">Our Teams</div>
@@ -353,7 +353,7 @@ const AboutUs = () => {
 
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* <!-- End Agents -->
             <!-- banner --> */}

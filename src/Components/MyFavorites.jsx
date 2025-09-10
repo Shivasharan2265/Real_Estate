@@ -15,6 +15,8 @@ const MyFavorites = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [avatar, setAvatar] = useState(localStorage.getItem("userProfile"));
+
 
     const [name, setName] = useState(localStorage.getItem("name"));
     console.log(name);
@@ -146,8 +148,9 @@ const MyFavorites = () => {
         myFavoritesList();
     }, []);
 
-    const remove = async (favoriteId, propertyId) => {
-        console.log("Removing favorite:", favoriteId, propertyId);
+
+    const remove = async (favoriteId, id) => {
+        console.log("Removing favorite:", favoriteId);
 
         const fd = new FormData();
         fd.append("programType", "removeFavorites");
@@ -161,12 +164,19 @@ const MyFavorites = () => {
 
             if (response.data.success) {
                 toast.success("Favorite removed successfully!");
+
                 // remove from state without refetch
                 setFavorites((prev) =>
                     prev.filter((fav) => fav.favoriteId !== favoriteId)
                 );
                 // or call myFavoritesList() if you want to refetch from backend
                 // myFavoritesList();
+
+                myFavoritesList();
+
+                // Option 2: Or remove it locally without API refetch
+                // setFavorites(prev => prev.filter(fav => fav.favoriteId !== favoriteId));
+
             }
         } catch (error) {
             console.error("Remove favorite error:", error);
@@ -247,7 +257,10 @@ const MyFavorites = () => {
                                                     style={{ position: 'relative' }}
                                                 >
                                                     <div className="avatar avt-40 round">
-                                                        <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
+                                                        {/* <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" /> */}
+
+                                                        <img src={avatar || "fallback.png"} alt="avt" />
+
                                                     </div>
                                                     <p className="name" style={{ cursor: "pointer" }}>{name}<span className="icon icon-arr-down"></span></p>
                                                     <div
@@ -444,7 +457,11 @@ const MyFavorites = () => {
                                                             <tr key={fav.favoriteId} className="file-delete">
                                                                 <td>
                                                                     <div className="listing-box">
-                                                                        <div className="images">
+                                                                        <div
+                                                                            className="images"
+                                                                            style={{ cursor: "pointer" }}
+                                                                            onClick={() => navigate(`/property/${fav.id}`)} // ✅ Navigate on click
+                                                                        >
                                                                             <img
                                                                                 src="https://themesflat.co/html/homzen/images/home/house-1.jpg"
                                                                                 alt={fav.title}
@@ -466,19 +483,36 @@ const MyFavorites = () => {
                                                                             </div>
                                                                         </div>
                                                                     </div>
+
                                                                 </td>
+                                                                <td>
+                                                                    <span>
+                                                                        {fav.created_at
+                                                                            ? (() => {
+                                                                                const d = new Date(fav.created_at);
+                                                                                const day = String(d.getDate()).padStart(2, "0");
+                                                                                const month = String(d.getMonth() + 1).padStart(2, "0");
+                                                                                const year = d.getFullYear();
+                                                                                return `${day}-${month}-${year}`;
+                                                                            })()
+                                                                            : ""}
+                                                                    </span>
+                                                                </td>
+
                                                                 {/* <td>
-                                                                    <span>{new Date(fav.created_at).toLocaleDateString()}</span>
+                                                                    <span>DD/MM/YYYY</span>
                                                                 </td> */}
                                                                 <td>
-                                                                    <span>DD/MM/YYYY</span>
-                                                                </td>
-                                                                <td>
                                                                     <ul className="list-action">
-                                                                        <li onClick={() => remove(fav.favoriteId, fav.id)}>
-                                                                            <Link className="remove-file item">
-                                                                                <i className="icon icon-trash"></i>Remove
+
+                                                                        <li onClick={() => remove(fav.favoriteId)}>
+
+                                                                            <Link className="remove-file item flex items-center gap-1">
+                                                                                <i className="icon icon-trash"></i>
+                                                                                Remove
+
                                                                             </Link>
+
                                                                         </li>
                                                                     </ul>
                                                                 </td>
@@ -498,11 +532,11 @@ const MyFavorites = () => {
                                             </table>
                                         </div>
 
-                                        <ul className="wd-navigation">
+                                        {/* <ul className="wd-navigation">
                                             <li><Link to="#" className="nav-item active">1</Link> </li>
 
                                             <li><Link to="#" className="nav-item"><i className="icon icon-arr-r"></i></Link> </li>
-                                        </ul>
+                                        </ul> */}
                                     </div>
                                 </div>
 
