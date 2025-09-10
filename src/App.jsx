@@ -23,6 +23,7 @@ import Blogs from "./Components/Blogs";
 import BlogOverview from "./Components/BlogOverview";
 
 import { Toaster } from "react-hot-toast";
+import Inquiries from "./Components/Inquiries";
 
 
 // import SignInotp from "./Components/SignInotp";
@@ -68,6 +69,7 @@ function App() {
     <Route exact path="/add" element={<Adddetails />} />
       <Route exact path="/blogs" element={<Blogs />} />
           <Route exact path="/blogoverview/:id" element={<BlogOverview />} />
+          <Route exact path="/inquiries" element={<Inquiries />} />
          
 
 

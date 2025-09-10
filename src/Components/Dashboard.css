@@ -65,3 +65,19 @@
   display: block; /* ensures number is below */
 }
 
+
+.list-star .icon-star.filled {
+    color: #FFD700; /* Gold */
+
+  }
+
+
+  .note {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;   /* 👈 show only 4 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal; /* allow wrapping */
+}
+

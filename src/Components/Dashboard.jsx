@@ -5,6 +5,7 @@ import api from '../api/api';
 import "./Dashboard.css"
 import easy from "../assets/easy.png"
 import toast from 'react-hot-toast';
+import download from  '/src/assets/download.png'
 
 
 
@@ -15,6 +16,8 @@ const Dashboard = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDashboard, setShowDashboard] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [avatar, setAvatar] = useState(localStorage.getItem("userProfile"));
+
 
 
 
@@ -322,7 +325,9 @@ const Dashboard = () => {
                                                     style={{ position: 'relative' }}
                                                 >
                                                     <div className="avatar avt-40 round">
-                                                        <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" />
+                                                        {/* <img src="https://cdn-icons-png.flaticon.com/512/10307/10307911.png" alt="avt" /> */}
+                                                        <img src={avatar || "fallback.png"} alt="avt" />
+
                                                     </div>
                                                     <p className="name" style={{ cursor: "pointer" }}>{name}<span className="icon icon-arr-down"></span></p>
                                                     <div
@@ -481,7 +486,9 @@ const Dashboard = () => {
                         </div>
 
                         <div className="main-content">
+                            
                             <div className="main-content-inner">
+                                <h6 className="title">My Properties</h6>
                                 {/* <div className="button-show-hide show-mb">
                                     <span className="body-1">Show Dashboard</span>
                                 </div> */}
@@ -496,7 +503,7 @@ const Dashboard = () => {
                                             <span className="icon icon-list-dashes"></span>
                                         </div>
                                         <div className="content-box">
-                                            <div className="title-count">Active Properties</div>
+                                            <div className="title-count">Active </div>
                                             <h6 className="number">{stats.active_properties}</h6>
                                         </div>
                                     </div>
@@ -507,10 +514,34 @@ const Dashboard = () => {
                                             <span className="icon icon-clock-countdown"></span>
                                         </div>
                                         <div className="content-box">
-                                            <div className="title-count">Pending Properties</div>
+                                            <div className="title-count">Pending </div>
                                             <h6 className="number">{stats.pending_properties}</h6>
                                         </div>
                                     </div>
+
+                                    {/* Total Properties */}
+                                    <div className="counter-box">
+                                        <div className="box-icon w-68 round">
+                                            <span className="icon icon-home"></span>
+                                        </div>
+                                        <div className="content-box">
+                                            <div className="title-count">Total </div>
+                                            <h6 className="number">{stats.total_properties}</h6>
+                                        </div>
+                                    </div>
+
+
+                                    {/* Total Inquiries */}
+                                    <div className="counter-box" onClick={() => navigate("/inquiries")} style={{ cursor: "pointer" }}>
+                                        <div className="box-icon w-68 round">
+                                            <span className="icon icon-review"></span>
+                                        </div>
+                                        <div className="content-box">
+                                            <div className="title-count">Total Inquiries</div>
+                                            <h6 className="number">{stats.total_inquiries}</h6>
+                                        </div>
+                                    </div>
+
 
                                     {/* Total Favorites */}
                                     <div className="counter-box">
@@ -523,25 +554,14 @@ const Dashboard = () => {
                                         </div>
                                     </div>
 
-                                    {/* Total Inquiries */}
-                                    <div className="counter-box">
-                                        <div className="box-icon w-68 round">
-                                            <span className="icon icon-review"></span>
-                                        </div>
-                                        <div className="content-box">
-                                            <div className="title-count">Total Inquiries</div>
-                                            <h6 className="number">{stats.total_inquiries}</h6>
-                                        </div>
-                                    </div>
 
-                                    {/* Total Properties */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
-                                            <span className="icon icon-home"></span>
+                                            <i className="fas fa-comments" style={{ color: "red", fontSize: "24px" }}></i>
                                         </div>
                                         <div className="content-box">
-                                            <div className="title-count">Total Properties</div>
-                                            <h6 className="number">{stats.total_properties}</h6>
+                                            <div className="title-count">Total Reviews</div>
+                                            <h6 className="number"></h6>
                                         </div>
                                     </div>
 
@@ -551,7 +571,7 @@ const Dashboard = () => {
                                 <div className="wrapper-content row">
                                     <div className="col-xl-9">
                                         <div className="widget-box-2 wd-listing">
-                                            <h6 className="title">New Listing</h6>
+
                                             <div className="wd-filter">
                                                 <div className="">
                                                     <input
@@ -574,18 +594,25 @@ const Dashboard = () => {
                                                     />
                                                 </div>
                                                 <div className="ip-group">
+
                                                     <button
                                                         type="button"
                                                         className="tf-btn primary flex items-center gap-2"
                                                         style={{ padding: "8px 16px", borderRadius: "8px" }}
                                                         onClick={handleFilter}
                                                     >
-                                                        <i className="icon icon-filter"></i> Filter
+                                                        <img
+                                                            src="/edit.png"
+                                                            alt="Edit Icon"
+                                                            style={{ width: "20px", height: "25px", marginRight: "10px" }}
+                                                        />
+                                                        Filter
                                                     </button>
+
                                                 </div>
                                             </div>
 
-                                            <div className="d-flex gap-4"><span className="text-primary fw-7">17</span><span className="text-variant-1">Results found</span></div>
+
                                             <div className="wrap-table">
                                                 <div className="table-responsive">
 
@@ -597,7 +624,7 @@ const Dashboard = () => {
                                                                 <th>Action</th>
                                                             </tr>
                                                         </thead>
-                                                       
+
 
 
                                                         <tbody>
@@ -684,14 +711,14 @@ const Dashboard = () => {
                                                     </table>
                                                 </div>
 
-                                                <ul className="wd-navigation">
+                                                {/* <ul className="wd-navigation">
                                                     <li><a href="#" className="nav-item active">1</a></li>
 
                                                     <li><a href="#" className="nav-item"><i className="icon icon-arr-r"></i></a></li>
-                                                </ul>
+                                                </ul> */}
                                             </div>
                                         </div>
-                                        <div className="widget-box-2 wd-chart">
+                                        {/* <div className="widget-box-2 wd-chart">
                                             <h6 className="title">Page Inside</h6>
                                             <div className="wd-filter-date">
                                                 <div className="left">
@@ -714,11 +741,11 @@ const Dashboard = () => {
                                             <div className="chart-box">
                                                 <canvas id="lineChart"></canvas>
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className="col-xl-3">
 
-                                        <div className="widget-box-3 recent-box">
+                                        {/* <div className="widget-box-3 recent-box">
                                             <h6>Recent Reviews</h6>
                                             <div className="box-tes-item">
                                                 <div className="box-avt d-flex align-items-center gap-12">
@@ -800,7 +827,71 @@ const Dashboard = () => {
 
 
                                             </div>
+                                        </div> */}
+
+
+
+
+                                        <div className="widget-box-3 recent-box">
+                                            <h6>Recent Reviews</h6>
+
+                                            {recentProperties.length === 0 && <p>No reviews found.</p>}
+
+                                            {recentProperties.map((property) =>
+                                                property.review && property.review.length > 0 ? (
+                                                    property.review.map((rev) => (
+                                                        <div key={rev.id} className="box-tes-item">
+                                                            <div className="box-avt d-flex align-items-center gap-12">
+                                                                <div className="avatar avt-40 round">
+                                                                    {/* You can replace with the user's avatar if available */}
+                                                                    <img src={download} alt="avatar" />
+                                                                    
+
+
+                                                                </div>
+
+
+                                                                <p className="fw-6">{rev.user_name}</p> {/* ✅ Display name */}
+                                                                <small>{new Date(rev.created_at).toLocaleDateString()}</small>
+                                                            </div>
+
+                                                            <p className="note p-16">{rev.message}</p>
+                                                            <ul className="list-star">
+                                                                {Array.from({ length: 5 }, (_, i) => (
+                                                                    <li
+                                                                        key={i}
+                                                                        className={`icon icon-star ${i < parseInt(rev.star) ? "filled" : ""}`}
+                                                                    ></li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div key={property.id} className="box-tes-item">
+                                                        <p className="note p-16">No reviews for {property.title}</p>
+                                                    </div>
+                                                )
+                                            )}
                                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                     </div>
                                 </div>
                             </div>

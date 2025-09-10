@@ -27,3 +27,12 @@
 .skeleton-line.short {
     width: 50%;
 }
+
+.remove-file.item .icon-trash {
+  transition: color 0.3s;
+  color: inherit; /* keep default color */
+}
+
+.remove-file.item:hover .icon-trash {
+  color: #D53215;
+}
