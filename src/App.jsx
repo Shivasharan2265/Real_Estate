@@ -17,6 +17,8 @@ import Myproperties from "./Components/Myproperties";
 import MyFavorites from "./Components/MyFavorites";
 import Reviews from "./Components/Reviews";
 import Addproperty from "./Components/Addproperty";
+import CityList from "./Components/CityList";
+
 
 import Adddetails from "./Components/Adddetails";
 import Blogs from "./Components/Blogs";
@@ -68,6 +70,9 @@ function App() {
     {/* <Route exact path="/signinotp" element={<SignInotp />} /> */}
     <Route exact path="/add" element={<Adddetails />} />
       <Route exact path="/blogs" element={<Blogs />} />
+
+      <Route exact path="/city-list" element={<CityList />} />
+
           <Route exact path="/blogoverview/:id" element={<BlogOverview />} />
           <Route exact path="/inquiries" element={<Inquiries />} />
          

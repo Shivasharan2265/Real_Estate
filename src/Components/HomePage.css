@@ -26,3 +26,14 @@
 }
 
 
+/* Force AntD modal to fit smaller devices */
+@media (max-width: 576px) {
+  .ant-modal {
+    max-width: 95% !important;
+    margin: 0 auto !important;
+    top: 20px !important;
+  }
+  .ant-modal-body {
+    padding: 15px !important;
+  }
+}
