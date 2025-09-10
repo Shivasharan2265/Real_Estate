@@ -146,31 +146,33 @@ const MyFavorites = () => {
         myFavoritesList();
     }, []);
 
-    const remove = async (favoriteId,id) => {
-        console.log("Removing favorite:", favoriteId);
+    const remove = async (favoriteId, propertyId) => {
+        console.log("Removing favorite:", favoriteId, propertyId);
 
         const fd = new FormData();
         fd.append("programType", "removeFavorites");
         fd.append("authToken", localStorage.getItem("authToken"));
         fd.append("favoriteId", favoriteId);
-        fd.append("property_id", id);
-
+        fd.append("property_id", propertyId);
 
         try {
             const response = await api.post("/properties/property", fd);
             console.log("Remove response:", response);
 
             if (response.data.success) {
-                 toast.success("Favorite removed successfully!"); 
-                myFavoritesList();
-
-                // Option 2: Or remove it locally without API refetch
-                // setFavorites(prev => prev.filter(fav => fav.favoriteId !== favoriteId));
+                toast.success("Favorite removed successfully!");
+                // remove from state without refetch
+                setFavorites((prev) =>
+                    prev.filter((fav) => fav.favoriteId !== favoriteId)
+                );
+                // or call myFavoritesList() if you want to refetch from backend
+                // myFavoritesList();
             }
         } catch (error) {
             console.error("Remove favorite error:", error);
         }
     };
+
 
 
     return (
@@ -473,18 +475,14 @@ const MyFavorites = () => {
                                                                 </td>
                                                                 <td>
                                                                     <ul className="list-action">
-
-
-                                                                        <li onClick={() => remove(fav.id)}>
-
-                                                                        <li onClick={() => remove(fav.favoriteId)}>
-
+                                                                        <li onClick={() => remove(fav.favoriteId, fav.id)}>
                                                                             <Link className="remove-file item">
                                                                                 <i className="icon icon-trash"></i>Remove
                                                                             </Link>
                                                                         </li>
                                                                     </ul>
                                                                 </td>
+
 
 
                                                             </tr>

@@ -93,6 +93,41 @@ const AddProperty = () => {
 
   const [parkingFacility, setParkingFacility] = useState("");
 
+  // inside AddProperty.js
+
+  const [allAmenities, setAllAmenities] = useState([]);   // API amenities
+  const [selectedAmenities, setSelectedAmenities] = useState([]); // Chosen amenity IDs
+
+  // Fetch amenities on mount
+  useEffect(() => {
+    const fetchAmenities = async () => {
+      const fd = new FormData();
+      fd.append("programType", "getAmenities");
+      fd.append("authToken", localStorage.getItem("authToken"));
+
+      try {
+        const response = await api.post("/properties/amenities", fd);
+        if (response.data.success) {
+          setAllAmenities(response.data.data); // Store amenities
+        } else {
+          toast.error("Failed to fetch amenities");
+        }
+      } catch (error) {
+        console.error("Error fetching amenities:", error);
+        toast.error("Error fetching amenities");
+      }
+    };
+
+    fetchAmenities();
+  }, []);
+
+  // Toggle amenity selection
+  const toggleAmenity = (name) => {
+    setSelectedAmenities((prev) =>
+      prev.includes(name) ? prev.filter((a) => a !== name) : [...prev, name]
+    );
+  };
+
 
 
 
@@ -276,12 +311,7 @@ const AddProperty = () => {
   ];
 
 
-  const toggleAmenity = (amenity) => {
-    setAmenities(prev => ({
-      ...prev,
-      [amenity]: !prev[amenity]
-    }));
-  };
+
 
 
   // ---- add these two states above return ----
@@ -864,10 +894,8 @@ const AddProperty = () => {
     //   fd.append(`amenities[${key}]`, amenities[key]);
     // });
 
-    Object.keys(amenities).forEach(key => {
-      if (amenities[key] === true) {
-        fd.append('amenities[]', key);
-      }
+    selectedAmenities.forEach((name) => {
+      fd.append("amenities[]", name); // now sending names, not IDs
     });
 
 
@@ -896,14 +924,14 @@ const AddProperty = () => {
 
 
     // Images/files
-sections.forEach((section) => {
-  fd.append("imageType[]", section.type);
-  section.files.forEach((file) => {
-    fd.append("files[]", file);
-  });
-});
+    sections.forEach((section) => {
+      fd.append("imageType[]", section.type);
+      section.files.forEach((file) => {
+        fd.append("files[]", file);
+      });
+    });
 
-    fd.append("authToken", localStorage.getItem("authToken"));
+    fd.append("authToken", "QlhOUWNKY2pVUE11ZzFrM3RBekp3cGtpSDhNMzBIaGVzNklaUlRLalhXTT0=");
     fd.append("programType", "addPropertyMain");
 
     fd.forEach((value, key) => {
@@ -914,7 +942,7 @@ sections.forEach((section) => {
 
     try {
       const response = await api.post("properties/prop1", fd);
-      console.log("ee",response)
+      console.log("ee", response)
       toast.success(response.data.message)
     }
     catch (err) {
@@ -927,6 +955,7 @@ sections.forEach((section) => {
     const progress = Math.floor((currentStep / 6) * 100);
     setPercentage(progress);
   }, [currentStep]);
+
 
 
 
@@ -9038,7 +9067,7 @@ sections.forEach((section) => {
                                   <img
                                     src={URL.createObjectURL(file)}
                                     alt="preview"
-                                   style={{height:"300px",width:"100%" }}
+                                    style={{ height: "300px", width: "100%" }}
                                   />
                                 ) : (
                                   <div
@@ -15496,168 +15525,73 @@ sections.forEach((section) => {
 
             {currentStep === 6 && (
               <div style={{ padding: "20px", maxWidth: "700px", margin: "0 auto" }}>
-                <h4 style={{
-                  color: "#333",
-                  fontWeight: 600,
-                  fontSize: "clamp(16px, 4vw, 18px)",
-                  marginBottom: 20
-                }}>
+                <h4
+                  style={{
+                    color: "#333",
+                    fontWeight: 600,
+                    fontSize: "clamp(16px, 4vw, 18px)",
+                    marginBottom: 20,
+                  }}
+                >
                   Select Amenities
                 </h4>
 
                 {/* Amenities Section */}
                 <div style={{ marginBottom: 25 }}>
-                  <h5 style={{
-                    color: "#444",
-                    fontWeight: 600,
-                    fontSize: "clamp(14px, 3.5vw, 15px)",
-                    marginBottom: 15
-                  }}>
+                  <h5
+                    style={{
+                      color: "#444",
+                      fontWeight: 600,
+                      fontSize: "clamp(14px, 3.5vw, 15px)",
+                      marginBottom: 15,
+                    }}
+                  >
                     Amenities
                   </h5>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "10px" }}>
-                    {["Maintenance Staff", "Water Storage", "Waste Disposal", "Rain Water Harvesting",
-                      "Piped-gas", "Water purifier", "Visitor Parking", "Feng Shui / Vasaru Compliant", "Park"].map(item => {
-                        const key = item.toLowerCase().replace(/ /g, '');
-                        return (
-                          <button
-                            key={item}
-                            type="button"
-                            onClick={() => toggleAmenity(key)}
-                            className={`amenity-btn ${amenities[key] ? "active" : ""}`}
-                          >
-                            {item}
-                          </button>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                {/* Property Features Section */}
-                <div style={{ marginBottom: 25 }}>
-                  <h5 style={{ color: "#444", fontWeight: 600, fontSize: "clamp(14px,3.5vw,15px)", marginBottom: 15 }}>
-                    Property Features
-                  </h5>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "10px" }}>
-                    {["High Ceiling Height", "False Ceiling Lighting", "Internet/wifi connectivity",
-                      "Centrally Air Conditioned", "Security / Fire Alarm", "Recently Renovated",
-                      "Private Garden / Terrace", "Natural Light", "Any Rooms", "Intercom Facility",
-                      "Spacious Interiors"].map(item => {
-                        const key = item.toLowerCase().replace(/ /g, '');
-                        return (
-                          <button
-                            key={item}
-                            type="button"
-                            onClick={() => toggleAmenity(key)}
-                            className={`amenity-btn ${amenities[key] ? "active" : ""}`}
-                          >
-                            {item}
-                          </button>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                {/* Society/Building feature Section */}
-                <div style={{ marginBottom: 25 }}>
-                  <h5 style={{ color: "#444", fontWeight: 600, fontSize: "clamp(14px,3.5vw,15px)", marginBottom: 15 }}>
-                    Society/Building feature
-                  </h5>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "10px" }}>
-                    {["Fitness Centre / GYM", "Swimming Pool", "Club house / Community Center",
-                      "Security Personnel", "Lift"].map(item => {
-                        const key = item.toLowerCase().replace(/ /g, '');
-                        return (
-                          <button
-                            key={item}
-                            type="button"
-                            onClick={() => toggleAmenity(key)}
-                            className={`amenity-btn ${amenities[key] ? "active" : ""}`}
-                          >
-                            {item}
-                          </button>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                {/* Additional Features Section */}
-                <div style={{ marginBottom: 25 }}>
-                  <h5 style={{ color: "#444", fontWeight: 600, fontSize: "clamp(14px,3.5vw,15px)", marginBottom: 15 }}>
-                    Additional Features
-                  </h5>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "10px" }}>
-                    {["Separate entry for servant room", "No open drainage around",
-                      "Bank Attached Property", "Low Density Society"].map(item => {
-                        const key = item.toLowerCase().replace(/ /g, '');
-                        return (
-                          <button
-                            key={item}
-                            type="button"
-                            onClick={() => toggleAmenity(key)}
-                            className={`amenity-btn ${amenities[key] ? "active" : ""}`}
-                          >
-                            {item}
-                          </button>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                {/* Water Source Section */}
-                <div style={{ marginBottom: 25 }}>
-                  <h5 style={{ color: "#444", fontWeight: 600, fontSize: "clamp(14px,3.5vw,15px)", marginBottom: 15 }}>
-                    Water Source
-                  </h5>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "10px" }}>
-                    {["Municipal corporation", "Borewell/Tank", "24*7 Water"].map(item => {
-                      const key = item.toLowerCase().replace(/[ /]/g, '');
-                      return (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() => toggleAmenity(key)}
-                          className={`amenity-btn ${amenities[key] ? "active" : ""}`}
-                        >
-                          {item}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Overlooking Section */}
-                <div style={{ marginBottom: 30 }}>
-                  <h5 style={{ color: "#444", fontWeight: 600, fontSize: "clamp(14px,3.5vw,15px)", marginBottom: 15 }}>
-                    Overlooking
-                  </h5>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "10px" }}>
-                    {["Pool", "Park/Garden", "Club", "Main Road"].map(item => {
-                      const key = `overlooking${item.replace(/[/]/g, '')}`;
-                      return (
-                        <button
-                          key={item}
-                          type="button"
-                          onClick={() => toggleAmenity(key)}
-                          className={`amenity-btn ${amenities[key] ? "active" : ""}`}
-                        >
-                          {item}
-                        </button>
-                      )
-                    })}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+                      gap: "10px",
+                    }}
+                  >
+                    {allAmenities.map((amenity) => (
+                      <button
+                        key={amenity.name}
+                        type="button"
+                        onClick={() => toggleAmenity(amenity.name)}
+                        className={`amenity-btn ${selectedAmenities.includes(amenity.name) ? "active" : ""
+                          }`}
+                      >
+                        {amenity.image && (
+                          <img
+                            src={`${api.imageUrl}/${amenity.image}`}
+                            alt={amenity.name}
+                            className="amenity-icon"
+                            style={{
+                              width: 20,
+                              height: 20,
+                              marginRight: 6,
+                              verticalAlign: "middle",
+                            }}
+                          />
+                        )}
+                        {amenity.name}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
                 {/* Submit */}
-                <button
-                  type="button"
+                <button type="button"
                   onClick={handleSubmitPropperty}
-                  className="submit-btn"
-                >
+                  className="submit-btn" style={{marginTop:"80px"}} >
                   Submit Property
                 </button>
               </div>
             )}
+
+
           </div>
         </div>
       </div>

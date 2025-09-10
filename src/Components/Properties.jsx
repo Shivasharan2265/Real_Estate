@@ -39,11 +39,9 @@ const Properties = () => {
         }
     }, [propertyData]);
 
-    // useEffect(() => {
-    //     if (propertyData?.isFavourite === 1) {
-    //         setLiked(true);
-    //     }
-    // }, [propertyData]);
+    useEffect(() => {
+        fetchAminitiesIcons()
+    }, []);
 
     const handleFavorite = async () => {
         const fd = new FormData();
@@ -65,6 +63,24 @@ const Properties = () => {
             setError("Error adding to favorites");
         }
     };
+
+    const [iconsData, setIconsData] = useState([]);
+
+    const fetchAminitiesIcons = async () => {
+        const fd = new FormData();
+        fd.append("programType", "getAmenities");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("properties/amenities", fd);
+            if (response.data.success) {
+                setIconsData(response.data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching icons:", error);
+        }
+    };
+
 
     const handleRemove = async () => {
         if (!favoriteId) return; // nothing to remove
@@ -90,19 +106,19 @@ const Properties = () => {
         }
     };
 
-      const handleAddEnquiry = async () => {
-      
+    const handleAddEnquiry = async () => {
+
 
         const fd = new FormData();
         fd.append("programType", "getInquiryForProperty");
-        fd.append("name", name); 
-        fd.append("email", email); 
+        fd.append("name", name);
+        fd.append("email", email);
 
-        fd.append("phone", mobile); 
+        fd.append("phone", mobile);
 
-        fd.append("message", message); 
+        fd.append("message", message);
 
-       
+
         fd.append("property_id", id); // use favoriteId, not property id
 
         fd.append("authToken", localStorage.getItem("authToken"));
@@ -113,7 +129,7 @@ const Properties = () => {
 
             if (response.data.success) {
                 toast.success(response.data.message);
-            }else{
+            } else {
                 toast.error(response.data.message);
 
             }
@@ -176,27 +192,27 @@ const Properties = () => {
     }, [id]);
 
     const handleShare = async () => {
-    const shareData = {
-      title: "Check this out!",
-      text: "Have a look at this amazing property.",
-      url: window.location.href, // current page URL
-    };
+        const shareData = {
+            title: "Check this out!",
+            text: "Have a look at this amazing property.",
+            url: window.location.href, // current page URL
+        };
 
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        console.log("Shared successfully");
-      } catch (err) {
-        console.error("Share failed:", err.message);
-      }
-    } else {
-      // Fallback (desktop browsers)
-      alert(
-        "Sharing not supported on this device. Copy the link manually:\n" +
-          window.location.href
-      );
-    }
-  };
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                console.log("Shared successfully");
+            } catch (err) {
+                console.error("Share failed:", err.message);
+            }
+        } else {
+            // Fallback (desktop browsers)
+            alert(
+                "Sharing not supported on this device. Copy the link manually:\n" +
+                window.location.href
+            );
+        }
+    };
 
 
     // Alternative: Bouncing cubes loader
@@ -314,7 +330,8 @@ const Properties = () => {
         { icon: "icon-bed", label: `${propertyData.details.bedrooms} Bedrooms` },
         { icon: "icon-bathtub", label: `${propertyData.details.bathrooms} Bathrooms` },
         { icon: "icon-ruler", label: `${propertyData.area.carpet_area || propertyData.area.built_up_area} ${propertyData.area.carpet_area_unit || propertyData.area.built_up_area_unit || 'sqft'}` },
-        { icon: "icon-buildings", label: `Floor ${propertyData.details.property_on_floor}/${propertyData.details.total_floors}` }
+        { icon: "fa-regular fa-building", label: `Floor ${propertyData.details.property_on_floor}/${propertyData.details.total_floors}` }
+
     ];
 
     // Overview data - conditionally show based on property type
@@ -327,7 +344,7 @@ const Properties = () => {
         { icon: "icon-bed", label: "Bedrooms", value: propertyData.details.bedrooms },
         { icon: "icon-bathtub", label: "Bathrooms", value: propertyData.details.bathrooms },
         { icon: "icon-ruler", label: "Area", value: `${propertyData.area.carpet_area || propertyData.area.built_up_area} ${propertyData.area.carpet_area_unit || propertyData.area.built_up_area_unit || 'sqft'}` },
-        { icon: "icon-buildings", label: "Year Built", value: propertyData.construction.year_built || 'N/A' }
+        // { icon: "fa-regular fa-building", label: "Year Built", value: propertyData.construction.year_built || 'N/A' }
     ];
 
     // Property details - conditionally show based on property type
@@ -348,26 +365,26 @@ const Properties = () => {
     ];
 
     // Sample amenities data (categorized)
-   const amenitiesData = [
-  {
-    category: "Amenities",
-    items: Array.isArray(propertyData?.features?.amenities)
-      ? propertyData.features.amenities.map((amenity) => ({
-          icon: "icon-check",
-          label: amenity.replace(/_/g, " "),
-        }))
-      : [], // fallback empty array if it's not an array
-  },
-  {
-    category: "Additional Features",
-    items: Array.isArray(propertyData?.features?.additional_features)
-      ? propertyData.features.additional_features.map((feature) => ({
-          icon: "icon-check",
-          label: feature.replace(/_/g, " "),
-        }))
-      : [],
-  },
-];
+    const amenitiesData = [
+        {
+            category: "Amenities",
+            items: Array.isArray(propertyData?.features?.amenities)
+                ? propertyData.features.amenities.map((amenity) => ({
+                    icon: "icon-check",
+                    label: amenity.replace(/_/g, " "),
+                }))
+                : [], // fallback empty array if it's not an array
+        },
+        {
+            category: "Additional Features",
+            items: Array.isArray(propertyData?.features?.additional_features)
+                ? propertyData.features.additional_features.map((feature) => ({
+                    icon: "icon-check",
+                    label: feature.replace(/_/g, " "),
+                }))
+                : [],
+        },
+    ];
 
     // Add construction features for plots
     if (isPlot) {
@@ -511,8 +528,13 @@ const Properties = () => {
                                 <div className="label">FEATURES:</div>
                                 <ul className="meta">
                                     {featuresData.map((f, i) => (
-                                        <li className="meta-item" key={i}>
-                                            <span className={`icon ${f.icon}`}></span> {f.label}
+                                        <li className="meta-item" style={{color:"red"}} key={i}>
+                                            {f.icon.startsWith("fa") ? (
+                                                <i className={f.icon}></i>
+                                            ) : (
+                                                <span className={`icon icon-b ${f.icon}`} style={{ color: "red !important" }}></span>
+                                            )}
+                                            <span style={{color:"black"}}>{f.label}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -664,7 +686,6 @@ const Properties = () => {
                                                         {cat.category}
                                                     </h4>
 
-                                                    {/* Items in horizontal row */}
                                                     <ul
                                                         style={{
                                                             listStyle: "none",
@@ -675,37 +696,60 @@ const Properties = () => {
                                                             gap: "15px",
                                                         }}
                                                     >
-                                                        {cat.items.map((f, fi) => (
-                                                            <li
-                                                                key={fi}
-                                                                style={{
-                                                                    display: "flex",
-                                                                    alignItems: "center",
-                                                                    gap: "8px",
-                                                                    fontSize: "14px",
-                                                                    color: "#555",
-                                                                    padding: "6px 10px",
-                                                                    background: "#fff",
-                                                                    border: "1px solid #e0e0e0",
-                                                                    borderRadius: "8px",
-                                                                }}
-                                                            >
-                                                                <span
-                                                                    className={`icon ${f.icon}`}
+                                                        {cat.items.map((f, fi) => {
+                                                            // Find the matching icon from your icons API
+                                                            const icon = iconsData?.find(
+                                                                (i) =>
+                                                                    i.name.toLowerCase().trim() ===
+                                                                    f.label.toLowerCase().trim()
+                                                            );
+
+                                                            return (
+                                                                <li
+                                                                    key={fi}
                                                                     style={{
-                                                                        color: "#4a90e2",
-                                                                        fontSize: "16px",
+                                                                        display: "flex",
+                                                                        alignItems: "center",
+                                                                        gap: "8px",
+                                                                        fontSize: "14px",
+                                                                        color: "#555",
+                                                                        padding: "6px 10px",
+                                                                        background: "#fff",
+                                                                        border: "1px solid #e0e0e0",
+                                                                        borderRadius: "8px",
+                                                                        minWidth: "120px",
                                                                     }}
-                                                                ></span>
-                                                                {f.label}
-                                                            </li>
-                                                        ))}
+                                                                >
+                                                                    {icon ? (
+                                                                        <img
+                                                                            src={`${api.imageUrl}/${icon.image}`}
+                                                                            alt={f.label}
+                                                                            style={{
+                                                                                width: "25px",
+                                                                                height: "25px",
+                                                                                objectFit: "contain",
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        <span
+                                                                            className={`icon ${f.icon}`}
+                                                                            style={{
+                                                                                color: "#4a90e2",
+                                                                                fontSize: "16px",
+                                                                            }}
+                                                                        ></span>
+                                                                    )}
+                                                                    {f.label}
+                                                                </li>
+                                                            );
+                                                        })}
                                                     </ul>
                                                 </div>
                                             )
                                     )}
                                 </div>
                             </div>
+
 
 
 
