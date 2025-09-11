@@ -767,7 +767,7 @@ const AddProperty = () => {
     //pincode
     //latitude
     //longitude
-    fd.append('property_facing', facingMap[propertyFacing] || "");
+    fd.append('propertyFacing', facingMap[propertyFacing] || "");
     fd.append('road_width', roadWidth);
     fd.append('road_width_unit', roadUnit);
     fd.append('parking', parking);
@@ -793,7 +793,7 @@ const AddProperty = () => {
     //rent_period
     //currency
 
-    fd.append("air_conditioning", acMap[airConditioning] || "");
+    fd.append("airConditioning", acMap[airConditioning] || "");
 
     fd.append('oxygen', oxygen);
     fd.append('ups', ups);

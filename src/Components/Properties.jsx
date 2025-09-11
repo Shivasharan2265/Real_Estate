@@ -557,11 +557,24 @@ const Properties = () => {
                     {images1.map((src, index) => (
                         <SwiperSlide key={index}>
                             <Link
-                                to={src}
+                                to={`${api.imageUrl}/${src}`}
                                 data-fancybox="gallery"
                                 className="box-imgage-detail d-block"
                             >
-                                <img src="https://themesflat.co/html/homzen/images/banner/banner-property-1.jpg" alt={`img-property-${index}`} />
+                                <img
+                                    src={`${api.imageUrl}/${src}`}
+                                    alt={`img-property-${index}`}
+                                    onError={(e) => {
+                                        e.target.src =
+                                            "https://themesflat.co/html/homzen/images/home/house-2.jpg";
+                                    }}
+                                    style={{
+                                        width: "100%",
+                                        height: "400px",
+                                        objectFit: "cover",
+                                        borderRadius: "8px",
+                                    }}
+                                />
                             </Link>
                         </SwiperSlide>
                     ))}
@@ -603,7 +616,7 @@ const Properties = () => {
                                 </a>
                                 <span
                                     className="flag-tag text-white me-5 text-capitalize"
-                                    style={{ backgroundColor: "#378B4E",marginLeft:"5px" }}
+                                    style={{ backgroundColor: "#378B4E", marginLeft: "5px" }}
                                 >
                                     {propertyData.property.listing_type}
                                 </span>
@@ -931,7 +944,7 @@ const Properties = () => {
                                                 </div>
                                             )}
                                         </li>
-                                    </ul>Guest Reviews
+                                    </ul>
                                 </div>
                             )}
 
@@ -1276,7 +1289,7 @@ const Properties = () => {
                                 </div>
 
                                 {/* Search Widget - Keeping this section as it was */}
-                                <div className="flat-tab flat-tab-form widget-filter-search widget-box bg-surface">
+                                {/* <div className="flat-tab flat-tab-form widget-filter-search widget-box bg-surface">
                                     <div className="h7 title fw-7">Search</div>
                                     <ul className="nav-tab-form" role="tablist">
                                         <li className="nav-tab-item" role="presentation">
@@ -1527,7 +1540,7 @@ const Properties = () => {
                                         </div>
 
                                     </div>
-                                </div>
+                                </div> */}
 
                                 {/* Why Choose Us */}
                                 <div className="widget-box single-property-whychoose bg-surface">

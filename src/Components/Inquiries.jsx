@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import api from "../api/api";
 import { useParams } from "react-router-dom";
-// import "./Inquiries.css";
 import toast from "react-hot-toast";
 
 const Inquiries = () => {
-  const { id } = useParams(); // property id (if available)
+  const { id } = useParams();
   const [inquiries, setInquiries] = useState([]);
   const [properties, setProperties] = useState({});
 
@@ -14,9 +13,7 @@ const Inquiries = () => {
     const fd = new FormData();
     fd.append("programType", "getAllInquiryDetails");
     fd.append("authToken", localStorage.getItem("authToken"));
-    if (id) {
-      fd.append("property_id", id);
-    }
+    if (id) fd.append("property_id", id);
 
     try {
       const response = await api.post("/properties/propertyInquiry", fd);
@@ -24,25 +21,23 @@ const Inquiries = () => {
         const data = Array.isArray(response.data.data)
           ? response.data.data
           : [response.data.data];
-        
-        // Set properties for reference
+
         const propertiesMap = {};
-        // Flatten all inquiries into a single array
         const allInquiries = [];
-        
-        data.forEach(property => {
+
+        data.forEach((property) => {
           propertiesMap[property.id] = property.title;
           if (property.inquiry && property.inquiry.length > 0) {
-            property.inquiry.forEach(inq => {
+            property.inquiry.forEach((inq) => {
               allInquiries.push({
                 ...inq,
                 propertyId: property.id,
-                propertyTitle: property.title
+                propertyTitle: property.title,
               });
             });
           }
         });
-        
+
         setProperties(propertiesMap);
         setInquiries(allInquiries);
       }
@@ -56,7 +51,7 @@ const Inquiries = () => {
   }, [id]);
 
   const handleStatusChange = async (inquiryId, currentStatus) => {
-    if (currentStatus !== "new") return; // only allow if status is new
+    if (currentStatus !== "new") return;
 
     const fd = new FormData();
     fd.append("programType", "statusChangeOfInquiry");
@@ -67,9 +62,8 @@ const Inquiries = () => {
     try {
       const response = await api.post("/properties/propertyInquiry", fd);
       if (response.data.success) {
-        // refresh inquiry list
         inquiriesList();
-        toast.success(response.data.message)
+        toast.success(response.data.message);
       }
     } catch (error) {
       console.error("inquiryStatus error:", error);
@@ -77,15 +71,14 @@ const Inquiries = () => {
   };
 
   return (
-    <div>
+    <div style={{ background: "#f9fafc", height:"100vh" }}>
       <Header />
-      <section className="flat-section">
-        <div className="container">
+      <section className="flat-section py-5" >
+        <div className="container-sm">
           <h2
             className="mb-4"
             style={{
               textAlign: "center",
-              marginTop: "30px",
               fontWeight: "700",
               color: "#2c3e50",
             }}
@@ -95,76 +88,136 @@ const Inquiries = () => {
 
           {inquiries.length === 0 ? (
             <div className="text-center py-5">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+                alt="no-data"
+                width="100"
+                className="mb-3 opacity-75"
+              />
               <p className="text-muted fs-5">No inquiries found</p>
             </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-hover">
-                <thead style={{ backgroundColor: "#3498db", color: "white" }}>
+            <div
+              className="table-responsive shadow-sm rounded-3"
+              style={{ background: "#fff" }}
+            >
+              <table className="table align-middle mb-0">
+                <thead
+
+                >
                   <tr>
-                    <th>Property</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Message</th>
-                    <th>Status</th>
-                    <th>Created At</th>
+                     <th style={{
+                      backgroundColor: "#ED2027", // 🔴 red header
+                      color: "white",
+                      fontWeight: "600",
+                    }}>#</th>
+                    <th style={{
+                      backgroundColor: "#ED2027", // 🔴 red header
+                      color: "white",
+                      fontWeight: "600",
+                    }}>Property</th>
+                    <th style={{
+                      backgroundColor: "#ED2027", // 🔴 red header
+                      color: "white",
+                      fontWeight: "600",
+                    }}>Name</th>
+                    <th style={{
+                      backgroundColor: "#ED2027", // 🔴 red header
+                      color: "white",
+                      fontWeight: "600",
+                    }}>Email</th>
+                    <th style={{
+                      backgroundColor: "#ED2027", // 🔴 red header
+                      color: "white",
+                      fontWeight: "600",
+                    }}>Phone</th>
+                    <th style={{
+                      backgroundColor: "#ED2027", // 🔴 red header
+                      color: "white",
+                      fontWeight: "600",
+                    }}>Message</th>
+                    <th style={{
+                      backgroundColor: "#ED2027", // 🔴 red header
+                      color: "white",
+                      fontWeight: "600",
+                    }}>Status</th>
+                    <th style={{
+                      backgroundColor: "#ED2027", // 🔴 red header
+                      color: "white",
+                      fontWeight: "600",
+                    }}>Created At</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {inquiries.map((inq) => (
-                    <tr key={inq.id} style={{ verticalAlign: "middle" }}>
-                      <td className="fw-medium">
-                        {inq.propertyTitle}
-                      </td>
-                      <td className="fw-medium">{inq.name}</td>
+                  {inquiries.map((inq, index) => (
+                    <tr key={inq.id} className="hover-row">
+                       <td>{index + 1}</td>
+                      <td className="fw-semibold">{inq.propertyTitle}</td>
+                      <td>{inq.name}</td>
                       <td>
-                        <a
-                          href={`mailto:${inq.email}`}
+                        <span
+                         
                           className="text-decoration-none"
                         >
                           {inq.email}
-                        </a>
+                        </span>
                       </td>
                       <td>{inq.phone}</td>
                       <td>
-                        <div
-                          className="message-preview"
+                        <span
                           style={{
-                            maxWidth: "200px",
+                            maxWidth: "220px",
+                            display: "inline-block",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
                           }}
+                          title={inq.message}
                         >
                           {inq.message}
-                        </div>
+                        </span>
                       </td>
                       <td>
-                        <span
-                          className={`badge ${
-                            inq.status === "new"
-                              ? "bg-warning"
-                              : inq.status === "respond"
-                              ? "bg-success"
-                              : "bg-info"
-                          }`}
-                        >
-                          {inq.status}
-                        </span>
-                        {inq.status === "new" && (
-                          <button
-                            className=""
-                            onClick={() =>
-                              handleStatusChange(inq.id, inq.status)
-                            }
-                            title="Mark as responded"
+                        <div className="d-flex align-items-center">
+                          <span
+                            className={`badge rounded-pill px-3 py-2 ${inq.status === "new"
+                                ? "bg-warning text-dark"
+                                : inq.status === "respond"
+                                  ? "bg-success"
+                                  : "bg-info"
+                              }`}
                           >
-                            <i className="fa-solid fa-check"></i>
-                          </button>
-                        )}
+                            {inq.status}
+                          </span>
+
+                          {inq.status === "new" && (
+                            <button
+                              className="btn btn-sm ms-2 rounded-circle d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "32px",
+                                height: "32px",
+                                padding: "0",
+                                backgroundColor: "#28a745",
+                                color: "white",
+                                border: "none",
+                              }}
+                              onClick={() => handleStatusChange(inq.id, inq.status)}
+                              title="Mark as responded"
+                            >
+                              <i className="fa-solid fa-check"></i>
+                            </button>
+                          )}
+                        </div>
                       </td>
-                      <td>{new Date(inq.created_at).toLocaleDateString()}</td>
+
+                      <td>
+                        {new Date(inq.created_at).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -173,6 +226,13 @@ const Inquiries = () => {
           )}
         </div>
       </section>
+
+      <style jsx>{`
+        .hover-row:hover {
+          background: #f4f9ff !important;
+          transition: background 0.2s ease;
+        }
+      `}</style>
     </div>
   );
 };
