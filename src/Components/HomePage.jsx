@@ -139,6 +139,7 @@ const HomePage = () => {
 
         try {
             const response = await api.post("/properties/property", fd);
+            console.log("list", response)
             const mapped = response.data.data.properties.map((item) => {
                 let priceValue = "N/A";
                 let priceUnit = "";
@@ -747,10 +748,16 @@ const HomePage = () => {
                                                                 <a onClick={() => navigate(`/property/${item.id}`)} className="images-group">
                                                                     <div className="images-style">
                                                                         <img
-                                                                            src="https://themesflat.co/html/homzen/images/home/house-2.jpg"
+                                                                            src={
+                                                                                item.image
+                                                                                    ? `${api.imageUrl}/${item.image}`
+                                                                                    : "https://themesflat.co/html/homzen/images/home/house-2.jpg"
+                                                                            }
                                                                             alt={item.name}
+                                                                            style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "8px" }}
                                                                         />
                                                                     </div>
+
                                                                     <div className="top">
                                                                         <ul className="d-flex gap-8">
                                                                             {item.featured && <li className="flag-tag success">Featured</li>}
@@ -1021,7 +1028,7 @@ const HomePage = () => {
                                     <div className="content">
                                         <h6 className="title">Buy A New Home</h6>
                                         <p className="description">Discover your dream home effortlessly. Explore diverse properties and expert guidance for a seamless buying experience.</p>
-                                        
+
                                     </div>
                                 </div>
                                 <div className="box-service hover-btn-view">
@@ -1031,7 +1038,7 @@ const HomePage = () => {
                                     <div className="content">
                                         <h6 className="title">Rent a home</h6>
                                         <p className="description">Discover your perfect rental effortlessly. Explore a diverse variety of listings tailored precisely to suit your unique lifestyle needs.</p>
-                                        
+
                                     </div>
                                 </div>
                                 <div className="box-service hover-btn-view">
@@ -1117,60 +1124,60 @@ const HomePage = () => {
 
 
 
- <div className="box-title text-center wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
-                                <div className="text-subtitle text-primary" style={{marginTop: "60px"}}>Blogs</div>
-                                <h4 className="mt-4">check the blogs </h4>
-                         
-                    <section className="flat-section">
-                        <div className="container">
-                            <div className="row">
-                                {blogs.length === 0 && loading
-                                    ? renderSkeleton()
-                                    : blogs.map((blog) => (
-                                        <div className="col-lg-4 col-md-6" key={blog.blogId}>
-                                            <div
-                                                className="flat-blog-item hover-img"
-                                                onClick={() => navigate(`/blogoverview/${blog.blogId}`)}
-                                                style={{ cursor: "pointer" }}
-                                            >
-                                                <div className="img-style">
-                                                    <img
-                                                        src={api.imageUrl + blog.featured_image}
-                                                        alt={blog.title}
-                                                    />
-                                                    <span className="date-post">
-                                                        {new Date().toLocaleDateString("en-US", {
-                                                            month: "long",
-                                                            day: "2-digit",
-                                                            year: "numeric",
-                                                        })}
-                                                    </span>
-                                                </div>
-                                                <div className="content-box">
-                                                    <div className="post-author">
-                                                        <span>{blog.relatedTo || "Property"}</span>
+                    <div className="box-title text-center wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
+                        <div className="text-subtitle text-primary" style={{ marginTop: "60px" }}>Blogs</div>
+                        <h4 className="mt-4">check the blogs </h4>
+
+                        <section className="flat-section">
+                            <div className="container">
+                                <div className="row">
+                                    {blogs.length === 0 && loading
+                                        ? renderSkeleton()
+                                        : blogs.map((blog) => (
+                                            <div className="col-lg-4 col-md-6" key={blog.blogId}>
+                                                <div
+                                                    className="flat-blog-item hover-img"
+                                                    onClick={() => navigate(`/blogoverview/${blog.blogId}`)}
+                                                    style={{ cursor: "pointer" }}
+                                                >
+                                                    <div className="img-style">
+                                                        <img
+                                                            src={api.imageUrl + blog.featured_image}
+                                                            alt={blog.title}
+                                                        />
+                                                        <span className="date-post">
+                                                            {new Date().toLocaleDateString("en-US", {
+                                                                month: "long",
+                                                                day: "2-digit",
+                                                                year: "numeric",
+                                                            })}
+                                                        </span>
                                                     </div>
-                                                    <h6 className="title">{blog.title}</h6>
+                                                    <div className="content-box">
+                                                        <div className="post-author">
+                                                            <span>{blog.relatedTo || "Property"}</span>
+                                                        </div>
+                                                        <h6 className="title">{blog.title}</h6>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))
-                                }
+                                        ))
+                                    }
 
-                                <div className="col-12 text-center mt-3">
-                                    <button
-                                        className="tf-btn size-1 primary"
-                                        onClick={() => navigate("/blogs")}
-                                    >
-                                        View More
-                                    </button>
+                                    <div className="col-12 text-center mt-3">
+                                        <button
+                                            className="tf-btn size-1 primary"
+                                            onClick={() => navigate("/blogs")}
+                                        >
+                                            View More
+                                        </button>
+                                    </div>
+
                                 </div>
-
                             </div>
-                        </div>
-                        
-                    </section>
-                       </div>
+
+                        </section>
+                    </div>
 
 
                     {/* <!-- End Benefit -->
@@ -1482,7 +1489,7 @@ const HomePage = () => {
                             <img
                                 src={`${api.imageUrl}${footerBannerUrl}`}
                                 alt="Footer Banner"
-                                style={{ maxWidth: "1000px", height: "400px",minWidth:"1520px" }}
+                                style={{ maxWidth: "1000px", height: "400px", minWidth: "1520px" }}
                             />
                         </div>
                     )}
