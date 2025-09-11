@@ -110,11 +110,41 @@ const ContactUs = () => {
                 </div>
             </section>
             <section className="flat-section pt-0">
-                <div className="container">
-                    <div id="map-contact" className="map-contact"  data-map-zoom="16" data-map-scroll="true"></div>
+  <div className="container">
+    <div
+      className="mapouter"
+      style={{
+        position: "relative",
+        textAlign: "right",
+        height: "560px",
+        width: "100%",
+      }}
+    >
+      <div
+        className="gmap_canvas"
+        style={{
+          overflow: "hidden",
+          background: "none!important",
+          height: "560px",
+          width: "100%",
+        }}
+      >
+        <iframe
+          width="100%"
+          height="560"
+          id="gmap_canvas"
+          src="https://maps.google.com/maps?q=kalaburagi+busstand&t=&z=13&ie=UTF8&iwloc=&output=embed"
+          frameBorder="0"
+          scrolling="no"
+          marginHeight="0"
+          marginWidth="0"
+          title="Google Map"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</section>
 
-                </div>
-            </section>
              <div className="progress-wrap">
                         <svg className="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
                             <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" style={{ transition: 'stroke-dashoffset 10ms linear 0s', strokeDasharray: '307.919, 307.919', strokeDashoffset: '286.138' }}></path>

@@ -33,8 +33,7 @@ const AboutUs = () => {
                             <h3>Welcome To The <br /> Eazy Acers</h3>
                         </div>
                         <div className="col-md-7 hover-btn-view">
-                            <p className="body-2 text-variant-1">Welcome to Homeya, where we turn houses into homes and dreams into reality. At Homeya, we understand that a home is more than just a physical space; it's a place where memories are created, families grow, and life unfolds. </p>
-                            <a href="#" className="btn-view style-1"><span className="text">Learn More</span> <span className="icon icon-arrow-right2"></span> </a>
+                            <p className="body-2 text-variant-1">Welcome to Eazy Acers, where we turn houses into homes and dreams into reality. At Eazy Acers, we understand that a home is more than just a physical space; it's a place where memories are created, families grow, and life unfolds. </p>
 
                         </div>
 
@@ -56,7 +55,7 @@ const AboutUs = () => {
                                     <div className="text-subtitle text-primary">Why Choose Us</div>
                                     <h4 className="mt-4">Discover What Sets Our Real Estate Expertise Apart</h4>
                                 </div>
-                                <p>At Homeya, our unwavering commitment lies in crafting unparalleled real estate journeys. Our seasoned professionals, armed with extensive market knowledge, walk alongside you through every phase of your property endeavor. We prioritize understanding your unique aspirations, tailoring our expertise to match your vision.</p>
+                                <p>At Eazy Acers, our unwavering commitment lies in crafting unparalleled real estate journeys. Our seasoned professionals, armed with extensive market knowledge, walk alongside you through every phase of your property endeavor. We prioritize understanding your unique aspirations, tailoring our expertise to match your vision.</p>
                                 <ul className="list-view">
                                     <li>
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -87,7 +86,6 @@ const AboutUs = () => {
                                         Local Area Knowledge
                                     </li>
                                 </ul>
-                                <a href="" className="btn-view"><span className="text">Contact Us</span> <span className="icon icon-arrow-right2"></span> </a>
                             </div>
 
                         </div>
@@ -100,7 +98,6 @@ const AboutUs = () => {
                                     <div className="content">
                                         <h6 className="title">Buy A New Home</h6>
                                         <p className="description">Explore diverse properties and expert guidance for a seamless buying experience.</p>
-                                        <a href="#" className="btn-view style-1"><span className="text">Learn More</span> <span className="icon icon-arrow-right2"></span> </a>
                                     </div>
                                 </div>
                                 <div className="box-service style-1 hover-btn-view">
@@ -110,7 +107,6 @@ const AboutUs = () => {
                                     <div className="content">
                                         <h6 className="title">Rent a home</h6>
                                         <p className="description">Explore a diverse variety of listings tailored precisely to suit your unique lifestyle needs.</p>
-                                        <a href="#" className="btn-view style-1"><span className="text">Learn More</span> <span className="icon icon-arrow-right2"></span> </a>
                                     </div>
                                 </div>
                                 <div className="box-service style-1 hover-btn-view">
@@ -120,7 +116,6 @@ const AboutUs = () => {
                                     <div className="content">
                                         <h6 className="title">Sell a home</h6>
                                         <p className="description">Showcasing your property's best features for a successful sale.</p>
-                                        <a href="#" className="btn-view style-1"><span className="text">Learn More</span> <span className="icon icon-arrow-right2"></span> </a>
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +232,7 @@ const AboutUs = () => {
                     </div>
                  
                 </div>
-            </section>Our Teams
+            </section>
             {/* <!-- End Testimonial -->
             <!-- Contact --> */}
             <section className="flat-section-v3 flat-slider-contact">
@@ -249,8 +244,13 @@ const AboutUs = () => {
                                     <div className="text-subtitle text-white">Contact Us</div>
                                     <h4 className="mt-4 fw-6 text-white">We're always eager to hear from you!</h4>
                                 </div>
-                                <p className="body-2 text-white">Sed ullamcorper nulla egestas at. Aenean eget tortor nec elit sagittis molestie. Pellentesque tempus massa in.r nulla egestas at. Aenean eget tortor nec elit sagittis mole</p>
-                            </div>
+                                <p className="body-2 text-white">
+                                    Whether you're searching for your dream home, an investment
+                                    property, or want to list your property for sale or rent — our
+                                    expert real estate team is always ready to guide you.
+                                    <br /> Get personalized advice, market insights, and property
+                                    assistance tailored to your needs.
+                                </p>                            </div>
 
                         </div>
                         <div className="col-lg-5">
@@ -363,7 +363,7 @@ const AboutUs = () => {
                         <div className="box-left">
                             <div className="box-title">
                                 <div className="text-subtitle text-primary">Become Partners</div>
-                                <h4 className="mt-4">List your Properties on Homeya, join Us Now!</h4>
+                                <h4 className="mt-4">List your Properties on Eazy Acers, join Us Now!</h4>
                             </div>
                             <a href="#" className="tf-btn primary size-1">Become A Hosting</a>
                         </div>
