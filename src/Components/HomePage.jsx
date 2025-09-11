@@ -1119,7 +1119,7 @@ const HomePage = () => {
 
 
  <div className="box-title text-center wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
-                                <div className="text-subtitle text-primary">Blogs</div>
+                                <div className="text-subtitle text-primary" style={{marginTop: "60px"}}>Blogs</div>
                                 <h4 className="mt-4">check the blogs </h4>
                          
                     <section className="flat-section">
@@ -1178,7 +1178,7 @@ const HomePage = () => {
                     {/* PROPERTIES */}
 
 
-                    <section className="flat-section flat-property">
+                    <section className=" flat-property">
                         <div className="container">
                             {/* <div className="box-title style-1 wow fadeInUpSmall" data-wow-delay=".2s" data-wow-duration="2000ms">
                                 <div className="box-left">
@@ -1483,7 +1483,7 @@ const HomePage = () => {
                             <img
                                 src={`${api.imageUrl}${footerBannerUrl}`}
                                 alt="Footer Banner"
-                                style={{ maxWidth: "1000px", height: "auto" }}
+                                style={{ maxWidth: "1000px", height: "400px",minWidth:"1520px" }}
                             />
                         </div>
                     )}

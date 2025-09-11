@@ -88,23 +88,8 @@
 
 
 
-.modal-box {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 800px;        /* fixed width */
-  min-height: 400px;   /* consistent height */
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* push cancel button down */
-}
 
-.modal-actions {
-  margin-top: 15px;
-  display: flex;
-  justify-content: center; /* center horizontally */
-}
+
 
 
 
@@ -161,5 +146,54 @@
   font-weight: bold;   /* bold text */
   color: #333;         /* darker text */
   width: 100%;         /* stretch across container */
+}
+
+
+
+
+
+
+.modal-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 800px;        /* same fixed width */
+  max-height: 80vh;    /* never exceed 80% of viewport */
+  display: flex;
+  flex-direction: column;
+}
+
+.inquiry-table-wrapper {
+  flex: 1;                     /* take remaining space */
+  overflow-y: auto;            /* scroll if content is bigger than available */
+  margin-top: 10px;
+}
+
+.modal-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;              /* keep cancel button at bottom */
+}
+
+
+
+
+
+.table-header-actions {
+  display: flex;
+  justify-content: flex-end; /* push to right */
+  margin-bottom: 10px;
+}
+.view-btn {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 15px;
 }
 

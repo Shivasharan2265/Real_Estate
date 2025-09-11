@@ -81,3 +81,21 @@
   white-space: normal; /* allow wrapping */
 }
 
+
+.widget-box-3.recent-box {
+    max-height: 500px; /* adjust this based on your layout */
+    overflow-y: auto;
+    padding-right: 8px; /* optional: for scrollbar spacing */
+}
+
+/* Optional: smooth scrollbar styling */
+.widget-box-3.recent-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.widget-box-3.recent-box::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+

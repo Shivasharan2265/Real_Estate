@@ -5,7 +5,7 @@ import api from '../api/api';
 import "./Dashboard.css"
 import easy from "../assets/easy.png"
 import toast from 'react-hot-toast';
-import download from  '/src/assets/download.png'
+import download from '/src/assets/download.png'
 
 
 
@@ -95,7 +95,7 @@ const Dashboard = () => {
                 { text: 'Dashboard', onClick: () => navigate('/dashboard') },
                 { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
                 { text: 'My Properties', onClick: () => navigate('/myproperties') },
-                { text: 'Reviews', onClick: () => navigate('/reviews') },
+                // { text: 'Reviews', onClick: () => navigate('/reviews') },
             ]
         },
         {
@@ -302,7 +302,7 @@ const Dashboard = () => {
                                                                     }
                                                                 }}
                                                             >
-                                                                <a href="#" onClick={(e) => e.preventDefault()}>Pages</a>
+                                                                <a href="" onClick={(e) => e.preventDefault()}>Pages</a>
                                                                 <ul style={{ display: activeDropdown === 3 ? 'block' : 'none' }}>
                                                                     <li><a href="aboutus" onClick={(e) => { e.preventDefault(); navigate('/aboutus'); }}>About Us</a></li>
                                                                     <li><a href="contactus" onClick={(e) => { e.preventDefault(); navigate('/contactus'); }}>Contact Us</a></li>
@@ -343,7 +343,7 @@ const Dashboard = () => {
                                                     >
                                                         <a className="dropdown-item" onClick={() => navigate('/myproperties')}>My Properties</a>
                                                         <a className="dropdown-item" onClick={() => navigate('/myfavorites')}>My Favorites</a>
-                                                        <a className="dropdown-item" onClick={() => navigate('/reviews')}>Reviews</a>
+                                                        {/* <a className="dropdown-item" onClick={() => navigate('/reviews')}>Reviews</a> */}
                                                         <a className="dropdown-item" onClick={() => navigate('/myprofile')}>My Profile</a>
                                                         <a className="dropdown-item" onClick={(e) => {
                                                             e.preventDefault();
@@ -396,7 +396,7 @@ const Dashboard = () => {
                                                                 }
                                                             }}
                                                         >
-                                                            <a href="#" onClick={(e) => e.preventDefault()}>
+                                                            <a href="" onClick={(e) => e.preventDefault()}>
                                                                 {item.label}
                                                                 {item.submenu && <span className=""></span>}
                                                             </a>
@@ -405,7 +405,7 @@ const Dashboard = () => {
                                                                     {item.submenu.map((sub, i) => (
                                                                         <li key={i}>
                                                                             <a
-                                                                                href="#"
+                                                                                href=""
                                                                                 onClick={(e) => {
                                                                                     e.preventDefault();
                                                                                     if (sub.onClick) {
@@ -463,11 +463,11 @@ const Dashboard = () => {
                                         <span className="icon icon-heart"></span> My Favorites
                                     </a>
                                 </li>
-                                <li className="nav-menu-item">
+                                {/* <li className="nav-menu-item">
                                     <a className="nav-menu-link" href="" onClick={(e) => { e.preventDefault(); navigate('/reviews'); }}>
                                         <span className="icon icon-review"></span> Reviews
                                     </a>
-                                </li>
+                                </li> */}
                                 <li className="nav-menu-item">
                                     <a
                                         className="nav-menu-link"
@@ -486,7 +486,7 @@ const Dashboard = () => {
                         </div>
 
                         <div className="main-content">
-                            
+
                             <div className="main-content-inner">
                                 <h6 className="title">My Properties</h6>
                                 {/* <div className="button-show-hide show-mb">
@@ -559,7 +559,7 @@ const Dashboard = () => {
                                         <div className="box-icon w-68 round">
                                             <i className="fas fa-comments" style={{ color: "red", fontSize: "24px" }}></i>
                                         </div>
-                                        <div className="content-box">
+                                        <div className="content-box" onClick={() => navigate("/reviewlist")} style={{ cursor: "pointer" }}>
                                             <div className="title-count">Total Reviews</div>
                                             <h6 className="number"></h6>
                                         </div>
@@ -570,7 +570,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="wrapper-content row">
                                     <div className="col-xl-9">
-                                        <div className="widget-box-2 wd-listing">
+                                        <div className="widget-box-2 wd-listing" style={{marginBottom:"-30px"}}>
 
                                             <div className="wd-filter">
                                                 <div className="">
@@ -651,19 +651,25 @@ const Dashboard = () => {
                                                                     return (
                                                                         <tr key={property.id} className="file-delete">
                                                                             <td>
-                                                                                <div className="listing-box">
+                                                                                <div className="listing-box" style={{ cursor: "pointer" }}
+                                                                                    onClick={() => navigate(`/property/${property.id}`)}>
                                                                                     <div
                                                                                         className="images"
-                                                                                        style={{ cursor: "pointer" }}
-                                                                                        onClick={() => navigate(`/property/${property.id}`)}
+
                                                                                     >
                                                                                         <img src={imageUrl} alt={property.title} />
                                                                                     </div>
                                                                                     <div className="content">
                                                                                         <div className="title">
-                                                                                            <a href="#" className="link">
+                                                                                            <a href="" className="link">
                                                                                                 {property.title}
                                                                                             </a>
+                                                                                        </div>
+                                                                                        <div className="listing-type" style={{ marginTop: "4px" }}>
+                                                                                            <span className="fw-6">Listing Type:</span>{" "}
+                                                                                            <span >
+                                                                                                {property.listing_type}
+                                                                                            </span>
                                                                                         </div>
                                                                                         <div className="text-date">
                                                                                             <p className="fw-5">
@@ -679,7 +685,7 @@ const Dashboard = () => {
                                                                             </td>
                                                                             <td>
                                                                                 <div className="status-wrap">
-                                                                                    <a href="#" className="btn-status">
+                                                                                    <a href="" className="btn-status">
                                                                                         {statusLabel}
                                                                                     </a>
                                                                                 </div>
@@ -705,153 +711,43 @@ const Dashboard = () => {
                                                             )}
                                                         </tbody>
 
-
-
-
                                                     </table>
                                                 </div>
 
-                                                {/* <ul className="wd-navigation">
-                                                    <li><a href="#" className="nav-item active">1</a></li>
-
-                                                    <li><a href="#" className="nav-item"><i className="icon icon-arr-r"></i></a></li>
-                                                </ul> */}
+                                               
                                             </div>
                                         </div>
-                                        {/* <div className="widget-box-2 wd-chart">
-                                            <h6 className="title">Page Inside</h6>
-                                            <div className="wd-filter-date">
-                                                <div className="left">
-                                                    <div className="dates active">Day</div>
-                                                    <div className="dates">Week</div>
-                                                    <div className="dates">Month</div>
-                                                    <div className="dates">Year</div>
-                                                </div>
-                                                <div className="right">
-                                                    <div className="ip-group icon">
-                                                        <input type="text" id="datepicker3" className="ip-datepicker icon" placeholder="From Date" />
-                                                    </div>
-                                                    <div className="ip-group icon">
-                                                        <input type="text" id="datepicker4" className="ip-datepicker icon" placeholder="To Date" />
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-                                            <div className="chart-box">
-                                                <canvas id="lineChart"></canvas>
-                                            </div>
-                                        </div> */}
+                                        
                                     </div>
                                     <div className="col-xl-3">
-
-                                        {/* <div className="widget-box-3 recent-box">
-                                            <h6>Recent Reviews</h6>
-                                            <div className="box-tes-item">
-                                                <div className="box-avt d-flex align-items-center gap-12">
-                                                    <div className="avatar avt-40 round">
-                                                        <img src="images/avatar/avt-2.jpg" alt="avatar" />
-                                                    </div>
-                                                    <p>February 18, 2024</p>
-                                                </div>
-                                                <p className="note p-16">
-                                                    The housing sector has long been a focal point for investors seeking stability and growth. Understanding the dynamics of housing stocks and effectively trading within this sector can lead to substantial gains.
-                                                </p>
-                                                <ul className="list-star">
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                </ul>
-
-
-                                            </div>
-                                            <div className="box-tes-item">
-                                                <div className="box-avt d-flex align-items-center gap-12">
-                                                    <div className="avatar avt-40 round">
-                                                        <img src="images/avatar/avt-2.jpg" alt="avatar" />
-                                                    </div>
-                                                    <p>February 18, 2024</p>
-                                                </div>
-                                                <p className="note p-16">
-                                                    The housing sector has long been a focal point for investors seeking stability and growth. Understanding the dynamics of housing stocks and effectively trading within this sector can lead to substantial gains.
-                                                </p>
-                                                <ul className="list-star">
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                </ul>
-
-
-                                            </div>
-                                            <div className="box-tes-item">
-                                                <div className="box-avt d-flex align-items-center gap-12">
-                                                    <div className="avatar avt-40 round">
-                                                        <img src="images/avatar/avt-2.jpg" alt="avatar" />
-                                                    </div>
-                                                    <p>February 18, 2024</p>
-                                                </div>
-                                                <p className="note p-16">
-                                                    The housing sector has long been a focal point for investors seeking stability and growth. Understanding the dynamics of housing stocks and effectively trading within this sector can lead to substantial gains.
-                                                </p>
-                                                <ul className="list-star">
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                </ul>
-
-
-                                            </div>
-                                            <div className="box-tes-item">
-                                                <div className="box-avt d-flex align-items-center gap-12">
-                                                    <div className="avatar avt-40 round">
-                                                        <img src="images/avatar/avt-2.jpg" alt="avatar" />
-                                                    </div>
-                                                    <p>February 18, 2024</p>
-                                                </div>
-                                                <p className="note p-16">
-                                                    The housing sector has long been a focal point for investors seeking stability and growth. Understanding the dynamics of housing stocks and effectively trading within this sector can lead to substantial gains.
-                                                </p>
-                                                <ul className="list-star">
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                </ul>
-
-
-                                            </div>
-                                        </div> */}
-
-
-
-
                                         <div className="widget-box-3 recent-box">
                                             <h6>Recent Reviews</h6>
 
                                             {recentProperties.length === 0 && <p>No reviews found.</p>}
 
-                                            {recentProperties.map((property) =>
-                                                property.review && property.review.length > 0 ? (
-                                                    property.review.map((rev) => (
+                                            {(() => {
+                                                // Flatten all reviews
+                                                const allReviews = recentProperties
+                                                    .flatMap((property) =>
+                                                        property.review && property.review.length > 0
+                                                            ? property.review.map((rev) => ({
+                                                                ...rev,
+                                                                propertyTitle: property.title, // optional, in case you want to show property title
+                                                            }))
+                                                            : []
+                                                    )
+                                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // latest first
+                                                    .slice(0, 5); // limit to 5
+
+                                                return allReviews.length > 0 ? (
+                                                    allReviews.map((rev) => (
                                                         <div key={rev.id} className="box-tes-item">
                                                             <div className="box-avt d-flex align-items-center gap-12">
                                                                 <div className="avatar avt-40 round">
-                                                                    {/* You can replace with the user's avatar if available */}
                                                                     <img src={download} alt="avatar" />
-                                                                    
-
-
                                                                 </div>
 
-
-                                                                <p className="fw-6">{rev.user_name}</p> {/* ✅ Display name */}
+                                                                <p className="fw-6">{rev.user_name}</p>
                                                                 <small>{new Date(rev.created_at).toLocaleDateString()}</small>
                                                             </div>
 
@@ -867,31 +763,10 @@ const Dashboard = () => {
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <div key={property.id} className="box-tes-item">
-                                                        <p className="note p-16">No reviews for {property.title}</p>
-                                                    </div>
-                                                )
-                                            )}
+                                                    <p>No reviews found.</p>
+                                                );
+                                            })()}
                                         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                     </div>
                                 </div>
                             </div>

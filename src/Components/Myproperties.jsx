@@ -91,7 +91,7 @@ const Myproperties = () => {
                 { text: 'Dashboard', onClick: () => navigate('/dashboard') },
                 { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
                 { text: 'My Properties', onClick: () => navigate('/myproperties') },
-                { text: 'Reviews', onClick: () => navigate('/reviews') },
+                // { text: 'Reviews', onClick: () => navigate('/reviews') },
             ]
         },
         {
@@ -302,7 +302,7 @@ const Myproperties = () => {
                                                                     }
                                                                 }}
                                                             >
-                                                                <a href="#" onClick={(e) => e.preventDefault()}>Pages</a>
+                                                                <a href="" onClick={(e) => e.preventDefault()}>Pages</a>
                                                                 <ul style={{ display: activeDropdown === 3 ? 'block' : 'none' }}>
                                                                     <li><a href="aboutus" onClick={(e) => { e.preventDefault(); navigate('/aboutus'); }}>About Us</a></li>
                                                                     <li><a href="contactus" onClick={(e) => { e.preventDefault(); navigate('/contactus'); }}>Contact Us</a></li>
@@ -341,7 +341,7 @@ const Myproperties = () => {
                                                     >
                                                         <a className="dropdown-item" onClick={() => navigate('/myproperties')}>My Properties</a>
                                                         <a className="dropdown-item" onClick={() => navigate('/myfavorites')}>My Favorites</a>
-                                                        <a className="dropdown-item" onClick={() => navigate('/reviews')}>Reviews</a>
+                                                        {/* <a className="dropdown-item" onClick={() => navigate('/reviews')}>Reviews</a> */}
                                                         <a className="dropdown-item" onClick={() => navigate('/myprofile')}>My Profile</a>
                                                         <a className="dropdown-item" onClick={(e) => {
                                                             e.preventDefault();
@@ -393,7 +393,7 @@ const Myproperties = () => {
                                                                 }
                                                             }}
                                                         >
-                                                            <a href="#" onClick={(e) => e.preventDefault()}>
+                                                            <a href="" onClick={(e) => e.preventDefault()}>
                                                                 {item.label}
                                                                 {item.submenu && <span className=""></span>}
                                                             </a>
@@ -460,11 +460,11 @@ const Myproperties = () => {
                                         <span className="icon icon-heart"></span> My Favorites
                                     </a>
                                 </li>
-                                <li className="nav-menu-item">
+                                {/* <li className="nav-menu-item">
                                     <a className="nav-menu-link" href="" onClick={(e) => { e.preventDefault(); navigate('/reviews'); }}>
                                         <span className="icon icon-review"></span> Reviews
                                     </a>
-                                </li>
+                                </li> */}
 
                                 <li className="nav-menu-item">
                                     <a
@@ -571,8 +571,6 @@ const Myproperties = () => {
                                                             else if (property.status === "rejected" || property.property_status === 2)
                                                                 statusLabel = "Rejected";
 
-
-
                                                             // ✅ Date Published handling based on status
                                                             const datePublished =
                                                                 statusLabel === "Approved" && property.created_at
@@ -585,9 +583,6 @@ const Myproperties = () => {
                                                                     })()
                                                                     : "-----";
 
-
-
-
                                                             // Image handling
                                                             const defaultImg =
                                                                 "https://themesflat.co/html/homzen/images/home/house-1.jpg";
@@ -595,25 +590,37 @@ const Myproperties = () => {
                                                                 ? property.property_images // <-- backend image
                                                                 : defaultImg; // <-- fallback
 
-
-
-
                                                             return (
                                                                 <tr key={property.id} className="file-delete">
                                                                     <td>
-                                                                        <div className="listing-box">
-                                                                            <div
-                                                                                className="images"
-                                                                                style={{ cursor: "pointer" }}
-                                                                                onClick={() => navigate(`/property/${property.id}`)}
-                                                                            >
+                                                                        <div
+                                                                            className="listing-box"
+                                                                            style={{ cursor: "pointer" }}
+                                                                            onClick={() =>
+                                                                                navigate(`/property/${property.id}`, {
+                                                                                    state: { fromMyProperties: true },
+                                                                                })
+                                                                            }
+                                                                        >
+                                                                            <div className="images">
                                                                                 <img src={imageUrl} alt={property.title} />
                                                                             </div>
                                                                             <div className="content">
-                                                                                <div className="title">
-                                                                                    <a href="#" className="link">
-                                                                                        {property.title}
-                                                                                    </a>
+                                                                                <div
+                                                                                    className="title"
+                                                                                    style={{ cursor: "pointer" }}
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation(); // prevent parent div click from firing twice
+                                                                                        navigate(`/property/${property.id}`, {
+                                                                                            state: { fromMyProperties: true },
+                                                                                        });
+                                                                                    }}
+                                                                                >
+                                                                                    {property.title}
+                                                                                </div>
+                                                                                <div className="listing-type" style={{ marginTop: "4px" }}>
+                                                                                    <span className="fw-6">Listing Type:</span>{" "}
+                                                                                    <span>{property.listing_type}</span>
                                                                                 </div>
                                                                                 <div className="text-date">
                                                                                     <p className="fw-5">
@@ -632,38 +639,36 @@ const Myproperties = () => {
                                                                     {/* ✅ Status column */}
                                                                     <td>
                                                                         <div className="status-wrap">
-                                                                            <a href="#" className="btn-status">
-                                                                                {statusLabel}
-                                                                            </a>
+                                                                            <span className="btn-status">{statusLabel}</span>
                                                                         </div>
                                                                     </td>
 
                                                                     {/* ✅ Action column */}
-
-
                                                                     <td>
                                                                         <ul className="list-action">
                                                                             <li>
-                                                                                <a className="remove-file item btn-wrapper">
+                                                                                <div className="remove-file item btn-wrapper">
                                                                                     <button className="btn edit-btn">Edit</button>
                                                                                     <button
                                                                                         className="btn inquiry-btn"
-                                                                                        onClick={() => handleInquiryClick(property.inquiry, property.title)}
+                                                                                        onClick={() =>
+                                                                                            handleInquiryClick(property.inquiry, property.title)
+                                                                                        }
                                                                                     >
                                                                                         Inquiry
                                                                                     </button>
                                                                                     <button
                                                                                         className="btn review-btn"
-                                                                                        onClick={() => handleReviewClick(property.review, property.title)}
+                                                                                        onClick={() =>
+                                                                                            handleReviewClick(property.review, property.title)
+                                                                                        }
                                                                                     >
                                                                                         Review
                                                                                     </button>
-
-                                                                                </a>
+                                                                                </div>
                                                                             </li>
                                                                         </ul>
                                                                     </td>
-
                                                                 </tr>
                                                             );
                                                         })
@@ -794,66 +799,89 @@ const Myproperties = () => {
 
 
 
+
+
+
                         {showModal && (
                             <div className="modal-overlay">
                                 <div className="modal-box">
-                                    <h3 style={{ marginBottom: "35px" }}>Inquiry Details</h3>
 
-                                    {/* <small>Property name :</small> <span> <h6>  {selectedPropertyTitle || "Property"}</h6> </span> */}
+                                    {/* Heading + View All button in one line */}
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            marginBottom: "20px",
+                                            marginTop: "10px"
+                                        }}
+                                    >
+                                        <h3 style={{ margin: 0 }}>Inquiry Details</h3>
+                                        <button
+                                            className="view-btn"
+                                            onClick={() => navigate(`/inquiries/${selectedInquiry[0]?.property_id}`)}
+                                        >
+                                            View All <i className="fa-solid fa-eye" style={{ marginLeft: "8px" }}></i>
+                                        </button>
 
-                                    <span><small>Property name :</small>  <b>{selectedPropertyTitle || "Property"}</b>  </span>
+
+                                    </div>
+
+                                    <span>
+                                        <small>Property name :</small>{" "}
+                                        <b>{selectedPropertyTitle || "Property"}</b>
+                                    </span>
 
                                     {selectedInquiry && selectedInquiry.length > 0 ? (
-                                        <table className="inquiry-details-table" style={{ marginTop: "10px" }}>
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>Email</th>
-                                                    <th>Phone</th>
-                                                    <th>Message</th>
-                                                    <th>Status</th>
-                                                    <th>Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {selectedInquiry.map((inq) => (
-                                                    <tr key={inq.id}>
-                                                        <td>{inq.name}</td>
-                                                        <td>{inq.email}</td>
-                                                        <td>{inq.phone}</td>
-
-
-
-                                                        <td
-                                                            style={{
-                                                                whiteSpace: "pre-wrap",
-                                                                wordBreak: "break-word",
-                                                                maxWidth: "300px", // 👈 adjust width as per your design
-                                                            }}
-                                                        >
-                                                            {inq.message}
-                                                        </td>
-                                                        <td>{inq.status}</td>
-
-                                                        <td>
-                                                            {inq.created_at
-                                                                ? inq.created_at.split(" ")[0].split("-").reverse().join("-")
-                                                                : "N/A"}
-                                                        </td>
-
+                                        <div className="inquiry-table-wrapper">
+                                            <table className="inquiry-details-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Email</th>
+                                                        <th>Phone</th>
+                                                        <th>Message</th>
+                                                        <th>Status</th>
+                                                        <th>Date</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {selectedInquiry.slice(0, 5).map((inq) => (
+                                                        <tr key={inq.id}>
+                                                            <td>{inq.name}</td>
+                                                            <td>{inq.email}</td>
+                                                            <td>{inq.phone}</td>
+                                                            <td
+                                                                style={{
+                                                                    whiteSpace: "pre-wrap",
+                                                                    wordBreak: "break-word",
+                                                                    maxWidth: "300px",
+                                                                }}
+                                                            >
+                                                                {inq.message}
+                                                            </td>
+                                                            <td>{inq.status}</td>
+                                                            <td>
+                                                                {inq.created_at
+                                                                    ? inq.created_at.split(" ")[0].split("-").reverse().join("-")
+                                                                    : "N/A"}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     ) : (
                                         <div className="no-inquiries">
                                             <p>No inquiries found for this property.</p>
                                         </div>
                                     )}
 
-
                                     <div className="modal-actions">
-                                        <button className="btn cancel-btn" onClick={() => setShowModal(false)}>
+                                        <button
+                                            className="btn cancel-btn"
+                                            onClick={() => setShowModal(false)}
+                                        >
                                             Cancel
                                         </button>
                                     </div>
@@ -862,64 +890,82 @@ const Myproperties = () => {
                         )}
 
 
-
                         {showReviewModal && (
                             <div className="modal-overlay">
                                 <div className="modal-box">
-                                    {/* Display Property Title */}
-                                    <h3>Reviews for</h3>
 
+                                    {/* Header */}
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            marginBottom: "20px",
+                                            marginTop: "10px"
+                                        }}
+                                    >
+                                        <h3 style={{ margin: 0 }}>Reviews</h3>
+                                        <button
+                                            className="view-btn"
+                                            onClick={() =>
+                                                navigate(`/reviewlist/${selectedReview[0]?.property_id}`)
+                                            }
+                                        >
+                                            View All <i className="fa-solid fa-eye" style={{ marginLeft: "8px" }}></i>
+                                        </button>
+                                    </div>
 
-                                    <h6> Property name : {selectedPropertyTitle || "Property"}</h6>
-
-                                    
-                                      <span><small>Property name :</small>  <b>{selectedPropertyTitle || "Property"}</b>  </span>
+                                    <span>
+                                        <small>Property name :</small>{" "}
+                                        <b>{selectedPropertyTitle || "Property"}</b>
+                                    </span>
 
                                     {selectedReview && selectedReview.length > 0 ? (
-                                        <table className="inquiry-details-table" style={{ marginTop: "-20px" }}>
-                                            <thead>
-                                                <tr>
-                                                    <th>User Name</th>
-                                                    <th>Message</th>
-                                                    <th>Star</th>
-                                                    <th>User Type</th>
-                                                    <th>Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {selectedReview.map((rev) => (
-                                                    <tr key={rev.id}>
-                                                        <td>{rev.user_name || rev.username}</td>
-                                                        
-
-                                                        <td
-                                                            style={{
-                                                                whiteSpace: "pre-wrap",
-                                                                wordBreak: "break-word",
-                                                                maxWidth: "300px", // 👈 keeps fixed width
-                                                            }}
-                                                        >
-                                                            {rev.message}
-                                                        </td>
-                                                        {/* Display stars instead of number */}
-                                                        <td>
-                                                            {[...Array(5)].map((_, i) => (
-                                                                <span key={i} style={{ color: i < Number(rev.star) ? "#f5c518" : "#ccc" }}>
-                                                                    ★
-                                                                </span>
-                                                            ))}
-                                                        </td>
-                                                        <td>{rev.userType}</td>
-                                                        <td>
-                                                            {rev.created_at
-                                                                ? rev.created_at.split(" ")[0].split("-").reverse().join("-")
-                                                                : "N/A"}
-                                                        </td>
-
+                                        <div className="inquiry-table-wrapper" style={{ marginTop: "10px" }}>
+                                            <table className="inquiry-details-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>User Name</th>
+                                                        <th>Message</th>
+                                                        <th>Star</th>
+                                                        <th>User Type</th>
+                                                        <th>Date</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {selectedReview.slice(0, 5).map((rev) => (
+                                                        <tr key={rev.id}>
+                                                            <td>{rev.user_name || rev.username}</td>
+                                                            <td
+                                                                style={{
+                                                                    whiteSpace: "pre-wrap",
+                                                                    wordBreak: "break-word",
+                                                                    maxWidth: "300px",
+                                                                }}
+                                                            >
+                                                                {rev.message}
+                                                            </td>
+                                                            <td>
+                                                                {[...Array(5)].map((_, i) => (
+                                                                    <span
+                                                                        key={i}
+                                                                        style={{ color: i < Number(rev.star) ? "#f5c518" : "#ccc" }}
+                                                                    >
+                                                                        ★
+                                                                    </span>
+                                                                ))}
+                                                            </td>
+                                                            <td>{rev.userType}</td>
+                                                            <td>
+                                                                {rev.created_at
+                                                                    ? rev.created_at.split(" ")[0].split("-").reverse().join("-")
+                                                                    : "N/A"}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     ) : (
                                         <div className="no-inquiries">
                                             <p>No reviews found for this property.</p>
@@ -927,7 +973,10 @@ const Myproperties = () => {
                                     )}
 
                                     <div className="modal-actions">
-                                        <button className="btn cancel-btn" onClick={() => setShowReviewModal(false)}>
+                                        <button
+                                            className="btn cancel-btn"
+                                            onClick={() => setShowReviewModal(false)}
+                                        >
                                             Cancel
                                         </button>
                                     </div>

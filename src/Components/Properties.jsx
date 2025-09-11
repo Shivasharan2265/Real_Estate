@@ -8,7 +8,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import api from "../api/api";
 import toast from "react-hot-toast";
-import download from  '/src/assets/download.png'
+import download from '/src/assets/download.png'
 
 const Properties = () => {
 
@@ -259,7 +259,7 @@ const Properties = () => {
             return;
         }
 
-        setLoadingReview(true); // start loader
+        setLoadingReview(true);
 
         const fd = new FormData();
         fd.append("programType", "addReviewOnProperty");
@@ -268,13 +268,29 @@ const Properties = () => {
         fd.append("message", review);
         fd.append("star", rating);
 
-
         try {
             const response = await api.post("/properties/property", fd);
             console.log("Review Response:", response);
 
             if (response.data.success) {
                 toast.success("Review submitted successfully!");
+
+                // ✅ Create a new review object (mimic backend structure)
+                const newReview = {
+                    id: Date.now(), // temporary unique id
+                    user_name: profileName || "Guest",
+                    star: rating,
+                    message: review,
+                    created_at: new Date().toISOString(),
+                };
+
+                // ✅ Update propertyData state immediately
+                setPropertyData((prev) => ({
+                    ...prev,
+                    review: [...(prev?.review || []), newReview],
+                }));
+
+                // ✅ Reset form
                 setReview("");
                 setRating(0);
             } else {
@@ -284,7 +300,7 @@ const Properties = () => {
             console.error("Error submitting review:", error);
             toast.error("Something went wrong");
         } finally {
-            setLoadingReview(false); // stop loader
+            setLoadingReview(false);
         }
     };
 
@@ -585,6 +601,12 @@ const Properties = () => {
                                 <a href="#" className="flag-tag primary">
                                     {propertyData.property.status === 1 ? "Active" : "Inactive"}
                                 </a>
+                                <span
+                                    className="flag-tag text-white me-5 text-capitalize"
+                                    style={{ backgroundColor: "#378B4E",marginLeft:"5px" }}
+                                >
+                                    {propertyData.property.listing_type}
+                                </span>
                                 <h4 className="title link">{propertyData.property.title}</h4>
                                 {isPlot && <span className="badge bg-secondary ms-2">Plot</span>}
                             </div>
@@ -608,13 +630,13 @@ const Properties = () => {
                                 <div className="label">FEATURES:</div>
                                 <ul className="meta">
                                     {featuresData.map((f, i) => (
-                                        <li className="meta-item" style={{color:"red"}} key={i}>
+                                        <li className="meta-item" style={{ color: "red" }} key={i}>
                                             {f.icon.startsWith("fa") ? (
                                                 <i className={f.icon}></i>
                                             ) : (
                                                 <span className={`icon icon-b ${f.icon}`} style={{ color: "red !important" }}></span>
                                             )}
-                                            <span style={{color:"black"}}>{f.label}</span>
+                                            <span style={{ color: "black" }}>{f.label}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -699,15 +721,23 @@ const Properties = () => {
                             </div>
 
                             {/* Video - Only show if not a plot or if plot has video */}
-                            {!isPlot && (
-                                <div class="single-property-element single-property-video">
-                                    <div class="h7 title fw-7">Video</div>
-                                    <div class="img-video">
-                                        <img src="https://www.iitkgp.ac.in/assets/images/no-banner.jpg" alt="img-video" />
-                                        <a href="https://youtu.be/MLpWrANjFbI" data-fancybox="gallery2" class="btn-video"> <span class="icon icon-play"></span></a>
+                            {/* Video - Only show if not a plot or if plot has video */}
+                            {/* {!isPlot && (
+                                <div className="single-property-element single-property-video">
+                                    <div className="h7 title fw-7">Video</div>
+                                    <div className="video-wrapper">
+                                        <iframe
+                                            width="100%"
+                                            height="400"
+                                            src="https://www.youtube.com/embed/MLpWrANjFbI"
+                                            title="Property Video"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
                                     </div>
                                 </div>
-                            )}
+                            )} */}
 
                             {/* Property Details */}
                             <div className="single-property-element single-property-info">
@@ -834,22 +864,33 @@ const Properties = () => {
 
 
                             {/* Map */}
-                            <div class="single-property-element single-property-map">
-                                <div class="h7 title fw-7">Map</div>
-                                <div id="map-single" class="map-single" data-map-zoom="16" data-map-scroll="true"></div>
-                                <ul class="info-map">
-                                    <li>
-                                        <div class="fw-7">Address</div>
-                                        <span class="mt-4 text-variant-1">8 Broadway, Brooklyn, New York</span>
-                                    </li>
-                                    <li>
-                                        <div class="fw-7">Downtown</div>
-                                        <span class="mt-4 text-variant-1">5 min</span>
+                            <div className="single-property-element single-property-map">
+                                <div className="h7 title fw-7">Map</div>
 
+                                <div className="map-single" style={{ width: "100%", height: "400px" }}>
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        frameBorder="0"
+                                        style={{ border: 0 }}
+                                        loading="lazy"
+                                        allowFullScreen
+                                        src={`https://www.google.com/maps?q=${propertyData?.latitude},${propertyData?.longitude}&hl=en&z=16&output=embed`}
+                                    ></iframe>
+                                </div>
+
+                                <ul className="info-map">
+                                    <li>
+                                        <div className="fw-7">Address</div>
+                                        <span className="mt-4 text-variant-1">{propertyData?.property?.address || "Not Available"}</span>
                                     </li>
                                     <li>
-                                        <div class="fw-7">FLL</div>
-                                        <span class="mt-4 text-variant-1">15 min</span>
+                                        <div className="fw-7">Downtown</div>
+                                        <span className="mt-4 text-variant-1">5 min</span>
+                                    </li>
+                                    <li>
+                                        <div className="fw-7">FLL</div>
+                                        <span className="mt-4 text-variant-1">15 min</span>
                                     </li>
                                 </ul>
                             </div>
@@ -890,7 +931,7 @@ const Properties = () => {
                                                 </div>
                                             )}
                                         </li>
-                                    </ul>
+                                    </ul>Guest Reviews
                                 </div>
                             )}
 
@@ -943,7 +984,7 @@ const Properties = () => {
                             )} */}
 
                             {/* Loan Calculator */}
-                            <div className="single-property-element single-property-loan">
+                            {/* <div className="single-property-element single-property-loan">
                                 <div className="h7 title fw-7">Loan Calculator</div>
                                 <form action="#" className="box-loan-calc">
                                     <div className="box-top">
@@ -972,7 +1013,7 @@ const Properties = () => {
                                         </div>
                                     </div>
                                 </form>
-                            </div>
+                            </div> */}
 
                             {/* Nearby */}
                             <div className="single-property-element single-property-nearby">
@@ -1035,7 +1076,7 @@ const Properties = () => {
                                                 <li className="list-review-item" key={rev.id}>
                                                     <div className="avatar avt-60 round">
                                                         <img src={download} alt="avatar" />
-                                                       
+
                                                     </div>
                                                     <div className="content">
                                                         <div className="name h7 fw-7 text-black">{rev.user_name || "Guest"}</div>
@@ -1054,7 +1095,7 @@ const Properties = () => {
                                                                 ></li>
                                                             ))}
                                                         </ul>
-                                          
+
 
                                                         <p className="mt-12 body-2 text-black" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
                                                             {rev.message}
@@ -1220,9 +1261,17 @@ const Properties = () => {
                                                 className="form-control"
                                             ></textarea>
                                         </div>
-                                        <button className="tf-btn primary w-100" onClick={handleAddEnquiry}>
+                                        <button
+                                            type="button"   // <-- important: stop form submit
+                                            className="tf-btn primary w-100"
+                                            onClick={(e) => {
+                                                e.preventDefault();   // stop page reload
+                                                handleAddEnquiry();
+                                            }}
+                                        >
                                             Send Message
                                         </button>
+
                                     </form>
                                 </div>
 

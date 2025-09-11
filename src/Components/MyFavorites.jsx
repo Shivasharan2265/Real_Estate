@@ -92,7 +92,7 @@ const MyFavorites = () => {
                 { text: 'Dashboard', onClick: () => navigate('/dashboard') },
                 { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
                 { text: 'My Properties', onClick: () => navigate('/myproperties') },
-                { text: 'Reviews', onClick: () => navigate('/reviews') },
+                // { text: 'Reviews', onClick: () => navigate('/reviews') },
             ]
         },
         {
@@ -149,14 +149,14 @@ const MyFavorites = () => {
     }, []);
 
 
-    const remove = async (favoriteId, id) => {
+    const remove = async (favoriteId, propertyId) => {
         console.log("Removing favorite:", favoriteId);
 
         const fd = new FormData();
         fd.append("programType", "removeFavorites");
         fd.append("authToken", localStorage.getItem("authToken"));
         fd.append("favoriteId", favoriteId);
-        fd.append("property_id", propertyId);
+        fd.append("property_id", propertyId); // make sure propertyId is passed
 
         try {
             const response = await api.post("/properties/property", fd);
@@ -164,24 +164,17 @@ const MyFavorites = () => {
 
             if (response.data.success) {
                 toast.success("Favorite removed successfully!");
-
-                // remove from state without refetch
+                // Remove from local state immediately
                 setFavorites((prev) =>
                     prev.filter((fav) => fav.favoriteId !== favoriteId)
                 );
-                // or call myFavoritesList() if you want to refetch from backend
-                // myFavoritesList();
-
-                myFavoritesList();
-
-                // Option 2: Or remove it locally without API refetch
-                // setFavorites(prev => prev.filter(fav => fav.favoriteId !== favoriteId));
-
             }
         } catch (error) {
             console.error("Remove favorite error:", error);
+            toast.error("Failed to remove favorite.");
         }
     };
+
 
 
 
@@ -235,7 +228,7 @@ const MyFavorites = () => {
                                                                     }
                                                                 }}
                                                             >
-                                                                <Link to="#" onClick={(e) => e.preventDefault()}>Pages</Link>
+                                                                <Link to="" onClick={(e) => e.preventDefault()}>Pages</Link>
                                                                 <ul style={{ display: activeDropdown === 3 ? 'block' : 'none' }}>
                                                                     <li><Link to="aboutus" onClick={(e) => { e.preventDefault(); navigate('/aboutus'); }}>About Us</Link> </li>
                                                                     <li><Link to="contactus" onClick={(e) => { e.preventDefault(); navigate('/contactus'); }}>Contact Us</Link> </li>
@@ -275,7 +268,7 @@ const MyFavorites = () => {
                                                     >
                                                         <Link className="dropdown-item" to="/myproperties">My Properties</Link>
                                                         <Link className="dropdown-item" to="/myfavorites">My Favorites</Link>
-                                                        <Link className="dropdown-item" to="/reviews">Reviews</Link>
+                                                        {/* <Link className="dropdown-item" to="/reviews">Reviews</Link> */}
                                                         <Link className="dropdown-item" to="/myprofile">My Profile</Link>
                                                         <Link className="dropdown-item" onClick={(e) => {
                                                             e.preventDefault();
@@ -328,7 +321,7 @@ const MyFavorites = () => {
                                                                 }
                                                             }}
                                                         >
-                                                            <Link to="#" onClick={(e) => e.preventDefault()}>
+                                                            <Link to="" onClick={(e) => e.preventDefault()}>
                                                                 {item.label}
                                                                 {item.submenu && <span className=""></span>}
                                                             </Link>
@@ -396,11 +389,11 @@ const MyFavorites = () => {
                                         <span className="icon icon-heart"></span> My Favorites
                                     </Link>
                                 </li>
-                                <li className="nav-menu-item">
+                                {/* <li className="nav-menu-item">
                                     <Link className="nav-menu-link" onClick={(e) => { e.preventDefault(); navigate('/reviews'); }}>
                                         <span className="icon icon-review"></span> Reviews
                                     </Link>
-                                </li>
+                                </li> */}
 
                                 <li className="nav-menu-item">
                                     <a
@@ -456,23 +449,33 @@ const MyFavorites = () => {
                                                         favorites.map((fav) => (
                                                             <tr key={fav.favoriteId} className="file-delete">
                                                                 <td>
-                                                                    <div className="listing-box">
-                                                                        <div
-                                                                            className="images"
-                                                                            style={{ cursor: "pointer" }}
-                                                                            onClick={() => navigate(`/property/${fav.id}`)} // ✅ Navigate on click
-                                                                        >
+                                                                    <div
+                                                                        className="listing-box"
+                                                                        style={{ cursor: "pointer" }}
+                                                                        onClick={() => navigate(`/property/${fav.id}`, { state: { fromFavorites: true } })}
+                                                                    >
+                                                                        <div className="images">
                                                                             <img
                                                                                 src="https://themesflat.co/html/homzen/images/home/house-1.jpg"
                                                                                 alt={fav.title}
                                                                             />
                                                                         </div>
                                                                         <div className="content">
-                                                                            <div className="title">
-                                                                                <Link to={`/property-details/${fav.slug}`} className="link">
-                                                                                    {fav.title}
-                                                                                </Link>
+                                                                            <div
+                                                                                className="title"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation(); // Prevent parent div click from firing
+                                                                                    navigate(`/property/${fav.id}`, { state: { fromFavorites: true } });
+                                                                                }}
+                                                                                style={{ cursor: "pointer" }}
+                                                                            >
+                                                                                {fav.title}
                                                                             </div>
+                                                                            <div className="listing-type" style={{ marginTop: "4px" }}>
+                                                                                <span className="fw-6">Listing Type:</span>{" "}
+                                                                                <span>{fav.listing_type}</span>
+                                                                            </div>
+
                                                                             <div className="text-date">
                                                                                 {fav.location}, {fav.sub_locality}
                                                                             </div>
@@ -483,7 +486,6 @@ const MyFavorites = () => {
                                                                             </div>
                                                                         </div>
                                                                     </div>
-
                                                                 </td>
                                                                 <td>
                                                                     <span>
@@ -498,27 +500,21 @@ const MyFavorites = () => {
                                                                             : ""}
                                                                     </span>
                                                                 </td>
-
-                                                                {/* <td>
-                                                                    <span>DD/MM/YYYY</span>
-                                                                </td> */}
                                                                 <td>
                                                                     <ul className="list-action">
-
-                                                                        <li onClick={() => remove(fav.favoriteId)}>
-
-                                                                            <Link className="remove-file item flex items-center gap-1">
+                                                                        <li>
+                                                                            <button
+                                                                                type="button"
+                                                                                className="remove-file item flex items-center gap-1"
+                                                                                onClick={() => remove(fav.favoriteId, fav.property_id)}
+                                                                                style={{ border: "none" }}
+                                                                            >
                                                                                 <i className="icon icon-trash"></i>
                                                                                 Remove
-
-                                                                            </Link>
-
+                                                                            </button>
                                                                         </li>
                                                                     </ul>
                                                                 </td>
-
-
-
                                                             </tr>
                                                         ))
                                                     ) : (
@@ -529,6 +525,7 @@ const MyFavorites = () => {
                                                         </tr>
                                                     )}
                                                 </tbody>
+
                                             </table>
                                         </div>
 

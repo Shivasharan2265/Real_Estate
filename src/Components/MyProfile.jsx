@@ -129,7 +129,7 @@ const MyProfile = () => {
                 { text: 'Dashboard', onClick: () => navigate('/dashboard') },
                 { text: 'My Favorites', onClick: () => navigate('/myfavorites') },
                 { text: 'My Properties', onClick: () => navigate('/myproperties') },
-                { text: 'Reviews', onClick: () => navigate('/reviews') },
+                // { text: 'Reviews', onClick: () => navigate('/reviews') },
             ]
         },
 
@@ -669,9 +669,9 @@ const MyProfile = () => {
                                                             <a className="dropdown-item" onClick={() => navigate("/myfavorites")}>
                                                                 My Favorites
                                                             </a>
-                                                            <a className="dropdown-item" onClick={() => navigate("/reviews")}>
+                                                            {/* <a className="dropdown-item" onClick={() => navigate("/reviews")}>
                                                                 Reviews
-                                                            </a>
+                                                            </a> */}
 
                                                             <a className="dropdown-item" onClick={(e) => {
                                                                 e.preventDefault();
@@ -792,11 +792,11 @@ const MyProfile = () => {
                                         <span className="icon icon-heart"></span> My Favorites
                                     </a>
                                 </li>
-                                <li className="nav-menu-item">
+                                {/* <li className="nav-menu-item">
                                     <a className="nav-menu-link" href="" onClick={(e) => { e.preventDefault(); navigate('/reviews'); }}>
                                         <span className="icon icon-review"></span> Reviews
                                     </a>
-                                </li>
+                                </li> */}
                                 <li className="nav-menu-item">
                                     <a
                                         className="nav-menu-link"

@@ -1,9 +1,22 @@
-import React from 'react'
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import easy from "../assets/easy.png"
 
 const Footer = () => {
-    const naviagte =useNavigate()
+    const naviagte = useNavigate()
+
+    const [email, setEmail] = useState("");
+
+    const handleSend = () => {
+        if (email.trim()) {
+            window.location.href = `mailto:${email.trim()}`;
+        } else {
+            alert("Please enter a valid email address");
+        }
+    };
+
+
+
     return (
 
         <footer className="footer">
@@ -31,7 +44,7 @@ const Footer = () => {
                                     </svg>
                                 </a></li>
                                 <li><a href="#" className="box-icon w-40 social"><i className="icon icon-pinterest"></i></a></li>
-                                
+
                                 <li><a href="#" className="box-icon w-40 social"><i className="icon icon-youtube"></i></a></li>
                             </ul>
                         </div>
@@ -68,11 +81,11 @@ const Footer = () => {
                                 <ul className="mt-10 navigation-menu-footer">
                                     <li> <a href="l" className="caption-1 text-variant-2">Pricing Plans</a> </li>
 
-                                    <li> <a href=""  className="caption-1 text-variant-2">Our Services</a> </li>
+                                    <li> <a href="" className="caption-1 text-variant-2">Our Services</a> </li>
 
                                     <li> <a href="" onClick={() => naviagte('/aboutus')} className="caption-1 text-variant-2">About Us</a> </li>
 
-                                    <li> <a href=""   onClick={() => naviagte('/contactus')} className="caption-1 text-variant-2">Contact Us</a> </li>
+                                    <li> <a href="" onClick={() => naviagte('/contactus')} className="caption-1 text-variant-2">Contact Us</a> </li>
 
                                 </ul>
                             </div>
@@ -91,16 +104,72 @@ const Footer = () => {
                         </div>
                         <div className="col-lg-4 col-md-6">
                             <div className="footer-cl-4">
-                                <div className="fw-7 text-white">
-                                    Newsletter
-                                </div>
-                                <p className="mt-12 text-variant-2">Your Weekly/Monthly Dose of Knowledge and Inspiration</p>
-                                <form className="mt-12" id="subscribe-form" action="#" method="post" accept-charset="utf-8" data-mailchimp="true">
-                                    <div id="subscribe-content">
-                                        <span className="icon-left icon-mail"></span>
-                                        <input type="email" name="email-form" id="subscribe-email" placeholder="Your email address" />
-                                        <button type="button" id="subscribe-button" className="button-subscribe"><i className="icon icon-send"></i></button>
+                                <div className="fw-7 text-white">Newsletter</div>
+                                <p className="mt-12 text-variant-2">
+                                    Your Weekly/Monthly Dose of Knowledge and Inspiration
+                                </p>
+                                <form
+                                    className="mt-12"
+                                    id="subscribe-form"
+                                    onSubmit={(e) => e.preventDefault()}
+                                >
+                                    <div
+                                        id="subscribe-content"
+                                        style={{ position: "relative", width: "100%" }}
+                                    >
+                                        {/* Mail icon inside input */}
+                                        <span
+                                            className="icon-left icon-mail"
+                                            style={{
+                                                position: "absolute",
+                                                top: "50%",
+                                                left: "12px",       // 👈 move left/right here
+                                                transform: "translateY(-50%)",
+                                                color: "#aaa",       // icon color
+                                                pointerEvents: "none" // so clicks go to input
+                                            }}
+                                        ></span>
+
+                                        <input
+                                            type="email"
+                                            name="email-form"
+                                            id="subscribe-email"
+                                            placeholder="Your email address"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            autoComplete="off"
+                                            style={{
+                                            
+                                                color: "#fff",
+                                                padding: "10px 12px 10px 40px", // 👈 extra left padding so text doesn't overlap icon
+                                                borderRadius: "6px",
+                                                outline: "none",
+                                                width: "100%",
+                                               
+                                            
+                                                WebkitTextFillColor: "#fff",
+                                            }}
+                                        />
+
+                                        <button
+                                            type="button"
+                                            id="subscribe-button"
+                                            onClick={handleSend}
+                                            style={{
+                                                position: "absolute",
+                                                right: "10px",
+                                                top: "50%",
+                                                transform: "translateY(-50%)",
+                                                background: "transparent",
+                                                border: "none",
+                                                color: "#fff",
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            <i className="icon icon-send"></i>
+                                        </button>
                                     </div>
+
                                     <div id="subscribe-msg"></div>
                                 </form>
                             </div>
