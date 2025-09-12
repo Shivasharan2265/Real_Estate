@@ -1,28 +1,62 @@
+/* Skeleton loader styles */
 .skeleton-box {
-  background: #e0e0e0;
-  border-radius: 6px;
-  animation: pulse 1.5s infinite;
+  display: inline-block;
+  height: 14px;
+  background: linear-gradient(90deg, #e1e1e1 25%, #f2f2f2 50%, #e1e1e1 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-img {
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
+}
+
+.skeleton-title {
+  width: 120px;
+  height: 16px;
+  margin: 6px 0;
 }
 
 .skeleton-line {
-  background: #e0e0e0;
-  border-radius: 4px;
-  animation: pulse 1.5s infinite;
+  width: 100px;
+  height: 12px;
+  margin: 4px 0;
 }
 
-@keyframes pulse {
+.skeleton-line.short {
+  width: 70px;
+}
+
+.skeleton-badge {
+  width: 60px;
+  height: 18px;
+  border-radius: 12px;
+}
+
+.skeleton-btn {
+  width: 50px;
+  height: 20px;
+  border-radius: 6px;
+  margin: 2px 4px;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 6px;
+}
+
+@keyframes skeleton-loading {
   0% {
-    opacity: 1;
+    background-position: 200% 0;
   }
-
-  50% {
-    opacity: 0.5;
-  }
-
   100% {
-    opacity: 1;
+    background-position: -200% 0;
   }
 }
+
 
 
 

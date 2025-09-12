@@ -546,20 +546,33 @@ const Myproperties = () => {
                                                         <th>Title</th>
                                                         <th>Date Published</th>
                                                         <th>Status</th>
-
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
-
-
-
-
 
                                                 <tbody>
                                                     {loading ? (
                                                         Array.from({ length: 5 }).map((_, idx) => (
                                                             <tr key={idx} className="file-delete" style={{ minHeight: "100px" }}>
-                                                                {/* Skeleton loader */}
+                                                                <td>
+                                                                    <div className="listing-box">
+                                                                        <div className="images skeleton-box" style={{ width: "80px", height: "60px" }}></div>
+                                                                        <div className="content">
+                                                                            <div className="skeleton-box" style={{ width: "150px", height: "18px", marginBottom: "6px" }}></div>
+                                                                            <div className="skeleton-box" style={{ width: "100px", height: "14px", marginBottom: "6px" }}></div>
+                                                                           
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div className="skeleton-box" style={{ width: "80px", height: "16px" }}></div>
+                                                                </td>
+                                                                <td>
+                                                                    <div className="skeleton-box" style={{ width: "70px", height: "16px" }}></div>
+                                                                </td>
+                                                                <td>
+                                                                    <div className="skeleton-box" style={{ width: "120px", height: "20px" }}></div>
+                                                                </td>
                                                             </tr>
                                                         ))
                                                     ) : recentProperties.length > 0 ? (
@@ -587,8 +600,8 @@ const Myproperties = () => {
                                                             const defaultImg =
                                                                 "https://themesflat.co/html/homzen/images/home/house-1.jpg";
                                                             const imageUrl = property.property_images
-                                                                ? property.property_images // <-- backend image
-                                                                : defaultImg; // <-- fallback
+                                                                ? property.property_images
+                                                                : defaultImg;
 
                                                             return (
                                                                 <tr key={property.id} className="file-delete">
@@ -610,7 +623,7 @@ const Myproperties = () => {
                                                                                     className="title"
                                                                                     style={{ cursor: "pointer" }}
                                                                                     onClick={(e) => {
-                                                                                        e.stopPropagation(); // prevent parent div click from firing twice
+                                                                                        e.stopPropagation();
                                                                                         navigate(`/property/${property.id}`, {
                                                                                             state: { fromMyProperties: true },
                                                                                         });
@@ -680,71 +693,8 @@ const Myproperties = () => {
                                                         </tr>
                                                     )}
                                                 </tbody>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                             </table>
                                         </div>
-                                        {/* <ul className="wd-navigation">
-                                            <li>
-                                                <a
-                                                    href="#"
-                                                    className="nav-item"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        handlePageChange(page - 1);
-                                                    }}
-                                                >
-                                                    <i className="icon icon-arr-l"></i>
-                                                </a>
-                                            </li>
-
-                                            {[...Array(totalPages)].map((_, index) => (
-                                                <li key={index}>
-                                                    <a
-                                                        href="#"
-                                                        className={`nav-item ${page === index + 1 ? "active" : ""}`}
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            handlePageChange(index + 1);
-                                                        }}
-                                                    >
-                                                        {index + 1}
-                                                    </a>
-                                                </li>
-                                            ))}
-
-                                            <li>
-                                                <a
-                                                    href="#"
-                                                    className="nav-item"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        handlePageChange(page + 1);
-                                                    }}
-                                                >
-                                                    <i className="icon icon-arr-r"></i>
-                                                </a>
-                                            </li>
-                                        </ul> */}
-
                                     </div>
                                 </div>
 

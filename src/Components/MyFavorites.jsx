@@ -433,16 +433,39 @@ const MyFavorites = () => {
                                                         // Skeleton loader rows
                                                         Array.from({ length: 3 }).map((_, index) => (
                                                             <tr key={index}>
-                                                                <td colSpan="3">
+                                                                <td colSpan="1">
                                                                     <div className="skeleton-row">
-                                                                        <div className="skeleton-img"></div>
-                                                                        <div className="skeleton-content">
+                                                                        <div className="skeleton-img"style={{width:"150px"}}></div>
+                                                                        <div className="skeleton-row" >
+                                                                       <div className="skeleton-content">
+                                                                            <div className="skeleton-line short" style={{width:"300px"}}></div>
+                                                                            <div className="skeleton-line"style={{width:"200px"}}></div>
+                                                                            
+                                                                        </div>
+                                                                    </div>
+                                                                    </div>
+                                                                </td>
+                                                                 <td colSpan="1">
+                                                                    <div className="skeleton-row">
+                                                                       <div className="skeleton-content">
                                                                             <div className="skeleton-line short"></div>
                                                                             <div className="skeleton-line"></div>
-                                                                            <div className="skeleton-line"></div>
+                                                                            
                                                                         </div>
                                                                     </div>
                                                                 </td>
+
+                                                                 <td colSpan="1">
+                                                                    <div className="skeleton-row">
+                                                                       <div className="skeleton-content">
+                                                                            <div className="skeleton-line short"></div>
+                                                                            <div className="skeleton-line"></div>
+                                                                            
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+
+                                                                
                                                             </tr>
                                                         ))
                                                     ) : favorites.length > 0 ? (
@@ -452,7 +475,11 @@ const MyFavorites = () => {
                                                                     <div
                                                                         className="listing-box"
                                                                         style={{ cursor: "pointer" }}
-                                                                        onClick={() => navigate(`/property/${fav.id}`, { state: { fromFavorites: true } })}
+                                                                        onClick={() =>
+                                                                            navigate(`/property/${fav.id}`, {
+                                                                                state: { fromFavorites: true },
+                                                                            })
+                                                                        }
                                                                     >
                                                                         <div className="images">
                                                                             <img
@@ -465,7 +492,9 @@ const MyFavorites = () => {
                                                                                 className="title"
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation(); // Prevent parent div click from firing
-                                                                                    navigate(`/property/${fav.id}`, { state: { fromFavorites: true } });
+                                                                                    navigate(`/property/${fav.id}`, {
+                                                                                        state: { fromFavorites: true },
+                                                                                    });
                                                                                 }}
                                                                                 style={{ cursor: "pointer" }}
                                                                             >
@@ -475,7 +504,6 @@ const MyFavorites = () => {
                                                                                 <span className="fw-6">Listing Type:</span>{" "}
                                                                                 <span>{fav.listing_type}</span>
                                                                             </div>
-
                                                                             <div className="text-date">
                                                                                 {fav.location}, {fav.sub_locality}
                                                                             </div>

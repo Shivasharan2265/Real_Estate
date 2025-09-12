@@ -8,11 +8,16 @@ import "./Listing.css";
 import nodata from "../assets/nodata.png"
 
 const Listing = () => {
+
     const { search } = useLocation();
+
+
+
+
 
     const [properties, setProperties] = useState([]);
     const [page, setPage] = useState(1);
-    const [limit] = useState(10);
+    const [limit, setLimit] = useState(10); // ✅ make it state
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     // Advanced filter states (functionality only, NOT HomePage styling)
@@ -28,7 +33,9 @@ const Listing = () => {
     const [selectedCity, setSelectedCity] = useState("");
 
 
+
     const navigate = useNavigate();
+
 
 
     // 🔹 Track when initial filters are ready
@@ -82,12 +89,23 @@ const Listing = () => {
 
 
     const fetchList = async (pageNumber = 1, filters = null) => {
+
+
+    // --- effect ---
+    useEffect(() => {
+        fetchList(page, limit);
+    }, [page, limit]); // ✅ refetch when limit changes
+
+
+    // --- API fetch function ---
+    const fetchList = async (pageNumber, currentLimit) => {
+
         setLoading(true);
         const fd = new FormData();
         fd.append("programType", "getProperties");
         fd.append("authToken", localStorage.getItem("authToken"));
         fd.append("page", pageNumber);
-        fd.append("limit", limit);
+        fd.append("limit", currentLimit);
 
         const appliedFilters = filters || {
             listingType: selectedListingType,
@@ -128,6 +146,7 @@ const Listing = () => {
 
             console.log(response)
             const { properties, page, limit } = response.data.data;
+
             const mapped = properties.map((item) => {
                 let priceValue = "N/A";
                 let priceUnit = "";
@@ -143,14 +162,9 @@ const Listing = () => {
                         : "N/A";
                 }
 
-                // dynamically prepare meta info
                 const metaInfo = [];
-                if (item.bedrooms) {
-                    metaInfo.push({ icon: "icon-bed", label: `${item.bedrooms} Beds` });
-                }
-                if (item.bathrooms) {
-                    metaInfo.push({ icon: "icon-bathtub", label: `${item.bathrooms} Baths` });
-                }
+                if (item.bedrooms) metaInfo.push({ icon: "icon-bed", label: `${item.bedrooms} Beds` });
+                if (item.bathrooms) metaInfo.push({ icon: "icon-bathtub", label: `${item.bathrooms} Baths` });
                 if (item.carpet_area) {
                     metaInfo.push({
                         icon: "icon-ruler",
@@ -177,12 +191,10 @@ const Listing = () => {
 
             setProperties(mapped);
 
-            // if API provides total count, compute totalPages
             if (response.data.data.total) {
-                setTotalPages(Math.ceil(response.data.data.total / limit));
+                setTotalPages(Math.ceil(response.data.data.total / currentLimit));
             } else {
-                // fallback: stop if less results than limit
-                setTotalPages(mapped.length < limit ? page : page + 1);
+                setTotalPages(mapped.length < currentLimit ? page : page + 1);
             }
         } catch (error) {
             console.error("Error fetching properties:", error);
@@ -248,13 +260,31 @@ const Listing = () => {
                                     <a href="#listLayout" className="nav-link-item active" data-bs-toggle="tab"><i className="icon icon-list"></i></a>
                                 </li>
                             </ul>
-                            {/* <div className="nice-select list-page" tabindex="0"><span className="current">12 Per Page</span>
+                            {/* --- Per Page Dropdown --- */}
+                            <div className="nice-select list-page" tabIndex="0">
+                                <span className="current">{limit} Per Page</span>
                                 <ul className="list">
-                                    <li data-value="1" className="option">10 Per Page</li>
-                                    <li data-value="2" className="option">11 Per Page</li>
-                                    <li data-value="3" className="option selected">12 Per Page</li>
+                                    <li
+                                        className={`option ${limit === 5 ? "selected" : ""}`}
+                                        onClick={() => { setPage(1); setLimit(5); }}
+                                    >
+                                        5 Per Page
+                                    </li>
+                                    <li
+                                        className={`option ${limit === 10 ? "selected" : ""}`}
+                                        onClick={() => { setPage(1); setLimit(10); }}
+                                    >
+                                        10 Per Page
+                                    </li>
+                                    <li
+                                        className={`option ${limit === 15 ? "selected" : ""}`}
+                                        onClick={() => { setPage(1); setLimit(15); }}
+                                    >
+                                        15 Per Page
+                                    </li>
                                 </ul>
-                            </div> */}
+                            </div>
+
                             <div className="nice-select list-sort" tabindex="0"><span className="current">Sort by (Default)</span>
                                 <ul className="list">
                                     <li data-value="default" className="option selected">Sort by (Default)</li>
@@ -502,6 +532,26 @@ const Listing = () => {
                         </div>
                         <div className="col-xl-8 col-lg-7">
                             <div className="tab-content">
+
+
+
+                                <div className="tab-pane fade" id="gridLayout" role="tabpanel">
+                                    <div className="row">
+
+
+
+
+
+
+
+                                    </div>
+                                    {/* <ul className="wd-navigation">
+                                        <li><a href="#" className="nav-item active">1</a></li>
+                                        <li><a href="#" className="nav-item">2</a></li>
+                                        <li><a href="#" className="nav-item">3</a></li>
+                                        <li><a href="#" className="nav-item"><i className="icon icon-arr-r"></i></a></li>
+                                    </ul> */}
+                                </div>
 
                                 <div
                                     className="tab-pane fade active show"

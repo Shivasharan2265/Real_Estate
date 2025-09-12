@@ -1,6 +1,6 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-// import 'bootstrap/dist/css/bootstrap.min.css';
-import "./App.css"
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 
 import Header from "./Components/Header";
 import HomePAge from "./Components/HomePage";
@@ -18,40 +18,30 @@ import MyFavorites from "./Components/MyFavorites";
 import Reviews from "./Components/Reviews";
 import Addproperty from "./Components/Addproperty";
 import CityList from "./Components/CityList";
-
-
 import Adddetails from "./Components/Adddetails";
 import Blogs from "./Components/Blogs";
 import BlogOverview from "./Components/BlogOverview";
-
-import { Toaster } from "react-hot-toast";
 import Inquiries from "./Components/Inquiries";
 import ReviewList from "./Components/ReviewList";
 
+// ✅ Inline ScrollToTop helper
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
 
-// import SignInotp from "./Components/SignInotp";
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname]);
 
-
-
-
-
+  return null;
+};
 
 function App() {
-
-
-
   return (
-
     <>
-
-
       <Toaster />
+      <ScrollToTop />
 
       <Routes>
-
-
-
-
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route exact path="/header" element={<Header />} />
         <Route exact path="/home" element={<HomePAge />} />
@@ -68,24 +58,14 @@ function App() {
         <Route exact path="/myfavorites" element={<MyFavorites />} />
         <Route exact path="/reviews" element={<Reviews />} />
         <Route exact path="/addproperty" element={<Addproperty />} />
-        {/* <Route exact path="/signinotp" element={<SignInotp />} /> */}
         <Route exact path="/add" element={<Adddetails />} />
         <Route exact path="/blogs" element={<Blogs />} />
-
         <Route exact path="/city-list" element={<CityList />} />
-
         <Route exact path="/blogoverview/:id" element={<BlogOverview />} />
         <Route exact path="/inquiries" element={<Inquiries />} />
         <Route exact path="/inquiries/:id" element={<Inquiries />} />
         <Route path="/reviewlist" element={<ReviewList />} />
         <Route path="/reviewlist/:id" element={<ReviewList />} />
-
-
-
-
-
-
-
       </Routes>
     </>
   );

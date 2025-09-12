@@ -6,6 +6,14 @@ import "./Dashboard.css"
 import easy from "../assets/easy.png"
 import toast from 'react-hot-toast';
 import download from '/src/assets/download.png'
+import List from '/src/assets/list.png'
+import clock from '/src/assets/wall-clock.png'
+import home from '/src/assets/home.png'
+import Message from '/src/assets/comment.png'
+import Save from '/src/assets/save.png'
+import Star from '/src/assets/star.png'
+
+
 
 
 
@@ -500,7 +508,12 @@ const Dashboard = () => {
                                     {/* Active Properties */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
-                                            <span className="icon icon-list-dashes"></span>
+                                            <img
+                                                src={List}
+                                                alt="avatar"
+                                                style={{ width: "30px", height: "30px", objectFit: "contain" }}
+                                            />
+
                                         </div>
                                         <div className="content-box">
                                             <div className="title-count">Active </div>
@@ -511,7 +524,11 @@ const Dashboard = () => {
                                     {/* Pending Properties */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
-                                            <span className="icon icon-clock-countdown"></span>
+                                            <img
+                                                src={clock}
+                                                alt="avatar"
+                                                style={{ width: "30px", height: "30px", objectFit: "contain" }}
+                                            />
                                         </div>
                                         <div className="content-box">
                                             <div className="title-count">Pending </div>
@@ -522,7 +539,11 @@ const Dashboard = () => {
                                     {/* Total Properties */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
-                                            <span className="icon icon-home"></span>
+                                            <img
+                                                src={home}
+                                                alt="avatar"
+                                                style={{ width: "30px", height: "30px", objectFit: "contain" }}
+                                            />
                                         </div>
                                         <div className="content-box">
                                             <div className="title-count">Total </div>
@@ -534,7 +555,11 @@ const Dashboard = () => {
                                     {/* Total Inquiries */}
                                     <div className="counter-box" onClick={() => navigate("/inquiries")} style={{ cursor: "pointer" }}>
                                         <div className="box-icon w-68 round">
-                                            <span className="icon icon-review"></span>
+                                            <img
+                                                src={Message}
+                                                alt="avatar"
+                                                style={{ width: "60px", height: "40px", objectFit: "contain" }}
+                                            />
                                         </div>
                                         <div className="content-box">
                                             <div className="title-count">Total Inquiries</div>
@@ -546,7 +571,12 @@ const Dashboard = () => {
                                     {/* Total Favorites */}
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
-                                            <span className="icon icon-bookmark"></span>
+
+                                            <img
+                                                src={Save}
+                                                alt="avatar"
+                                                style={{ width: "30px", height: "28px", objectFit: "contain" }}
+                                            />
                                         </div>
                                         <div className="content-box">
                                             <div className="title-count">Total Favorites</div>
@@ -557,7 +587,11 @@ const Dashboard = () => {
 
                                     <div className="counter-box">
                                         <div className="box-icon w-68 round">
-                                            <i className="fas fa-comments" style={{ color: "red", fontSize: "24px" }}></i>
+                                            <img
+                                                src={Star}
+                                                alt="avatar"
+                                                style={{ width: "80px", height: "45px", objectFit: "contain" }}
+                                            />
                                         </div>
                                         <div className="content-box" onClick={() => navigate("/reviewlist")} style={{ cursor: "pointer" }}>
                                             <div className="title-count">Total Reviews</div>
@@ -570,7 +604,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="wrapper-content row">
                                     <div className="col-xl-9">
-                                        <div className="widget-box-2 wd-listing" style={{marginBottom:"-50px"}}>
+                                        <div className="widget-box-2 wd-listing" style={{ marginBottom: "-50px" }}>
 
                                             <div className="wd-filter">
                                                 <div className="">
@@ -631,7 +665,35 @@ const Dashboard = () => {
                                                             {loading ? (
                                                                 Array.from({ length: 5 }).map((_, idx) => (
                                                                     <tr key={idx} className="file-delete" style={{ minHeight: "100px" }}>
-                                                                        {/* Skeleton loader */}
+                                                                        <td>
+                                                                            <div className="listing-box">
+                                                                                <div className="images skeleton-box" style={{ width: "120px", height: "80px", borderRadius: "8px" }}></div>
+                                                                                <div>
+                                                                                  <div className="skeleton-box" style={{ width: "150px", height: "18px", marginBottom: "6px" }}></div>
+                                                                                  </div>
+                                                                            <div>
+                                                                                  <div className="skeleton-box" style={{ width: "150px", height: "18px", marginBottom: "6px" }}></div>
+                                                                                  </div>
+                                                                                <div className="content">
+                                                                                    <div className="skeleton-line" style={{ width: "70%", height: "16px", marginBottom: "8px" }}></div>
+                                                                                    <div className="skeleton-line" style={{ width: "50%", height: "14px", marginBottom: "8px" }}></div>
+                                                                                    <div className="skeleton-line" style={{ width: "40%", height: "14px", marginBottom: "8px" }}></div>
+                                                                                    <div className="skeleton-line" style={{ width: "30%", height: "14px" }}></div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div className="status-wrap">
+                                                                                <div className="skeleton-line" style={{ width: "80px", height: "24px", borderRadius: "12px" }}></div>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <ul className="list-action">
+                                                                                <li>
+                                                                                    <div className="skeleton-line" style={{ width: "50px", height: "16px", borderRadius: "6px" }}></div>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </td>
                                                                     </tr>
                                                                 ))
                                                             ) : recentProperties.length > 0 ? (
@@ -645,18 +707,18 @@ const Dashboard = () => {
                                                                     const defaultImg =
                                                                         "https://themesflat.co/html/homzen/images/home/house-1.jpg";
                                                                     const imageUrl = property.property_images
-                                                                        ? property.property_images // <-- backend image
-                                                                        : defaultImg; // <-- fallback
+                                                                        ? property.property_images
+                                                                        : defaultImg;
 
                                                                     return (
                                                                         <tr key={property.id} className="file-delete">
                                                                             <td>
-                                                                                <div className="listing-box" style={{ cursor: "pointer" }}
-                                                                                    onClick={() => navigate(`/property/${property.id}`)}>
-                                                                                    <div
-                                                                                        className="images"
-
-                                                                                    >
+                                                                                <div
+                                                                                    className="listing-box"
+                                                                                    style={{ cursor: "pointer" }}
+                                                                                    onClick={() => navigate(`/property/${property.id}`)}
+                                                                                >
+                                                                                    <div className="images">
                                                                                         <img src={imageUrl} alt={property.title} />
                                                                                     </div>
                                                                                     <div className="content">
@@ -667,9 +729,7 @@ const Dashboard = () => {
                                                                                         </div>
                                                                                         <div className="listing-type" style={{ marginTop: "4px" }}>
                                                                                             <span className="fw-6">Listing Type:</span>{" "}
-                                                                                            <span >
-                                                                                                {property.listing_type}
-                                                                                            </span>
+                                                                                            <span>{property.listing_type}</span>
                                                                                         </div>
                                                                                         <div className="text-date">
                                                                                             <p className="fw-5">
@@ -714,60 +774,92 @@ const Dashboard = () => {
                                                     </table>
                                                 </div>
 
-                                               
+
                                             </div>
                                         </div>
-                                        
+
                                     </div>
                                     <div className="col-xl-3">
                                         <div className="widget-box-3 recent-box">
                                             <h6>Recent Reviews</h6>
 
-                                            {recentProperties.length === 0 && <p>No reviews found.</p>}
+                                            {loading ? (
+                                                // Skeleton Loader for Reviews
+                                                Array.from({ length: 3 }).map((_, idx) => (
+                                                    <div key={idx} className="box-tes-item">
+                                                        <div className="box-avt d-flex align-items-center gap-12">
+                                                            <div className="avatar avt-40 round skeleton-box"></div>
+                                                            <div style={{ flex: 1 }}>
+                                                                <div className="skeleton-line" style={{ width: "60%", height: "14px", marginBottom: "6px" }}></div>
+                                                                
+                                                            </div>
+                                                        </div>
 
-                                            {(() => {
-                                                // Flatten all reviews
-                                                const allReviews = recentProperties
-                                                    .flatMap((property) =>
-                                                        property.review && property.review.length > 0
-                                                            ? property.review.map((rev) => ({
-                                                                ...rev,
-                                                                propertyTitle: property.title, // optional, in case you want to show property title
-                                                            }))
-                                                            : []
-                                                    )
-                                                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // latest first
-                                                    .slice(0, 5); // limit to 5
+                                                        <div className="skeleton-line" style={{ width: "100%", height: "14px", marginTop: "10px" }}></div>
+                                                        <div className="skeleton-line" style={{ width: "90%", height: "14px", marginTop: "6px" }}></div>
+                                                        <ul className="list-star d-flex gap-2 mt-2">
+                                                            {Array.from({ length: 5 }).map((_, starIdx) => (
+                                                                <li
+                                                                    key={starIdx}
+                                                                    className="icon icon-star skeleton-box"
+                                                                    style={{ width: "16px", height: "16px", borderRadius: "3px" }}
+                                                                ></li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                ))
+                                            ) : recentProperties.length === 0 ? (
+                                                <p>No reviews found.</p>
+                                            ) : (
+                                                (() => {
+                                                    // Flatten all reviews
+                                                    const allReviews = recentProperties
+                                                        .flatMap((property) =>
+                                                            property.review && property.review.length > 0
+                                                                ? property.review.map((rev) => ({
+                                                                    ...rev,
+                                                                    propertyTitle: property.title, // optional
+                                                                }))
+                                                                : []
+                                                        )
+                                                        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // latest first
+                                                        .slice(0, 5); // limit to 5
 
-                                                return allReviews.length > 0 ? (
-                                                    allReviews.map((rev) => (
-                                                        <div key={rev.id} className="box-tes-item">
-                                                            <div className="box-avt d-flex align-items-center gap-12">
-                                                                <div className="avatar avt-40 round">
-                                                                    <img src={download} alt="avatar" />
+                                                    return allReviews.length > 0 ? (
+                                                        allReviews.map((rev) => (
+                                                            <div key={rev.id} className="box-tes-item">
+                                                                <div className="box-avt d-flex align-items-center gap-12">
+                                                                    <div className="avatar avt-40 round">
+                                                                        <img
+                                                                            src={download}
+                                                                            alt="avatar"
+                                                                            onError={(e) => (e.target.src = "images/avatar/avt-7.jpg")}
+                                                                        />
+                                                                    </div>
+                                                                    <p className="fw-6">{rev.user_name}</p>
+                                                                    <small>{new Date(rev.created_at).toLocaleDateString()}</small>
                                                                 </div>
 
-                                                                <p className="fw-6">{rev.user_name}</p>
-                                                                <small>{new Date(rev.created_at).toLocaleDateString()}</small>
+                                                                <p className="note p-16">{rev.message}</p>
+                                                                <ul className="list-star">
+                                                                    {Array.from({ length: 5 }, (_, i) => (
+                                                                        <li
+                                                                            key={i}
+                                                                            className={`icon icon-star ${i < parseInt(rev.star) ? "filled" : ""
+                                                                                }`}
+                                                                        ></li>
+                                                                    ))}
+                                                                </ul>
                                                             </div>
-
-                                                            <p className="note p-16">{rev.message}</p>
-                                                            <ul className="list-star">
-                                                                {Array.from({ length: 5 }, (_, i) => (
-                                                                    <li
-                                                                        key={i}
-                                                                        className={`icon icon-star ${i < parseInt(rev.star) ? "filled" : ""}`}
-                                                                    ></li>
-                                                                ))}
-                                                            </ul>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <p>No reviews found.</p>
-                                                );
-                                            })()}
+                                                        ))
+                                                    ) : (
+                                                        <p>No reviews found.</p>
+                                                    );
+                                                })()
+                                            )}
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                             <div className="footer-dashboard">
