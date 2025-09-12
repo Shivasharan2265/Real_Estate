@@ -13,6 +13,8 @@ import { Modal, Slider } from "antd"; // ✅ Import Modal
 
 
 const HomePage = () => {
+    const [reviews, setReviews] = useState([]);
+
     const [bannerUrl, setBannerUrl] = useState(""); // state for dynamic banner
     const [popupBanner, setPopupBanner] = useState(""); // state for dynamic banner
     const [stickyBanner, setStickyBanner] = useState(""); // state for dynamic banner
@@ -303,6 +305,36 @@ const HomePage = () => {
             setLoading(false);
         }
     };
+
+
+
+    const reviewList = async () => {
+        const fd = new FormData();
+        fd.append("programType", "getAllInquiryDetails");
+        fd.append("authToken", localStorage.getItem("authToken"));
+
+        try {
+            const response = await api.post("/properties/propertyInquiry", fd);
+            console.log("ReviewDetails home", response.data);
+
+            if (response.data.success && response.data.data) {
+                setReviews(
+                    Array.isArray(response.data.data)
+                        ? response.data.data
+                        : [response.data.data]
+                );
+            }
+        } catch (error) {
+            console.error("Review error:", error);
+        }
+    };
+
+
+
+
+    useEffect(() => {
+        reviewList();
+    }, []);
 
 
 
@@ -1312,125 +1344,62 @@ const HomePage = () => {
                                         Our seasoned team excels in real estate with years of successful market
                                         navigation, offering informed decisions and optimal results.
                                     </p>
-
                                 </div>
 
                                 <div className="col-lg-9">
-
                                     <Swiper
                                         modules={[Navigation, Autoplay]}
-                                        autoplay={{
-                                            delay: 3000,
-                                            disableOnInteraction: false,
-                                        }}
-                                        speed={1000}
+                                        autoplay={{ delay: 3000, disableOnInteraction: false }}
                                         loop={true}
-                                        spaceBetween={30} // space between slides
-                                        slidesPerView={1} // default for mobile
+                                        spaceBetween={30}
+                                        slidesPerView={1}
                                         breakpoints={{
-                                            768: { slidesPerView: 2, spaceBetween: 20 }, // tablet
-                                            1024: { slidesPerView: 2, spaceBetween: 30 }, // desktop
+                                            768: { slidesPerView: 2, spaceBetween: 20 },
+                                            1024: { slidesPerView: 2, spaceBetween: 30 },
                                         }}
                                         className="tf-sw-testimonial"
                                     >
+                                        {Array.isArray(reviews) &&
+                                            reviews.map((property) =>
+                                                Array.isArray(property.review) &&
+                                                property.review.map((rev) => (
+                                                    <SwiperSlide key={rev.reviewId}>
+                                                        <div className="box-tes-item">
+                                                            {/* ⭐ Dynamic stars */}
+                                                            <ul className="list-star">
+                                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                                    <li
+                                                                        key={i}
+                                                                        className={`icon icon-star ${i < parseInt(rev.star) ? "text-warning" : ""
+                                                                            }`}
+                                                                    ></li>
+                                                                ))}
+                                                            </ul>
 
-                                        <SwiperSlide>
-                                            <div className="box-tes-item">
-                                                <ul className="list-star">
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                </ul>
-                                                <p className="note body-1">
-                                                    "I truly appreciate the professionalism and in-depth knowledge of the brokerage team. They not only helped me find the perfect home but also assisted with legal and financial aspects, making me feel confident and secure in my decision."
-                                                </p>
-                                                <div className="box-avt d-flex align-items-center gap-12">
-                                                    <div className="avatar avt-60 round">
-                                                        <img src="images/avatar/avt-7.jpg" alt="avatar" />
-                                                    </div>
-                                                    <div className="info">
-                                                        <div className="h7 fw-7">Rohit Sharma</div>
-                                                        <p className="text-variant-1 mt-4">CEO Realty</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </SwiperSlide>
+                                                            {/* 📝 Review text */}
+                                                            <p className="note body-1">"{rev.message}"</p>
 
-                                        <SwiperSlide>
-                                            <div className="box-tes-item">
-                                                <ul className="list-star">
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                </ul>
-                                                <p className="note body-1">
-                                                    "My experience with property management services has exceeded expectations. They efficiently manage properties with a professional and attentive approach in every situation. I feel reassured that any issue will be resolved promptly and effectively."
-                                                </p>
-                                                <div className="box-avt d-flex align-items-center gap-12">
-                                                    <div className="avatar avt-60 round">
-                                                        <img src="images/avatar/avt-5.jpg" alt="avatar" />
-                                                    </div>
-                                                    <div className="info">
-                                                        <div className="h7 fw-7">Priya Singh</div>
-                                                        <p className="text-variant-1 mt-4">Founder, HomeSpace</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </SwiperSlide>
+                                                            {/* 👤 User info */}
+                                                            <div className="box-avt d-flex align-items-center gap-12">
+                                                                <div className="avatar avt-60 round">
+                                                                    <img
+                                                                        src={rev?.profile ? `${api.imageUrl}${rev.profile}` : "images/avatar/avt-7.jpg"}
+                                                                        alt="avatar"
+                                                                        onError={(e) => { e.currentTarget.src = "images/avatar/avt-7.jpg"; }}
+                                                                    />
 
-                                        <SwiperSlide>
-                                            <div className="box-tes-item">
-                                                <ul className="list-star">
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                </ul>
-                                                <p className="note body-1">
-                                                    "Excellent service! The team helped me with every step and made the process smooth and transparent. Highly recommended."
-                                                </p>
-                                                <div className="box-avt d-flex align-items-center gap-12">
-                                                    <div className="avatar avt-60 round">
-                                                        <img src="images/avatar/avt-6.jpg" alt="avatar" />
-                                                    </div>
-                                                    <div className="info">
-                                                        <div className="h7 fw-7">Amit Verma</div>
-                                                        <p className="text-variant-1 mt-4">Managing Director, PropMart</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </SwiperSlide>
-
-                                        <SwiperSlide>
-                                            <div className="box-tes-item">
-                                                <ul className="list-star">
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                    <li className="icon icon-star"></li>
-                                                </ul>
-                                                <p className="note body-1">
-                                                    "Very professional and transparent team. I felt supported throughout my home buying journey. Exceptional experience!"
-                                                </p>
-                                                <div className="box-avt d-flex align-items-center gap-12">
-                                                    <div className="avatar avt-60 round">
-                                                        <img src="images/avatar/avt-8.jpg" alt="avatar" />
-                                                    </div>
-                                                    <div className="info">
-                                                        <div className="h7 fw-7">Sneha Reddy</div>
-                                                        <p className="text-variant-1 mt-4">CEO DreamHomes</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </SwiperSlide>
-
+                                                                </div>
+                                                                <div className="info">
+                                                                    <div className="h7 fw-7">{rev.user_name}</div>
+                                                                    <p className="text-variant-1 mt-4">{rev.userType}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </SwiperSlide>
+                                                ))
+                                            )}
                                     </Swiper>
+
                                 </div>
                             </div>
                         </div>

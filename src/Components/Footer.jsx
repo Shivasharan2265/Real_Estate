@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import easy from "../assets/easy.png"
 
 const Footer = () => {
@@ -79,14 +79,29 @@ const Footer = () => {
                             <div className="footer-cl-2">
                                 <div className="fw-7 text-white">Categories</div>
                                 <ul className="mt-10 navigation-menu-footer">
-                                    <li> <a href="l" className="caption-1 text-variant-2">Pricing Plans</a> </li>
+                                    <li>
+                                        <Link to="/aboutus" className="caption-1 text-variant-2">
+                                            About Us
+                                        </Link>
+                                    </li>
 
-                                    <li> <a href="" className="caption-1 text-variant-2">Our Services</a> </li>
+                                    <li>
+                                        <Link to="/contactus" className="caption-1 text-variant-2">
+                                            Contact Us
+                                        </Link>
+                                    </li>
 
-                                    <li> <a href="" onClick={() => naviagte('/aboutus')} className="caption-1 text-variant-2">About Us</a> </li>
+                                    <li>
+                                        <Link to="/FAQ" className="caption-1 text-variant-2">
+                                            FAQ
+                                        </Link>
+                                    </li>
 
-                                    <li> <a href="" onClick={() => naviagte('/contactus')} className="caption-1 text-variant-2">Contact Us</a> </li>
-
+                                    <li>
+                                        <Link to="/Privacy-Policy" className="caption-1 text-variant-2">
+                                            Privacy Policy
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -98,7 +113,11 @@ const Footer = () => {
 
                                     <li> <a href="" className="caption-1 text-variant-2">Property For Rent</a> </li>
                                     <li> <a href="" className="caption-1 text-variant-2">Property For Buy</a> </li>
-                                    <li> <a href="" className="caption-1 text-variant-2">Our Agents</a> </li>
+                                    <li>
+                                        <Link to="/blogs" className="caption-1 text-variant-2">
+                                          Blogs
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -139,14 +158,14 @@ const Footer = () => {
                                             onChange={(e) => setEmail(e.target.value)}
                                             autoComplete="off"
                                             style={{
-                                            
+
                                                 color: "#fff",
                                                 padding: "10px 12px 10px 40px", // 👈 extra left padding so text doesn't overlap icon
                                                 borderRadius: "6px",
                                                 outline: "none",
                                                 width: "100%",
-                                               
-                                            
+
+
                                                 WebkitTextFillColor: "#fff",
                                             }}
                                         />
