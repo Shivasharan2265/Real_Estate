@@ -1,23 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/api';
-import "./Listing.css"
-
-
+import { Modal, Slider } from 'antd'; // Import only for functionality, not styling!
+import "./Listing.css";
 
 const Listing = () => {
     const [properties, setProperties] = useState([]);
-    const [latest, setLatest] = useState([]);
-
-    const navigate = useNavigate()
-
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchList(page);
@@ -33,24 +29,20 @@ const Listing = () => {
 
         try {
             const response = await api.post("/properties/property", fd);
-            console.log("API Response:", response);
-
             const { properties, page, limit } = response.data.data;
             const mapped = properties.map((item) => {
                 let priceValue = "N/A";
                 let priceUnit = "";
 
                 if (item.listing_type === "rent") {
-                    priceValue =
-                        item.expected_rent && item.expected_rent !== "0.00"
-                            ? item.expected_rent
-                            : "N/A";
+                    priceValue = item.expected_rent && item.expected_rent !== "0.00"
+                        ? item.expected_rent
+                        : "N/A";
                     priceUnit = item.rent_period ? `/${item.rent_period}` : "/month";
                 } else {
-                    priceValue =
-                        item.expected_price && item.expected_price !== "0.00"
-                            ? item.expected_price
-                            : "N/A";
+                    priceValue = item.expected_price && item.expected_price !== "0.00"
+                        ? item.expected_price
+                        : "N/A";
                 }
 
                 // dynamically prepare meta info
@@ -67,9 +59,6 @@ const Listing = () => {
                         label: `${item.carpet_area} ${item.carpet_area_unit || ""}`,
                     });
                 }
-                // if (item.property_type_id) {
-                //     metaInfo.push({ icon: "icon-home", label: item.property_type_id });
-                // }
 
                 return {
                     id: item.id,
@@ -84,7 +73,7 @@ const Listing = () => {
                     agentName: item.customerName || "Agent",
                     priceValue,
                     priceUnit,
-                    metaInfo, // attach here
+                    metaInfo,
                 };
             });
 
@@ -104,7 +93,32 @@ const Listing = () => {
         }
     };
 
-    // Skeleton component
+    // Property types for filtering
+    const propertyTypes = [
+        "Flat / Apartment",
+        "Independent House / Villa",
+        "Farmhouse",
+        "Serviced Apartment",
+        "1 RK / Studio Apartment",
+        "Independent Floor",
+        "Plot / Land",
+        "Office",
+        "Retail"
+    ];
+
+    // Advanced filter states (functionality only, NOT HomePage styling)
+    const [selectedListingType, setSelectedListingType] = useState("rent");
+    const [selectedType, setSelectedType] = useState("All");
+    const [showAdvanced, setShowAdvanced] = useState(false);
+    const [priceRange, setPriceRange] = useState([1000000, 10000000]);
+    const [rentRange, setRentRange] = useState([5000, 50000]);
+    const [selectedBHK, setSelectedBHK] = useState('');
+    const [selectedBathroom, setSelectedBathroom] = useState("");
+
+    const handleOpenAdvanced = () => setShowAdvanced(true);
+    const handleCloseAdvanced = () => setShowAdvanced(false);
+
+    // Skeleton card for loading
     const SkeletonCard = () => (
         <div className="col-md-12">
             <div className="homeya-box list-style-1 list-style-2">
@@ -157,14 +171,22 @@ const Listing = () => {
                     <div className="row">
                         <div className="col-xl-4 col-lg-5">
                             <div className="widget-sidebar fixed-sidebar">
-                                <div className="flat-tab flat-tab-form widget-filter-search widget-box bg-surface">
+                                <div className="flat-tab flat-tab-form widget-filter-search widget-box bg-surface mb-4" style={{ background: "#E8E8E8" }}>
                                     <div className="h7 title fw-7">Search</div>
                                     <ul className="nav-tab-form" role="tablist">
-                                        <li className="nav-tab-item" role="presentation">
-                                            <a href="#forRent" className="nav-link-item active" data-bs-toggle="tab">For Rent</a>
+                                        <li className="nav-tab-item">
+                                            <a
+                                                href="#forRent"
+                                                className={`nav-link-item ${selectedListingType === "rent" ? "active" : ""}`}
+                                                onClick={e => { e.preventDefault(); setSelectedListingType("rent"); setSelectedType("All"); }}
+                                            >For Rent</a>
                                         </li>
-                                        <li className="nav-tab-item" role="presentation">
-                                            <a href="#forSale" className="nav-link-item" data-bs-toggle="tab">For Sale</a>
+                                        <li className="nav-tab-item">
+                                            <a
+                                                href="#forSale"
+                                                className={`nav-link-item ${selectedListingType === "sale" ? "active" : ""}`}
+                                                onClick={e => { e.preventDefault(); setSelectedListingType("sale"); setSelectedType("All"); }}
+                                            >For Sale</a>
                                         </li>
                                     </ul>
                                     <div className="tab-content">
@@ -175,240 +197,184 @@ const Listing = () => {
                                                         <div className="inner-group inner-filter">
                                                             <div className="form-style">
                                                                 <label className="title-select">Keyword</label>
-                                                                <input type="text" className="form-control" placeholder="Search Keyword."  required="" />
+                                                                <input type="text" className="form-control" placeholder="Search Keyword." required="" />
                                                             </div>
-                                                            <div className="form-style">
-                                                                <label className="title-select">Location</label>
-                                                                <div className="group-ip ip-icon">
-                                                                    <input type="text" className="form-control" placeholder="Search Location"  required="" />
-                                                                    <a href="#" className="icon-right icon-location"></a>
-                                                                </div>
-                                                            </div>
-                                                            <div className="form-style">
-                                                                <label className="title-select">Type</label>
+                                                            <div className="form-group-2 form-style">
+                                                                <label>Location</label>
                                                                 <div className="group-select">
-                                                                    <div className="nice-select" tabindex="0"><span className="current">All</span>
+                                                                    <div className="nice-select" tabIndex="0">
+                                                                        <span className="current">Select Location</span>
                                                                         <ul className="list">
-                                                                            <li data-value className="option selected">All</li>
-                                                                            <li data-value="villa" className="option">Villa</li>
-                                                                            <li data-value="studio" className="option">Studio</li>
-                                                                            <li data-value="office" className="option">Office</li>
+
+                                                                            <li data-value="india" className="option">India</li>
+                                                                            <li data-value="dubai" className="option">Dubai</li>
                                                                         </ul>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="form-style box-select">
-                                                                <label className="title-select">Rooms</label>
-                                                                <div className="nice-select" tabindex="0"><span className="current">2</span>
-                                                                    <ul className="list">
-                                                                        <li data-value="2" className="option">1</li>
-                                                                        <li data-value="2" className="option selected">2</li>
-                                                                        <li data-value="3" className="option">3</li>
-                                                                        <li data-value="4" className="option">4</li>
-                                                                        <li data-value="5" className="option">5</li>
-                                                                        <li data-value="6" className="option">6</li>
-                                                                        <li data-value="7" className="option">7</li>
-                                                                        <li data-value="8" className="option">8</li>
-                                                                        <li data-value="9" className="option">9</li>
-                                                                        <li data-value="10" className="option">10</li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                            <div className="form-style box-select">
-                                                                <label className="title-select">Bathrooms</label>
-                                                                <div className="nice-select" tabindex="0"><span className="current">4</span>
-                                                                    <ul className="list">
-                                                                        <li data-value="all" className="option">All</li>
-                                                                        <li data-value="1" className="option">1</li>
-                                                                        <li data-value="2" className="option">2</li>
-                                                                        <li data-value="3" className="option">3</li>
-                                                                        <li data-value="4" className="option selected">4</li>
-                                                                        <li data-value="5" className="option">5</li>
-                                                                        <li data-value="6" className="option">6</li>
-                                                                        <li data-value="7" className="option">7</li>
-                                                                        <li data-value="8" className="option">8</li>
-                                                                        <li data-value="9" className="option">9</li>
-                                                                        <li data-value="10" className="option">10</li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                            <div className="form-style box-select">
-                                                                <label className="title-select">Bedrooms</label>
-                                                                <div className="nice-select" tabindex="0"><span className="current">4</span>
-                                                                    <ul className="list">
-                                                                        <li data-value="1" className="option">All</li>
-                                                                        <li data-value="1" className="option">1</li>
-                                                                        <li data-value="2" className="option">2</li>
-                                                                        <li data-value="3" className="option">3</li>
-                                                                        <li data-value="4" className="option selected">4</li>
-                                                                        <li data-value="5" className="option">5</li>
-                                                                        <li data-value="6" className="option">6</li>
-                                                                        <li data-value="7" className="option">7</li>
-                                                                        <li data-value="8" className="option">8</li>
-                                                                        <li data-value="9" className="option">9</li>
-                                                                        <li data-value="10" className="option">10</li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                            {/* <div className="form-style widget-price">
-                                                                <div className="box-title-price">
-                                                                    <span className="title-price">Price Range</span>
-                                                                    <div className="caption-price">
-                                                                        <span>fromx</span>
-                                                                        <span id="slider-range-value1" className="fw-7"></span>
-                                                                        <span>to</span>
-                                                                        <span id="slider-range-value2" className="fw-7"></span>
+
+                                                            <div className="form-style">
+                                                                <label className="title-select">Type</label>
+                                                                <div className="group-select">
+                                                                    <div className="nice-select" tabIndex="0">
+                                                                        <span className="current">{selectedType}</span>
+                                                                        <ul className="list">
+                                                                            <li
+                                                                                className={`option ${selectedType === "All" ? "selected" : ""}`}
+                                                                                onClick={() => setSelectedType("All")}
+                                                                            >All</li>
+                                                                            {propertyTypes.map(type => (
+                                                                                <li
+                                                                                    key={type}
+                                                                                    className={`option ${selectedType === type ? "selected" : ""}`}
+                                                                                    onClick={() => setSelectedType(type)}
+                                                                                >{type}</li>
+                                                                            ))}
+                                                                        </ul>
                                                                     </div>
                                                                 </div>
-                                                                <div id="slider-range"></div>
-                                                                <div className="slider-labels">
-                                                                    <input type="hidden" name="min-value" value="" />
-                                                                    <input type="hidden" name="max-value" value="" />
-                                                                </div>
-                                                            </div> */}
-                                                            {/* <div className="form-style widget-price wd-price-2">
-                                                                <div className="box-title-price">
-                                                                    <span className="title-price">Size Range</span>
-                                                                    <div className="caption-price">
-                                                                        <span>from</span>
-                                                                        <span id="slider-range-value01" className="fw-7"></span>
-                                                                        <span>to</span>
-                                                                        <span id="slider-range-value02" className="fw-7"></span>
-                                                                    </div>
-                                                                </div>
-                                                                <div id="slider-range2"></div>
-                                                                <div className="slider-labels">
-                                                                    <input type="hidden" name="min-value2" value="" />
-                                                                    <input type="hidden" name="max-value2" value="" />
-                                                                </div>
-                                                            </div> */}
+                                                            </div>
+                                                            {/* REMOVE rooms, bathrooms, bedrooms dropdowns here */}
                                                             <div className="form-style btn-show-advanced">
-                                                                <a className="filter-advanced pull-right">
+                                                                <a className="filter-advanced pull-right" onClick={handleOpenAdvanced} style={{ cursor: "pointer" }}>
                                                                     <span className="icon icon-faders"></span>
                                                                     <span className="text-advanced">Show Advanced</span>
                                                                 </a>
                                                             </div>
-                                                            <div className="form-style wd-amenities">
-                                                                <div className="group-checkbox">
-                                                                    <div className="text-1">Amenities:</div>
-                                                                    <div className="group-amenities">
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb1" checked />
-                                                                            <label for="cb1" className="text-cb-amenities">Air Condition</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb2" />
-                                                                            <label for="cb2" className="text-cb-amenities">Disabled Access</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb3" />
-                                                                            <label for="cb3" className="text-cb-amenities">Ceiling Height</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb4" checked />
-                                                                            <label for="cb4" className="text-cb-amenities">Floor</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb5" />
-                                                                            <label for="cb5" className="text-cb-amenities">Heating</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb6" />
-                                                                            <label for="cb6" className="text-cb-amenities">Renovation</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb7" />
-                                                                            <label for="cb7" className="text-cb-amenities">Window Type</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb8" />
-                                                                            <label for="cb8" className="text-cb-amenities">Cable TV</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb9" checked />
-                                                                            <label for="cb9" className="text-cb-amenities">Elevator</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb10" />
-                                                                            <label for="cb10" className="text-cb-amenities">Furnishing</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb11" />
-                                                                            <label for="cb11" className="text-cb-amenities">Intercom</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb12" />
-                                                                            <label for="cb12" className="text-cb-amenities">Security</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb13" />
-                                                                            <label for="cb13" className="text-cb-amenities">Search property</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb14" />
-                                                                            <label for="cb14" className="text-cb-amenities">Ceiling Height</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb15" />
-                                                                            <label for="cb15" className="text-cb-amenities">Fence</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb16" />
-                                                                            <label for="cb16" className="text-cb-amenities">Fence</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb17" checked />
-                                                                            <label for="cb17" className="text-cb-amenities">Garage</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb18" />
-                                                                            <label for="cb18" className="text-cb-amenities">Parking</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb19" />
-                                                                            <label for="cb19" className="text-cb-amenities">Swimming Pool</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb20" />
-                                                                            <label for="cb20" className="text-cb-amenities">Construction Year</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb21" />
-                                                                            <label for="cb21" className="text-cb-amenities">Fireplace</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb22" />
-                                                                            <label for="cb22" className="text-cb-amenities">Garden</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb23" />
-                                                                            <label for="cb23" className="text-cb-amenities">Pet Friendly</label>
-                                                                        </fieldset>
-                                                                        <fieldset className="amenities-item">
-                                                                            <input type="checkbox" className="tf-checkbox style-1" id="cb24" />
-                                                                            <label for="cb24" className="text-cb-amenities">WiFi</label>
-                                                                        </fieldset>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-                                                            <div className="form-style btn-hide-advanced">
-                                                                <a className="filter-advanced pull-right">
-                                                                    <span className="icon icon-faders"></span>
-                                                                    <span className="text-advanced">Hide Advanced</span>
-                                                                </a>
-                                                            </div>
-                                                            <div className="form-style">
-                                                                <button type="submit" className="tf-btn primary" href="#">Find Properties</button>
-                                                            </div>
                                                         </div>
+                                                        <button type="submit" className="tf-btn primary" href="#">Find Properties</button>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
+
+                                {/* Advanced Filter Modal - functionality only! */}
+                                <Modal
+                                    title={<h5 style={{ margin: 0, fontWeight: 600, color: "#333" }}>Advanced Filters</h5>}
+                                    open={showAdvanced}
+                                    onCancel={handleCloseAdvanced}
+                                    footer={null}
+                                    centered
+                                    bodyStyle={{ padding: "20px 24px" }}
+                                    width="90%"
+                                    style={{ maxWidth: "600px" }}
+                                >
+                                    {selectedListingType === "rent" ? (
+                                        <div style={{ marginBottom: "25px" }}>
+                                            <h6>Rent Range</h6>
+                                            <Slider
+                                                range
+                                                min={0}
+                                                max={200000}
+                                                step={1000}
+                                                value={rentRange}
+                                                onChange={setRentRange}
+                                            />
+                                            <div>
+                                                <span>₹{rentRange[0]}</span> - <span>₹{rentRange[1]}</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div style={{ marginBottom: "25px" }}>
+                                            <h6>Price Range</h6>
+                                            <Slider
+                                                range
+                                                min={0}
+                                                max={50000000}
+                                                step={50000}
+                                                value={priceRange}
+                                                onChange={setPriceRange}
+                                            />
+                                            <div>
+                                                <span>₹{priceRange[0]}</span> - <span>₹{priceRange[1]}</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Property type conditionals */}
+                                    {["Flat / Apartment", "Independent House / Villa", "Farmhouse", "Serviced Apartment", "1 RK / Studio Apartment", "Independent Floor"].includes(selectedType) && (
+                                        <>
+                                            <div style={{ marginBottom: "20px" }}>
+                                                <h6>BHK Type</h6>
+                                                {["1 BHK", "2 BHK", "3 BHK", "4 BHK", "4+ BHK"].map(bhk => (
+                                                    <button
+                                                        key={bhk}
+                                                        type="button"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            background: selectedBHK === bhk ? "#EC2126" : "#fff",
+                                                            color: selectedBHK === bhk ? "#fff" : "#333",
+                                                            border: selectedBHK === bhk ? "2px solid #EC2126" : "1px solid #ccc",
+                                                            borderRadius: "20px",
+                                                            padding: "8px 16px",
+                                                            cursor: "pointer"
+                                                        }}
+                                                        onClick={() => setSelectedBHK(bhk)}
+                                                    >{bhk}</button>
+                                                ))}
+                                            </div>
+                                            <div>
+                                                <h6>Bathrooms</h6>
+                                                {["1", "2", "3", "4", "4+"].map(bath => (
+                                                    <button
+                                                        key={bath}
+                                                        type="button"
+                                                        style={{
+                                                            marginRight: "10px",
+                                                            background: selectedBathroom === bath ? "#EC2126" : "#fff",
+                                                            color: selectedBathroom === bath ? "#fff" : "#333",
+                                                            border: selectedBathroom === bath ? "2px solid #EC2126" : "1px solid #ccc",
+                                                            borderRadius: "20px",
+                                                            padding: "8px 16px",
+                                                            cursor: "pointer"
+                                                        }}
+                                                        onClick={() => setSelectedBathroom(bath)}
+                                                    >{bath}</button>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                    {selectedType === "Plot / Land" && (
+                                        <div>
+                                            <h6>Plot Size</h6>
+                                            <Slider range min={500} max={10000} step={100} defaultValue={[1000, 5000]} />
+                                            <h6>Facing</h6>
+                                            {["East", "West", "North", "South"].map(dir => (
+                                                <button key={dir} type="button" style={{ marginRight: "10px" }}>{dir}</button>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {(selectedType === "Office" || selectedType === "Retail") && (
+                                        <div>
+                                            <h6>Carpet Area (sq.ft)</h6>
+                                            <Slider range min={200} max={10000} step={100} defaultValue={[500, 5000]} />
+                                        </div>
+                                    )}
+
+                                    {/* Apply Filters Button */}
+                                    <div style={{ textAlign: "right", marginTop: "25px" }}>
+                                        <button
+                                            type="button"
+                                            onClick={handleCloseAdvanced}
+                                            style={{
+                                                padding: "10px 24px",
+                                                borderRadius: "25px",
+                                                background: "#EC2126",
+                                                color: "#fff",
+                                                fontWeight: 600,
+                                                border: "none",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            Apply Filters
+                                        </button>
+                                    </div>
+                                </Modal>
+
+                                {/* Property Cards Section */}
+
                                 {/* <div className="widget-box bg-surface box-latest-property">
                                     <div className="h7 fw-7 title">Latest Properties</div>
                                     <ul>
@@ -964,9 +930,20 @@ const Listing = () => {
                                                         <Link to={`/property/${property.id}`} className="images-group">
                                                             <div className="images-style">
                                                                 <img
-                                                                    src="https://themesflat.co/html/homzen/images/home/house-6.jpg"
+                                                                    src={
+                                                                        property.image
+                                                                            ? `${api.imageUrl}/${property.image}`
+                                                                            : "https://themesflat.co/html/homzen/images/home/house-2.jpg"
+                                                                    }
                                                                     alt={property.name}
+                                                                    style={{
+                                                                        width: "100%",       // full width of container
+                                                                        height: "220px",     // fixed height
+                                                                        objectFit: "cover",  // crops instead of stretching
+                                                                        borderRadius: "8px", // optional rounded corners
+                                                                    }}
                                                                 />
+
                                                             </div>
                                                             <div className="top">
                                                                 <ul className="d-flex gap-4 flex-wrap">
