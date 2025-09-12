@@ -570,7 +570,7 @@ const Dashboard = () => {
                                 </div>
                                 <div className="wrapper-content row">
                                     <div className="col-xl-9">
-                                        <div className="widget-box-2 wd-listing" style={{marginBottom:"-30px"}}>
+                                        <div className="widget-box-2 wd-listing" style={{marginBottom:"-50px"}}>
 
                                             <div className="wd-filter">
                                                 <div className="">
