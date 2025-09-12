@@ -142,7 +142,7 @@ const Listing = () => {
             <section className="flat-section-v6 flat-recommended flat-sidebar">
                 <div className="container">
                     <div className="box-title-listing">
-                        <h5>Property listing</h5>
+                        <h5 >Property listing</h5>
                         <div className="box-filter-tab">
                             <ul className="nav-tab-filter" role="tablist">
                                 <li className="nav-tab-item" role="presentation">
@@ -199,6 +199,12 @@ const Listing = () => {
                                                                 <label className="title-select">Keyword</label>
                                                                 <input type="text" className="form-control" placeholder="Search Keyword." required="" />
                                                             </div>
+                                                            <div className="form-style">
+                                                                <label className="title-select">Location</label>
+                                                                <div className="group-ip ip-icon">
+                                                                    <input type="text" className="form-control" placeholder="Search Location" required="" />
+                                                                    <a href="#" className="icon-right icon-location"></a>
+
                                                             <div className="form-group-2 form-style">
                                                                 <label>Location</label>
                                                                 <div className="group-select">
@@ -210,6 +216,7 @@ const Listing = () => {
                                                                             <li data-value="dubai" className="option">Dubai</li>
                                                                         </ul>
                                                                     </div>
+
                                                                 </div>
                                                             </div>
 
