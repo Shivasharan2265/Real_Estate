@@ -128,7 +128,7 @@ const Listing = () => {
             <section className="flat-section-v6 flat-recommended flat-sidebar">
                 <div className="container">
                     <div className="box-title-listing">
-                        <h5>Property listing</h5>
+                        <h5 >Property listing</h5>
                         <div className="box-filter-tab">
                             <ul className="nav-tab-filter" role="tablist">
                                 <li className="nav-tab-item" role="presentation">
@@ -175,12 +175,12 @@ const Listing = () => {
                                                         <div className="inner-group inner-filter">
                                                             <div className="form-style">
                                                                 <label className="title-select">Keyword</label>
-                                                                <input type="text" className="form-control" placeholder="Search Keyword."  required="" />
+                                                                <input type="text" className="form-control" placeholder="Search Keyword." required="" />
                                                             </div>
                                                             <div className="form-style">
                                                                 <label className="title-select">Location</label>
                                                                 <div className="group-ip ip-icon">
-                                                                    <input type="text" className="form-control" placeholder="Search Location"  required="" />
+                                                                    <input type="text" className="form-control" placeholder="Search Location" required="" />
                                                                     <a href="#" className="icon-right icon-location"></a>
                                                                 </div>
                                                             </div>
@@ -964,9 +964,20 @@ const Listing = () => {
                                                         <Link to={`/property/${property.id}`} className="images-group">
                                                             <div className="images-style">
                                                                 <img
-                                                                    src="https://themesflat.co/html/homzen/images/home/house-6.jpg"
+                                                                    src={
+                                                                        property.image
+                                                                            ? `${api.imageUrl}/${property.image}`
+                                                                            : "https://themesflat.co/html/homzen/images/home/house-2.jpg"
+                                                                    }
                                                                     alt={property.name}
+                                                                    style={{
+                                                                        width: "100%",       // full width of container
+                                                                        height: "220px",     // fixed height
+                                                                        objectFit: "cover",  // crops instead of stretching
+                                                                        borderRadius: "8px", // optional rounded corners
+                                                                    }}
                                                                 />
+
                                                             </div>
                                                             <div className="top">
                                                                 <ul className="d-flex gap-4 flex-wrap">

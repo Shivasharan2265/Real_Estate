@@ -56,6 +56,7 @@ const Properties = () => {
     useEffect(() => {
         if (propertyData?.isFavourite) {
             setFavoriteId(propertyData.isFavourite); // store the id directly
+            console.log(propertyData.isFavourite)
         } else {
             setFavoriteId(null);
         }
@@ -79,6 +80,7 @@ const Properties = () => {
                 // API should return new favoriteId
                 setFavoriteId(response.data.favoriteId || true);
                 toast.success(response.data.message);
+                fetchDetails()
             }
         } catch (error) {
             console.error("Error adding favorite:", error);
@@ -113,6 +115,12 @@ const Properties = () => {
         fd.append("property_id", id); // use favoriteId, not property id
 
         fd.append("authToken", localStorage.getItem("authToken"));
+
+           console.log("Submitting form data:");
+        for (let pair of fd.entries()) {
+            console.log(pair[0], pair[1]); // Logs each key-value pair
+        }
+
 
         try {
             const response = await api.post("/properties/property", fd);
