@@ -34,6 +34,9 @@ const HomePage = () => {
     const authToken = localStorage.getItem("authToken") || "Guest";
     localStorage.setItem("authToken", authToken);
 
+    // localStorage.setItem("authToken", authToken);
+// 
+
 
     const [blogs, setBlogs] = useState([]);
 
