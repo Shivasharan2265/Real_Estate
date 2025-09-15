@@ -135,6 +135,7 @@ const Myproperties = () => {
         try {
             setLoading(true);
             const response = await api.post("/properties/property", fd);
+            console.log(response)
 
             if (response.data.success) {
                 setProperties(response.data.data["My Property"] || []);
@@ -661,7 +662,7 @@ const Myproperties = () => {
                                                                         <ul className="list-action">
                                                                             <li>
                                                                                 <div className="remove-file item btn-wrapper">
-                                                                                    <button className="btn edit-btn">Edit</button>
+                                                                                    <button className="btn edit-btn" onClick={() => navigate(`/edit-property/${property.id}`)}>Edit</button>
                                                                                     <button
                                                                                         className="btn inquiry-btn"
                                                                                         onClick={() =>

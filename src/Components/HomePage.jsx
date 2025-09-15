@@ -1060,7 +1060,7 @@ const HomePage = () => {
 
                                     {/* Card 2 */}
                                     <a
-                                        href=""
+                                        href="city-list"
                                         className="box-location"
                                         style={{
                                             display: "block",

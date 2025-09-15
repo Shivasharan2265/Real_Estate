@@ -6,13 +6,17 @@ import api from '../api/api';
 import { Modal, Slider } from 'antd'; // Import only for functionality, not styling!
 import "./Listing.css";
 import nodata from "../assets/nodata.png"
+import { Select } from "antd";
+const { Option } = Select;
+
 
 const Listing = () => {
     const { search } = useLocation();
+    const [limit, setLimit] = useState(10);
 
     const [properties, setProperties] = useState([]);
     const [page, setPage] = useState(1);
-    const [limit] = useState(10);
+
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     // Advanced filter states (functionality only, NOT HomePage styling)
@@ -26,6 +30,10 @@ const Listing = () => {
     const [selectedBathroom, setSelectedBathroom] = useState("");
     const [selectedBedroom, setSelectedBedroom] = useState("");
     const [selectedCity, setSelectedCity] = useState("");
+
+    const [states, setStates] = useState([]);
+    const [selectedState, setSelectedState] = useState(null);
+
 
 
     const navigate = useNavigate();
@@ -77,7 +85,10 @@ const Listing = () => {
     useEffect(() => {
         if (!filtersReady) return;
         fetchList(page);
-    }, [page, filtersReady]);
+    }, [page, filtersReady, limit]);
+
+
+
 
 
 
@@ -221,14 +232,37 @@ const Listing = () => {
                 <div className="content p-3">
                     <div className="skeleton mb-2" style={{ height: "20px", width: "60%" }}></div>
                     <div>
-                    <div className="skeleton mb-2" style={{ height: "15px", width: "40%" }}></div>
-                    <div className="skeleton" style={{ height: "15px", width: "80%" }}></div>
-                    <div className="skeleton" style={{ height: "15px", width: "40%" }}></div>
+                        <div className="skeleton mb-2" style={{ height: "15px", width: "40%" }}></div>
+                        <div className="skeleton" style={{ height: "15px", width: "80%" }}></div>
+                        <div className="skeleton" style={{ height: "15px", width: "40%" }}></div>
                     </div>
                 </div>
             </div>
         </div>
     );
+
+
+
+    const fetchStates = async () => {
+        const fd = new FormData();
+        fd.append("programType", "getStateListOnChangeOfCountry");
+        fd.append("authToken", localStorage.getItem("authToken"));
+        fd.append("country", 101);
+
+        try {
+            const response = await api.post("properties/preRequirements", fd);
+            if (response.data.success) {
+                setStates(response.data.data); // 👈 store states
+            }
+        } catch (error) {
+            console.error("State fetch error:", error);
+        }
+    };
+
+
+    useEffect(() => {
+        fetchStates();
+    }, []);
 
 
     return (
@@ -255,6 +289,33 @@ const Listing = () => {
                                     <li data-value="3" className="option selected">12 Per Page</li>
                                 </ul>
                             </div> */}
+                            <div className="nice-select list-page" tabIndex="0">
+                                <span className="current">{limit} Per Page</span>
+                                <ul className="list">
+                                    <li
+                                        className={`option ${limit === 5 ? "selected" : ""}`}
+                                        onClick={() => { setPage(1); setLimit(5); }}
+                                    >
+                                        5 Per Page
+                                    </li>
+                                    <li
+                                        className={`option ${limit === 10 ? "selected" : ""}`}
+                                        onClick={() => { setPage(1); setLimit(10); }}
+                                    >
+                                        10 Per Page
+                                    </li>
+                                    <li
+                                        className={`option ${limit === 15 ? "selected" : ""}`}
+                                        onClick={() => { setPage(1); setLimit(15); }}
+                                    >
+                                        15 Per Page
+                                    </li>
+                                </ul>
+                            </div>
+
+
+
+
                             <div className="nice-select list-sort" tabindex="0"><span className="current">Sort by (Default)</span>
                                 <ul className="list">
                                     <li data-value="default" className="option selected">Sort by (Default)</li>
@@ -308,6 +369,27 @@ const Listing = () => {
                                                                     </div>
                                                                 </div>
                                                             </div>
+
+                                                            <div className="form-style">
+                                                                <label className="title-select">State</label>
+                                                                <Select
+                                                                    showSearch
+                                                                    placeholder="Select State"
+                                                                    value={selectedState}
+                                                                    onChange={(value) => setSelectedState(value)}
+                                                                    filterOption={(input, option) =>
+                                                                        (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
+                                                                    }
+                                                                    style={{ width: "100%", height:"45px" }}
+                                                                >
+                                                                    {states.map((s) => (
+                                                                        <Option key={s.id} value={s.name}>
+                                                                            {s.name}
+                                                                        </Option>
+                                                                    ))}
+                                                                </Select>
+                                                            </div>
+
 
                                                             <div className="form-style">
                                                                 <label className="title-select">Type</label>
@@ -605,7 +687,10 @@ const Listing = () => {
                                             <li key={i}>
                                                 <button
                                                     style={{ border: "none" }}
-                                                    onClick={() => setPage(i + 1)}
+                                                    onClick={() => {
+                                                        setPage(i + 1);
+                                                        window.scrollTo({ top: 0, left: 0, behavior: "instant" }); // ✅ scroll here
+                                                    }}
                                                     className={`nav-item ${page === i + 1 ? "active" : ""}`}
                                                 >
                                                     {i + 1}
@@ -615,13 +700,17 @@ const Listing = () => {
                                         <li>
                                             <button
                                                 style={{ border: "none" }}
-                                                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                                                onClick={() => {
+                                                    setPage((prev) => Math.min(prev + 1, totalPages));
+                                                    window.scrollTo({ top: 0, left: 0, behavior: "instant" }); // ✅ scroll here too
+                                                }}
                                                 className="nav-item"
                                             >
                                                 <i className="icon icon-arr-r"></i>
                                             </button>
                                         </li>
                                     </ul>
+
                                 </div>
                             </div>
                         </div>
