@@ -24,7 +24,7 @@ const AboutUs = () => {
                 </div>
             </section>
             {/* <!-- End Page Title --> */}
-<h1>hi</h1>
+{/* <h1>hi</h1> */}
             {/* <!-- banner video --> */}
             <section className="flat-section flat-banner-about">
                 <div className="container">
