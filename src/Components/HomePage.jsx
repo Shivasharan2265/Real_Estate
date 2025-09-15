@@ -30,6 +30,7 @@ const HomePage = () => {
     const [showPopup, setShowPopup] = useState(false);
 
     const [showSticky, setShowSticky] = useState(false);
+    // const [showSticky, setShowSticky] = useState(false);
 
     const authToken = localStorage.getItem("authToken") || "Guest";
     localStorage.setItem("authToken", authToken);
