@@ -10,6 +10,8 @@ import api from '../api/api';
 import "./HomePage.css"
 import { Modal, Slider } from "antd"; // ✅ Import Modal
 import nodata from "../assets/nodata.png"
+// import nodata from "../assets/nodata.png"
+
 
 
 
