@@ -865,9 +865,9 @@ const UpdateProperty = () => {
     //step1
 
     fd.append('title', title);
-    fd.append('listingType', listingType);
-    fd.append('propertyType', propertyType);
-    fd.append('subPropertyType', subPropertyType);
+    fd.append('listing_type', listingType);
+    fd.append('property_type_id', propertyType);
+    fd.append('sub_property_type_id', subPropertyType);
 
     fd.forEach((value, key) => {
       console.log(key, value);
@@ -978,11 +978,11 @@ const UpdateProperty = () => {
     const fd = new FormData();
     fd.append("programType", "updateProperty");
     fd.append("propertyId", id);
-    fd.append("updateType", "details");
+    fd.append("updateType", "details_features");
     fd.append("authToken", localStorage.getItem("authToken"));
     //step3
 
-    fd.append('apartmentBhk', apartmentBhk);
+    fd.append('apartment_bhk', apartmentBhk);
     fd.append('bedrooms', bedrooms);
     fd.append('bathrooms', bathrooms);
     fd.append('balconies', balconies);
